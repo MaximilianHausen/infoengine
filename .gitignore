@@ -23,8 +23,7 @@
 hs_err_pid*
 replay_pid*
 
-.gradle/
-.idea/
-.build/
 # Project exclude paths
 /build/
+/.gradle/
+/.idea/
