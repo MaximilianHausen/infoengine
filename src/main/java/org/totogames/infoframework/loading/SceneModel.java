@@ -6,5 +6,5 @@ public class SceneModel {
 
     public String name;
 
-    public EntityModel[] entities;
+    public EntityModel[] entities = new EntityModel[0];
 }

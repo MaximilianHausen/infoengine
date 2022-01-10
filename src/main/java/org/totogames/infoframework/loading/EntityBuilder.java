@@ -15,8 +15,8 @@ public class EntityBuilder {
     private static Map<String, Class<? extends Entity>> cache = new HashMap<>();
 
     private Entity parent = null;
-    private Vector3f position = null;
-    private Quaternionf rotation = null;
+    private Vector3f position = new Vector3f();
+    private Quaternionf rotation = new Quaternionf();
     private Map<String, Object> fieldOverrides = new HashMap<>();
 
     public EntityBuilder setParent(Entity parent) {

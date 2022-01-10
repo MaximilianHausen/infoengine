@@ -1,5 +1,6 @@
 package org.totogames.infoframework.loading;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class EntityModel {
@@ -10,7 +11,7 @@ public class EntityModel {
     public int z;
     // TODO: Rotation
 
-    public Map<String, Object> data;
+    public Map<String, Object> data = new HashMap<>();
 
-    public EntityModel[] children;
+    public EntityModel[] children = new EntityModel[0];
 }
