@@ -1,13 +1,15 @@
 package org.totogames.infoframework.util.logging;
 
+import org.totogames.infoframework.util.Action1;
+
 public class Logger {
     private static LogSeverity logLevel = LogSeverity.Info;
-    private static LoggingTarget logTarget = System.out::println;
+    private static Action1<String> logTarget = System.out::println;
 
     public static void log(LogMessage message) {
         if (message.severity.getValue() < logLevel.getValue())
             return;
-        logTarget.log(message.toString());
+        logTarget.run(message.toString());
     }
 
     public static void log(LogSeverity severity, String source, String message) {
@@ -19,7 +21,7 @@ public class Logger {
         log(LogSeverity.Info, "Logger", "LogLevel set to " + logLevel);
     }
 
-    public static void setLogTarget(LoggingTarget target) {
+    public static void setLogTarget(Action1<String> target) {
         logTarget = target;
     }
 }
