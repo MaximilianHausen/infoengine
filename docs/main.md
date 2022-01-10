@@ -14,4 +14,5 @@ org.totogames: Weil mein Name für sowas noch viel länger wär verwende ich imm
 infoframework: Info weil es für den Informatikunterricht ist und Framework weil es keine vollständige Game-Engine ist (kein Leveleditor und dazugehörige Tools)
 
 ### Inhaltsverzeichnis
+- [loading](loading.md)
 - [util](util.md)
