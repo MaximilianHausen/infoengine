@@ -9,8 +9,9 @@ Die Namen geben die Anzahl der Parameter an, weil es in Java nicht mehrere gleic
 Fast direkt von C# übertragen ([Action](https://docs.microsoft.com/en-us/dotnet/api/system.action), [Func](https://docs.microsoft.com/en-us/dotnet/api/system.func-1))
 
 ### [Event](../src/main/java/org/totogames/infoframework/util/Event.java)
-Mehrere Action0 können zum Event subscriben und unsubscriben.
-Mit Event::invoke() werden dann alle subscriber aufgerufen.
+Mehrere Actions können zum Event subscriben und unsubscriben.
+Mit Event::run() werden dann alle subscriber aufgerufen.
+Es gibt eine Variante ohne und eine mit Parametern.
 Auch das ahmt Events aus C# nach, ist aber trotzdem wegen der Sprachunterschiede recht verschieden.\
 Wichtig: Lambdas können ohne Weiteres nicht unsubscriben, weil, selbst wenn die lambda gleich aussieht, jedes Mal eine neue anonyme Klasse erzeugt wird:
 
@@ -26,7 +27,7 @@ event.subscribe(new Action0 {
 });
 ```
 
-### [Logger](../src/main/java/org/totogames/infoframework/util/Logger.java)
+### [Logger](../src/main/java/org/totogames/infoframework/util/logging/Logger.java)
 
 ### [IO](../src/main/java/org/totogames/infoframework/util/IO.java)
 

@@ -6,32 +6,32 @@ import org.totogames.infoframework.util.logging.Logger;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Event implements Action0 {
-    private final List<Action0> subscribers = new LinkedList<>();
+public class ArgEvent<T> implements Action1<T> {
+    private final List<Action1<T>> subscribers = new LinkedList<>();
     private final String name;
     private final boolean log;
 
-    public Event() {
-        this("UnnamedEvent", false);
+    public ArgEvent() {
+        this("UnnamedArgEvent", false);
     }
 
-    public Event(String name, boolean log) {
+    public ArgEvent(String name, boolean log) {
         this.log = log;
         this.name = name;
     }
 
-    public void subscribe(Action0 action) {
+    public void subscribe(Action1<T> action) {
         subscribers.add(action);
     }
-    public void unsubscribe(Action0 action) {
+    public void unsubscribe(Action1<T> action) {
         subscribers.remove(action);
     }
 
-    public void run() {
+    public void run(T args) {
         if (log)
             Logger.log(LogSeverity.Debug, "Event", "Invoked " + name);
-        for (Action0 action : subscribers)
-            action.run();
+        for (Action1<T> action : subscribers)
+            action.run(args);
     }
 
     public String getName() {
