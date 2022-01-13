@@ -8,12 +8,12 @@ import java.util.Locale;
 public class CamelCaseGenerator implements DisplayNameGenerator {
     @Override
     public String generateDisplayNameForClass(Class<?> testClass) {
-        return testClass.getTypeName();
+        return testClass.getSimpleName();
     }
 
     @Override
     public String generateDisplayNameForNestedClass(Class<?> nestedClass) {
-        return nestedClass.getTypeName();
+        return nestedClass.getSimpleName();
     }
 
     @Override
