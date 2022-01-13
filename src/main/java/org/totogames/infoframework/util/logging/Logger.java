@@ -22,6 +22,8 @@ public class Logger {
     }
 
     public static void setLogTarget(Action1<String> target) {
+        log(LogSeverity.Info, "Logger", "Log target changed. This target will no longer receive log messages");
         logTarget = target;
+        log(LogSeverity.Info, "Logger", "Log target changed. This target will now receive all log messages");
     }
 }
