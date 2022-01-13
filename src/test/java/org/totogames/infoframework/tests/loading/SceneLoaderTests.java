@@ -3,26 +3,28 @@ package org.totogames.infoframework.tests.loading;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
 import org.totogames.infoframework.ecs.Entity;
 import org.totogames.infoframework.ecs.Scene;
 import org.totogames.infoframework.loading.SceneLoader;
+import org.totogames.infoframework.tests.CamelCaseGenerator;
 import org.totogames.infoframework.util.IO;
 
 import java.io.File;
 
+@DisplayNameGeneration(CamelCaseGenerator.class)
 public class SceneLoaderTests {
     public static class TestEntity extends Entity {
         private String testField;
 
-        @Override public void initialized() {
+        @Override
+        public void initialized() {
 
         }
     }
 
     @Test
-    @DisplayName("LoadEmpty")
     public void loadEmpty() {
         SceneLoader sceneLoader = new SceneLoader();
         File testSceneFile = IO.getFileFromResource("json/emptyScene.json");
@@ -33,7 +35,6 @@ public class SceneLoaderTests {
     }
 
     @Test
-    @DisplayName("Load")
     public void load() {
         SceneLoader sceneLoader = new SceneLoader();
         File testSceneFile = IO.getFileFromResource("json/sceneLoaderTestScene.json");

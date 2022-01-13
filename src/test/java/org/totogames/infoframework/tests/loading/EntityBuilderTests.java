@@ -3,21 +3,24 @@ package org.totogames.infoframework.tests.loading;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.Test;
 import org.totogames.infoframework.ecs.Entity;
 import org.totogames.infoframework.loading.EntityBuilder;
+import org.totogames.infoframework.tests.CamelCaseGenerator;
 
+@DisplayNameGeneration(CamelCaseGenerator.class)
 public class EntityBuilderTests {
     public static class TestEntity extends Entity {
         private String testField;
-        @Override public void initialized() {
+
+        @Override
+        public void initialized() {
 
         }
     }
 
     @Test
-    @DisplayName("EmptyBuild")
     public void emptyBuild() {
         TestEntity classEntity = new EntityBuilder().build(TestEntity.class);
         TestEntity stringEntity = (TestEntity) new EntityBuilder().build(TestEntity.class.getName());
@@ -28,7 +31,6 @@ public class EntityBuilderTests {
     }
 
     @Test
-    @DisplayName("FullDataSet")
     public void fullDataSet() {
         TestEntity parent = new TestEntity();
         TestEntity entity = new EntityBuilder()
