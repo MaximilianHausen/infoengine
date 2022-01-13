@@ -1,6 +1,6 @@
 package org.totogames.infoframework.util;
 
 @FunctionalInterface
-public interface Action0 {
-    void run();
+public interface Func<TResult> {
+    TResult run();
 }

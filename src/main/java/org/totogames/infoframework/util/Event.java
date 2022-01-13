@@ -6,8 +6,8 @@ import org.totogames.infoframework.util.logging.Logger;
 import java.util.LinkedList;
 import java.util.List;
 
-public class Event implements Action0 {
-    private final List<Action0> subscribers = new LinkedList<>();
+public class Event implements Action {
+    private final List<Action> subscribers = new LinkedList<>();
     private final String name;
     private final boolean log;
 
@@ -20,17 +20,17 @@ public class Event implements Action0 {
         this.name = name;
     }
 
-    public void subscribe(Action0 action) {
+    public void subscribe(Action action) {
         subscribers.add(action);
     }
-    public void unsubscribe(Action0 action) {
+    public void unsubscribe(Action action) {
         subscribers.remove(action);
     }
 
     public void run() {
         if (log)
             Logger.log(LogSeverity.Debug, "Event", "Invoked " + name);
-        for (Action0 action : subscribers)
+        for (Action action : subscribers)
             action.run();
     }
 

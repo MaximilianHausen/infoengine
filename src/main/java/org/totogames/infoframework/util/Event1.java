@@ -6,16 +6,16 @@ import org.totogames.infoframework.util.logging.Logger;
 import java.util.LinkedList;
 import java.util.List;
 
-public class ArgEvent<T> implements Action1<T> {
+public class Event1<T> implements Action1<T> {
     private final List<Action1<T>> subscribers = new LinkedList<>();
     private final String name;
     private final boolean log;
 
-    public ArgEvent() {
+    public Event1() {
         this("UnnamedArgEvent", false);
     }
 
-    public ArgEvent(String name, boolean log) {
+    public Event1(String name, boolean log) {
         this.log = log;
         this.name = name;
     }
