@@ -28,14 +28,7 @@ Lädt Szenen aus Json-Text (Format unten)
       "z": 0,
       "data": {
         "fieldName": "fieldValue"
-      }
-    },
-    {
-      "name": "ExampleParentName",
-      "type": "org.totogames.exampleproject.ExampleEntity",
-      "x": 0,
-      "y": 0,
-      "z": 0,
+      },
       "children": [
         {
           "name": "ExampleChildName",
@@ -45,7 +38,19 @@ Lädt Szenen aus Json-Text (Format unten)
           "z": 0
         }
       ]
+    },
+    {
+      "name": "AnotherEntityName",
+      "type": "org.totogames.exampleproject.ExampleEntity",
+      "x": 0,
+      "y": 0,
+      "z": 0
     }
   ]
 }
 ```
+
+### Highlights
+- Builder sind cool
+- Json-Deserialization zu Objekten
+- Rekursion: Kinder von Entities mitladen
