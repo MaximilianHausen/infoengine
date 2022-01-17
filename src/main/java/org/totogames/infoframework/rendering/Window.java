@@ -25,9 +25,11 @@ public class Window {
 
     private final long id;
     private WindowModes currentMode = WindowModes.Windowed;
+    // Used to configure the window when exiting fullscreen
+    private int lastWindowPosX = 0, lastWindowPosY = 0, lastWindowSizeX = 0, lastWindowSizeY = 0;
 
     public Window(String title, int width, int height) {
-        id = glfwCreateWindow(width, height, title, NULL, NULL /*TODO: Whats that*/);
+        id = glfwCreateWindow(width, height, title, NULL, NULL);
         if (id == NULL)
             Logger.log(LogSeverity.Critical, "Window", "Window could not be created");
 
@@ -37,8 +39,12 @@ public class Window {
         org.lwjgl.opengl.GL.createCapabilities();
     }
 
-    public long getWindow() {
+    public long getId() {
         return id;
+    }
+
+    public void makeCurrent() {
+        glfwMakeContextCurrent(id);
     }
 
     public void setMode(WindowModes mode) {
@@ -53,7 +59,7 @@ public class Window {
         switch (currentMode) {
             case Windowed -> Logger.log(LogSeverity.Debug, "Window", "Window " + id + " already in windowed mode");
             case Fullscreen -> {
-                glfwSetWindowMonitor(id, NULL, 0, 0, 500, 500, GLFW_DONT_CARE);
+                glfwSetWindowMonitor(id, NULL, lastWindowPosX, lastWindowPosY, lastWindowSizeX, lastWindowSizeY, GLFW_DONT_CARE);
                 glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 currentMode = WindowModes.Windowed;
                 Logger.log(LogSeverity.Info, "Window", "Window " + id + " set to windowed mode");
@@ -64,7 +70,18 @@ public class Window {
     private void setFullscreen() {
         switch (currentMode) {
             case Windowed -> {
-                glfwSetWindowMonitor(id, glfwGetPrimaryMonitor(), 0, 0, 1920, 1080, GLFW_DONT_CARE);
+                int[] winPosX = new int[1], winPosY = new int[1], winSizeX = new int[1], winSizeY = new int[1];
+                glfwGetWindowPos(id, winPosX, winPosY);
+                glfwGetWindowSize(id, winSizeX, winSizeY);
+                lastWindowPosX = winPosX[0];
+                lastWindowPosY = winPosY[0];
+                lastWindowSizeX = winSizeX[0];
+                lastWindowSizeY = winSizeY[0];
+
+                int[] monSizeX = new int[1], monSizeY = new int[1];
+                glfwGetMonitorWorkarea(glfwGetWindowMonitor(id), new int[1], new int[1], monSizeX, monSizeY);
+
+                glfwSetWindowMonitor(id, glfwGetWindowMonitor(id), 0, 0, monSizeX[0], monSizeY[0], GLFW_DONT_CARE);
                 glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
                 currentMode = WindowModes.Fullscreen;
                 Logger.log(LogSeverity.Info, "Window", "Window " + id + " set to fullscreen mode");
