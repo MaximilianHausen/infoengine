@@ -1,2 +1,2 @@
-rootProject.name = "infoframework"
+rootProject.name = "infoengine"
 

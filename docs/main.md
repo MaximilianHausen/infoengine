@@ -11,7 +11,7 @@ In jeder Unterkategorie gibt es eine Liste mit meiner Meinung nach besonders sch
 ### Namensherkunft
 Alle Packages haben so einen langen Namen und es würde bei den imports komisch aussehen, wenn die anderen ewig lang sind und meine nicht.\
 org.totogames: Weil mein Name für sowas noch viel länger wär verwende ich immer totogames als Name, benannt nach dem Hauptcharakter in meinem ersten Programmierprojekt\
-infoframework: Info weil es für den Informatikunterricht ist und Framework weil es keine vollständige Game-Engine ist (kein Leveleditor und dazugehörige Tools)
+infoengine: Info weil es für den Informatikunterricht ist und Engine weil es eine Game-Engine ist (wenn auch ohne Leveleditor und andere Tools)
 
 ### Inhaltsverzeichnis
 - [loading](loading.md)

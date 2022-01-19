@@ -3,7 +3,7 @@
   "formatVersion": "1.0.0",
 
   "name": "EmptyScene",
-  "type": "org.totogames.infoframework.ecs.Scene",
+  "type": "org.totogames.infoengine.ecs.Scene",
 
   "entities": [
   ]

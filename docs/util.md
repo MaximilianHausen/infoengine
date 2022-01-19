@@ -1,14 +1,14 @@
-# org.totogames.infoframework.util
+# org.totogames.infoengine.util
 
 ### Beschreibung
 Hier kommt alles rein, was sonst nirgends hinpasst
 
-### [Action](../src/main/java/org/totogames/infoframework/util/Action.java)/[Func](../src/main/java/org/totogames/infoframework/util/Func.java)
+### [Action](../src/main/java/org/totogames/infoengine/util/Action.java)/[Func](../src/main/java/org/totogames/infoengine/util/Func.java)
 Functional Interfaces, um standartisierte Lamda-Typen zu haben, weil die von Java extrem unübersichtlich sind (Runnable, Consumer, BiConsumer, Function, BiFunction).
 Die Namen geben die Anzahl der Parameter an, weil es in Java nicht mehrere gleichnamige Klassen geben kann, die sich nur durch die Anzahl der Generics unterscheiden.
 Fast direkt von C# übertragen ([Action](https://docs.microsoft.com/en-us/dotnet/api/system.action), [Func](https://docs.microsoft.com/en-us/dotnet/api/system.func-1))
 
-### [Event](../src/main/java/org/totogames/infoframework/util/Event.java)
+### [Event](../src/main/java/org/totogames/infoengine/util/Event.java)
 Mehrere Actions können zum Event subscriben und unsubscriben.
 Mit Event::run() werden dann alle subscriber aufgerufen.
 Es gibt eine Variante ohne und eine mit Parametern.
@@ -27,16 +27,16 @@ event.subscribe(new Action0 {
 });
 ```
 
-### [Collector](../src/main/java/org/totogames/infoframework/util/Collector.java)
+### [Collector](../src/main/java/org/totogames/infoengine/util/Collector.java)
 Gleich wie ein Event, aber mit return type
 
-### [Logger](../src/main/java/org/totogames/infoframework/util/logging/Logger.java)
+### [Logger](../src/main/java/org/totogames/infoengine/util/logging/Logger.java)
 Ein Logger eben, nix besonderes.
 Man kann für jede Nachricht eine Wichtigkeitsstufe festlegen.
 Der Logger kann damit unwichtige Logs je nach Einstellung aussortieren.
 Wohin die Logs gehen lässt sich mit einer Action1<String> festlegen.
 
-### [IO](../src/main/java/org/totogames/infoframework/util/IO.java)
+### [IO](../src/main/java/org/totogames/infoengine/util/IO.java)
 Kann verschiedene Sachen aus Dateien lesen.
 
 ### Highlights

@@ -3,12 +3,12 @@
   "formatVersion": "1.0.0",
 
   "name": "TestScene",
-  "type": "org.totogames.infoframework.ecs.Scene",
+  "type": "org.totogames.infoengine.ecs.Scene",
 
   "entities": [
     {
       "name": "ExampleEntityName",
-      "type": "org.totogames.infoframework.tests.loading.SceneLoaderTests$TestEntity",
+      "type": "org.totogames.infoengine.tests.loading.SceneLoaderTests$TestEntity",
       "x": 0,
       "y": 0,
       "z": 0,
@@ -18,14 +18,14 @@
     },
     {
       "name": "ExampleParentName",
-      "type": "org.totogames.infoframework.tests.loading.SceneLoaderTests$TestEntity",
+      "type": "org.totogames.infoengine.tests.loading.SceneLoaderTests$TestEntity",
       "x": 1,
       "y": 1,
       "z": 1,
       "children": [
         {
           "name": "ExampleChildName",
-          "type": "org.totogames.infoframework.tests.loading.SceneLoaderTests$TestEntity",
+          "type": "org.totogames.infoengine.tests.loading.SceneLoaderTests$TestEntity",
           "x": 0,
           "y": 0,
           "z": 0
