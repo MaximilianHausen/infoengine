@@ -18,7 +18,6 @@ public final class Scene {
         entities.add(entity);
         entity.added(this);
     }
-
     public void remove(@NotNull Entity entity) {
         entity.setParent(null);
         entities.remove(entity);
@@ -30,13 +29,11 @@ public final class Scene {
             entity.beforeUpdate();
         }
     }
-
     public void update() {
         for (Entity entity : entities) {
             entity.update();
         }
     }
-
     public void afterUpdate() {
         for (Entity entity : entities) {
             entity.afterUpdate();
@@ -48,13 +45,11 @@ public final class Scene {
             entity.beforeRender();
         }
     }
-
     public void render() {
         for (Entity entity : entities) {
             entity.render();
         }
     }
-
     public void afterRender() {
         for (Entity entity : entities) {
             entity.afterRender();
