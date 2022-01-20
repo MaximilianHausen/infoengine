@@ -1,5 +1,7 @@
 package org.totogames.infoengine.loading;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 import org.totogames.infoengine.ecs.Entity;
@@ -19,28 +21,28 @@ public class EntityBuilder {
     private Quaternionf rotation = new Quaternionf();
     private Map<String, Object> fieldOverrides = new HashMap<>();
 
-    public EntityBuilder setParent(Entity parent) {
+    public @NotNull EntityBuilder setParent(@Nullable Entity parent) {
         this.parent = parent;
         return this;
     }
-    public EntityBuilder setPosition(Vector3f position) {
+    public @NotNull EntityBuilder setPosition(@NotNull Vector3f position) {
         this.position = position;
         return this;
     }
-    public EntityBuilder setRotation(Quaternionf rotation) {
+    public @NotNull EntityBuilder setRotation(@NotNull Quaternionf rotation) {
         this.rotation = rotation;
         return this;
     }
-    public EntityBuilder setFieldOverrides(Map<String, Object> fieldOverrides) {
+    public @NotNull EntityBuilder setFieldOverrides(@NotNull Map<String, Object> fieldOverrides) {
         this.fieldOverrides = fieldOverrides;
         return this;
     }
-    public EntityBuilder addFieldOverride(String fieldName, Object object) {
+    public @NotNull EntityBuilder addFieldOverride(@NotNull String fieldName, Object object) {
         fieldOverrides.put(fieldName, object);
         return this;
     }
 
-    public Entity build(String typeName) {
+    public Entity build(@NotNull String typeName) {
         if (!cache.containsKey(typeName)) {
             try {
                 cache.put(typeName, (Class<? extends Entity>) Class.forName(typeName));
@@ -56,7 +58,7 @@ public class EntityBuilder {
         return build(cache.get(typeName));
     }
 
-    public <T extends Entity> T build(Class<T> type) {
+    public <T extends Entity> T build(@NotNull Class<T> type) {
         T entity;
 
         try {

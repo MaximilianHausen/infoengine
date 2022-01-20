@@ -1,5 +1,6 @@
 package org.totogames.infoengine.util;
 
+import org.jetbrains.annotations.NotNull;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -15,15 +16,15 @@ public class Event1<T> implements Action1<T> {
         this("UnnamedArgEvent", false);
     }
 
-    public Event1(String name, boolean log) {
+    public Event1(@NotNull String name, boolean log) {
         this.log = log;
         this.name = name;
     }
 
-    public void subscribe(Action1<T> action) {
+    public void subscribe(@NotNull Action1<T> action) {
         subscribers.add(action);
     }
-    public void unsubscribe(Action1<T> action) {
+    public void unsubscribe(@NotNull Action1<T> action) {
         subscribers.remove(action);
     }
 
@@ -34,7 +35,7 @@ public class Event1<T> implements Action1<T> {
             action.run(args);
     }
 
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
     public boolean isLogging() {

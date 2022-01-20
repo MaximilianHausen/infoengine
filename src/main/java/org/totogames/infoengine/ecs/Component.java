@@ -1,5 +1,7 @@
 package org.totogames.infoengine.ecs;
 
+import org.jetbrains.annotations.MustBeInvokedByOverriders;
+import org.jetbrains.annotations.NotNull;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -14,10 +16,12 @@ public abstract class Component {
         return entity;
     }
 
-    public void added(Entity entity) {
+    @MustBeInvokedByOverriders
+    public void added(@NotNull Entity entity) {
         this.entity = entity;
     }
-    public void removed(Entity entity) {
+    @MustBeInvokedByOverriders
+    public void removed(@NotNull Entity entity) {
         this.entity = null;
     }
 
@@ -27,7 +31,7 @@ public abstract class Component {
             return;
         }
 
-        entity.remove(this);
+        entity.removeComponent(this);
     }
 
     public void beforeUpdate() {

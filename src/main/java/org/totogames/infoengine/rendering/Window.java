@@ -1,5 +1,6 @@
 package org.totogames.infoengine.rendering;
 
+import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
@@ -28,7 +29,7 @@ public class Window {
     // Used to configure the window when exiting fullscreen
     private int lastWindowPosX = 0, lastWindowPosY = 0, lastWindowSizeX = 0, lastWindowSizeY = 0;
 
-    public Window(String title, int width, int height) {
+    public Window(@NotNull String title, int width, int height) {
         id = glfwCreateWindow(width, height, title, NULL, NULL);
         if (id == NULL)
             Logger.log(LogSeverity.Critical, "Window", "Window could not be created");
@@ -47,7 +48,7 @@ public class Window {
         glfwMakeContextCurrent(id);
     }
 
-    public void setMode(WindowModes mode) {
+    public void setMode(@NotNull WindowModes mode) {
         switch (mode) {
             case Windowed -> setWindowed();
             case Borderless -> Logger.log(LogSeverity.Error, "Window", "Borderless mode is not supported yet");

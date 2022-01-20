@@ -1,5 +1,6 @@
 package org.totogames.infoengine.util;
 
+import org.jetbrains.annotations.NotNull;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -16,15 +17,15 @@ public class Collector1<TResult, TParam> implements Func1<ArrayList<TResult>, TP
         this("UnnamedCollector", false);
     }
 
-    public Collector1(String name, boolean log) {
+    public Collector1(@NotNull String name, boolean log) {
         this.log = log;
         this.name = name;
     }
 
-    public void subscribe(Func1<TResult, TParam> func) {
+    public void subscribe(@NotNull Func1<TResult, TParam> func) {
         subscribers.add(func);
     }
-    public void unsubscribe(Func1<TResult, TParam> func) {
+    public void unsubscribe(@NotNull Func1<TResult, TParam> func) {
         subscribers.remove(func);
     }
 
@@ -38,7 +39,7 @@ public class Collector1<TResult, TParam> implements Func1<ArrayList<TResult>, TP
         return results;
     }
 
-    public String getName() {
+    public @NotNull String getName() {
         return name;
     }
     public boolean isLogging() {

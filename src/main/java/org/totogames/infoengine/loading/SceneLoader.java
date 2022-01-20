@@ -3,6 +3,8 @@ package org.totogames.infoengine.loading;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
 import org.totogames.infoengine.ecs.Entity;
 import org.totogames.infoengine.ecs.Scene;
@@ -16,24 +18,24 @@ import java.nio.file.Path;
 public class SceneLoader {
     private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
 
-    public Scene loadSceneFromFile(Path path) {
+    public @NotNull Scene loadSceneFromFile(@NotNull Path path) {
         return loadScene(IO.getTextFromFile(new File(path.toUri())));
     }
 
-    public Scene loadScene(String sceneJson) {
+    public @NotNull Scene loadScene(@NotNull String sceneJson) {
         SceneModel sceneModel;
         Scene scene = new Scene();
 
         if (sceneJson.equals("")) {
             Logger.log(LogSeverity.Critical, "SceneLoader", "File not found or is empty");
-            return null;
+            return scene;
         }
 
         try {
             sceneModel = gson.fromJson(sceneJson, SceneModel.class);
         } catch (JsonSyntaxException e) {
             Logger.log(LogSeverity.Critical, "SceneLoader", "Invalid scene file");
-            return null;
+            return scene;
         }
 
         // Load Scene
@@ -45,7 +47,7 @@ public class SceneLoader {
         return scene;
     }
 
-    public Entity loadEntity(EntityModel entityModel, Entity parent) {
+    public Entity loadEntity(@NotNull EntityModel entityModel, @Nullable Entity parent) {
         Entity entity = new EntityBuilder()
                 .setParent(parent)
                 .setFieldOverrides(entityModel.data)
@@ -58,7 +60,7 @@ public class SceneLoader {
         return entity;
     }
 
-    private void addToSceneRecursive(Entity entity, Scene scene) {
+    private void addToSceneRecursive(@NotNull Entity entity, @NotNull Scene scene) {
         scene.add(entity);
         for (Entity child : entity.getChildren()) {
             addToSceneRecursive(child, scene);

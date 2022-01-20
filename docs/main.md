@@ -13,6 +13,14 @@ Alle Packages haben so einen langen Namen und es würde bei den imports komisch 
 org.totogames: Weil mein Name für sowas noch viel länger wär verwende ich immer totogames als Name, benannt nach dem Hauptcharakter in meinem ersten Programmierprojekt\
 infoengine: Info weil es für den Informatikunterricht ist und Engine weil es eine Game-Engine ist (wenn auch ohne Leveleditor und andere Tools)
 
+### [JetBrains.Annotations](https://javadoc.io/doc/org.jetbrains/annotations)
+Anmerkungen, um mit Nullability und sowas zu helfen. Nur auf Dinge, die von außerhalb verfügbar sind, angewandt. Sonstige Bemerkungen:
+- Nullability
+  - @NotNull: Kann nicht null sein
+  - Nichts: Sollte nicht null sein (Null wenn Error)
+  - @Nullable: Null kommt im normalen Gebrauch vor
+- @MustBeInvokedByOverriders: Nur verwendet, wenn die Methode auch zum Überschreiben gedacht ist
+
 ### Inhaltsverzeichnis
 - [loading](loading.md)
 - [util](util.md)

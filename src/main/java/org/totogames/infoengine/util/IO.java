@@ -1,5 +1,6 @@
 package org.totogames.infoengine.util;
 
+import org.jetbrains.annotations.NotNull;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -10,7 +11,7 @@ import java.net.URL;
 import java.nio.file.Files;
 
 public class IO {
-    public static String getTextFromFile(File file) {
+    public static @NotNull String getTextFromFile(@NotNull File file) {
         try {
             return Files.readString(file.toPath());
         } catch (IOException e) {
@@ -19,7 +20,7 @@ public class IO {
         }
     }
 
-    public static File getFileFromResource(String fileName) {
+    public static File getFileFromResource(@NotNull String fileName) {
         ClassLoader classLoader = IO.class.getClassLoader();
         URL resource = classLoader.getResource(fileName);
         try {
