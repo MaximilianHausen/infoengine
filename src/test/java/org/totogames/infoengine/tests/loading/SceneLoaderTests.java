@@ -15,15 +15,6 @@ import java.io.File;
 
 @DisplayNameGeneration(CamelCaseGenerator.class)
 public class SceneLoaderTests {
-    public static class TestEntity extends Entity {
-        private String testField;
-
-        @Override
-        public void initialized() {
-
-        }
-    }
-
     @Test
     public void loadEmpty() {
         SceneLoader sceneLoader = new SceneLoader();
@@ -58,5 +49,14 @@ public class SceneLoaderTests {
                 () -> Assertions.assertEquals(entity2, entity3.getParent()),
                 () -> Assertions.assertTrue(entity2.getChildren().size() == 1 && entity2.getChildren().contains(entity3))
         );
+    }
+
+    public static class TestEntity extends Entity {
+        private String testField;
+
+        @Override
+        public void initialized() {
+
+        }
     }
 }

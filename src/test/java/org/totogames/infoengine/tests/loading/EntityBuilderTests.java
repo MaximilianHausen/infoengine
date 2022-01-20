@@ -11,15 +11,6 @@ import org.totogames.infoengine.tests.CamelCaseGenerator;
 
 @DisplayNameGeneration(CamelCaseGenerator.class)
 public class EntityBuilderTests {
-    public static class TestEntity extends Entity {
-        private String testField;
-
-        @Override
-        public void initialized() {
-
-        }
-    }
-
     @Test
     public void emptyBuild() {
         TestEntity classEntity = new EntityBuilder().build(TestEntity.class);
@@ -41,10 +32,19 @@ public class EntityBuilderTests {
                 .build(TestEntity.class);
         Assertions.assertAll(
                 () -> Assertions.assertEquals(new Vector3f(1, 2, 3), entity.getPostion()),
-                () -> Assertions.assertEquals(new Quaternionf(1, 2, 3 ,4), entity.getRotation()),
+                () -> Assertions.assertEquals(new Quaternionf(1, 2, 3, 4), entity.getRotation()),
                 () -> Assertions.assertEquals("TestString", entity.testField),
                 () -> Assertions.assertEquals(parent, entity.getParent()),
                 () -> Assertions.assertTrue(parent.getChildren().contains(entity))
         );
+    }
+
+    public static class TestEntity extends Entity {
+        private String testField;
+
+        @Override
+        public void initialized() {
+
+        }
     }
 }
