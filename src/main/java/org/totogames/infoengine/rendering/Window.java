@@ -20,10 +20,6 @@ public class Window {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     }
 
-    public enum WindowModes {
-        Windowed, Borderless, Fullscreen
-    }
-
     private final long id;
     private WindowModes currentMode = WindowModes.Windowed;
     // Used to configure the window when exiting fullscreen
