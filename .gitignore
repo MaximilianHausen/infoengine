@@ -24,6 +24,8 @@ hs_err_pid*
 replay_pid*
 
 # Project exclude paths
-/build/
-/.gradle/
-/.idea/
+build/
+.gradle/
+.idea/
+
+!.idea/codeStyles/*
