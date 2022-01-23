@@ -14,7 +14,7 @@ import static org.lwjgl.opengl.GL46C.*;
 public class Texture2d implements IOglObject {
     private int id = -1;
 
-    public Texture2d(ByteBuffer pixels, TextureInternalFormats internalFormat, TextureTexelFormats texelFormat, TextureDataTypes dataType, int width, int height) {
+    public Texture2d(@Nullable ByteBuffer pixels, @NotNull TextureInternalFormats internalFormat, @NotNull TextureTexelFormats texelFormat, @NotNull TextureDataTypes dataType, int width, int height) {
         init(pixels, internalFormat, texelFormat, dataType, width, height);
     }
     public Texture2d(@Nullable ByteBuffer pixels, @NotNull TexturePresets preset, int width, int height) {
