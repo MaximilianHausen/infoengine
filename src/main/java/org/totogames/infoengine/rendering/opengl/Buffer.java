@@ -23,28 +23,18 @@ public class Buffer implements IOglObject {
         Logger.log(LogSeverity.Debug, "Buffer", "Buffer created with id " + id);
     }
 
-    public void bind(BufferBindTargets target) {
-        if (isDisposed) throw new DisposedException("Buffer was already disposed");
-        glBindBuffer(target.getValue(), id);
-    }
-    public static void unbind(BufferBindTargets target) {
+    public static void unbind(@NotNull BufferBindTargets target) {
         glBindBuffer(target.getValue(), 0);
     }
 
-    public int getId() {
+    public void bind(@NotNull BufferBindTargets target) {
         if (isDisposed) throw new DisposedException("Buffer was already disposed");
-        return id;
+        glBindBuffer(target.getValue(), id);
     }
 
     public BufferBindTargets getBufferType() {
-        return bufferType;
-    }
-
-    public void dispose() {
         if (isDisposed) throw new DisposedException("Buffer was already disposed");
-        glDeleteBuffers(id);
-        isDisposed = true;
-        Logger.log(LogSeverity.Debug, "Buffer", "Buffer deleted with id " + id);
+        return bufferType;
     }
 
     @RequiresBind
@@ -106,5 +96,20 @@ public class Buffer implements IOglObject {
     public void setData(double[] data, @NotNull BufferOptimisationMode optimisationMode) {
         if (isDisposed) throw new DisposedException("Buffer was already disposed");
         glBufferData(bufferType.getValue(), data, optimisationMode.getValue());
+    }
+
+    public int getId() {
+        if (isDisposed) throw new DisposedException("Buffer was already disposed");
+        return id;
+    }
+
+    public void dispose() {
+        if (isDisposed) throw new DisposedException("Buffer was already disposed");
+        glDeleteBuffers(id);
+        isDisposed = true;
+        Logger.log(LogSeverity.Debug, "Buffer", "Buffer deleted with id " + id);
+    }
+    public boolean isDisposed() {
+        return isDisposed;
     }
 }

@@ -25,6 +25,7 @@ public class Texture2d implements IOglObject {
         unbind();
     }
     public Texture2d(@Nullable ByteBuffer pixels, @NotNull TexturePresets preset, int width, int height) {
+        // Code duplication because this() not possible in switch
         id = glGenTextures();
         Logger.log(LogSeverity.Debug, "Texture", "Texture2d created with id " + id);
         bind();
@@ -35,6 +36,10 @@ public class Texture2d implements IOglObject {
         unbind();
     }
 
+    public static void unbind() {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
+
     @RequiresBind
     private void init(@Nullable ByteBuffer pixels, @NotNull TextureInternalFormats internalFormat, @NotNull TextureTexelFormats texelFormat, @NotNull TextureDataTypes dataType, int width, int height) {
         setResizeFilter(TextureResizeFilters.Nearest);
@@ -43,25 +48,24 @@ public class Texture2d implements IOglObject {
         Logger.log(LogSeverity.Debug, "Texture", "Texture2d " + id + " initialized");
     }
 
-    public int getId() {
-        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
-        return id;
-    }
-
     public void bind() {
         if (isDisposed) throw new DisposedException("Texture2d was already disposed");
         glBindTexture(GL_TEXTURE_2D, getId());
     }
 
-    public static void unbind() {
-        glBindTexture(GL_TEXTURE_2D, 0);
-    }
-
-    public void dispose() {
+    @RequiresBind
+    public void setImage2d(@Nullable ByteBuffer pixels, @NotNull TexturePresets preset, int width, int height) {
         if (isDisposed) throw new DisposedException("Texture2d was already disposed");
-        glDeleteTextures(id);
-        isDisposed = true;
-        Logger.log(LogSeverity.Debug, "Texture", "Texture2d deleted with id " + id);
+        switch (preset) {
+            case Color -> setImage2d(pixels, TextureInternalFormats.RGBA, TextureTexelFormats.RGBA, TextureDataTypes.UNSIGNED_BYTE, width, height);
+            case DephthStencil -> setImage2d(pixels, TextureInternalFormats.DEPTH24_STENCIL8, TextureTexelFormats.DEPTH_STENCIL, TextureDataTypes.UNSIGNED_INT_24_8, width, height);
+        }
+    }
+    @RequiresBind
+    public void setImage2d(@Nullable ByteBuffer pixels, @NotNull TextureInternalFormats internalFormat, @NotNull TextureTexelFormats texelFormat, @NotNull TextureDataTypes dataType, int width, int height) {
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
+        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat.getValue(), width, height, 0, texelFormat.getValue(), dataType.getValue(), pixels);
+        Logger.log(LogSeverity.Debug, "Texture", "Texture2d " + id + " reinitialized");
     }
 
     // TODO: GetPixels from changeable texture attributes
@@ -72,28 +76,13 @@ public class Texture2d implements IOglObject {
     }*/
 
     @RequiresBind
-    public void reinitialize(@Nullable ByteBuffer pixels, @NotNull TexturePresets preset, int width, int height) {
-        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
-        switch (preset) {
-            case Color -> reinitialize(pixels, TextureInternalFormats.RGBA, TextureTexelFormats.RGBA, TextureDataTypes.UNSIGNED_BYTE, width, height);
-            case DephthStencil -> reinitialize(pixels, TextureInternalFormats.DEPTH24_STENCIL8, TextureTexelFormats.DEPTH_STENCIL, TextureDataTypes.UNSIGNED_INT_24_8, width, height);
-        }
-    }
-    @RequiresBind
-    public void reinitialize(@Nullable ByteBuffer pixels, @NotNull TextureInternalFormats internalFormat, @NotNull TextureTexelFormats texelFormat, @NotNull TextureDataTypes dataType, int width, int height) {
-        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
-        glTexImage2D(GL_TEXTURE_2D, 0, internalFormat.getValue(), width, height, 0, texelFormat.getValue(), dataType.getValue(), pixels);
-        Logger.log(LogSeverity.Debug, "Texture", "Texture2d " + id + " reinitialized");
-    }
-
-    @RequiresBind
-    public int getTexParameter(TextureParameters param) {
+    public int getTexParameter(@NotNull TextureParameters param) {
         if (isDisposed) throw new DisposedException("Texture2d was already disposed");
         return glGetTexParameteri(GL_TEXTURE_2D, param.getValue());
     }
 
     @RequiresBind
-    public int getTexLevelParameter(int level, TextureLevelParameters param) {
+    public int getTexLevelParameter(int level, @NotNull TextureLevelParameters param) {
         if (isDisposed) throw new DisposedException("Texture2d was already disposed");
         return glGetTexLevelParameteri(GL_TEXTURE_2D, level, param.getValue());
     }
@@ -119,6 +108,21 @@ public class Texture2d implements IOglObject {
         if (isDisposed) throw new DisposedException("Texture2d was already disposed");
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter.getValue());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter.getValue());
+    }
+
+    public int getId() {
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
+        return id;
+    }
+
+    public void dispose() {
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
+        glDeleteTextures(id);
+        isDisposed = true;
+        Logger.log(LogSeverity.Debug, "Texture", "Texture2d deleted with id " + id);
+    }
+    public boolean isDisposed() {
+        return isDisposed;
     }
 
     // TODO: General parameter set

@@ -17,18 +17,14 @@ public class Framebuffer implements IOglObject {
         Logger.log(LogSeverity.Debug, "Framebuffer", "Framebuffer created with id " + id);
     }
 
-    public void bind() {
-        if (isDisposed) throw new DisposedException("Framebuffer was already disposed");
-        glBindFramebuffer(GL_FRAMEBUFFER, getId());
-    }
-
     public static void unbind() {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    public int getId() {
+    public void bind() {
         if (isDisposed) throw new DisposedException("Framebuffer was already disposed");
-        return id;
+        glGenFramebuffers();
+        glBindFramebuffer(GL_FRAMEBUFFER, getId());
     }
 
     @RequiresBind
@@ -37,10 +33,18 @@ public class Framebuffer implements IOglObject {
         glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType.getValue(), GL_TEXTURE_2D, tex.getId(), 0); // TODO: Mipmaps
     }
 
+    public int getId() {
+        if (isDisposed) throw new DisposedException("Framebuffer was already disposed");
+        return id;
+    }
+
     public void dispose() {
         if (isDisposed) throw new DisposedException("Framebuffer was already disposed");
         glDeleteFramebuffers(id);
         isDisposed = true;
         Logger.log(LogSeverity.Debug, "Framebuffer", "Framebuffer deleted with id " + id);
+    }
+    public boolean isDisposed() {
+        return isDisposed;
     }
 }
