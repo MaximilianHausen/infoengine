@@ -2,6 +2,7 @@ package org.totogames.infoengine.rendering.opengl;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import org.totogames.infoengine.DisposedException;
 import org.totogames.infoengine.rendering.opengl.enums.*;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
@@ -10,52 +11,57 @@ import java.nio.ByteBuffer;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-// TODO: Rework texture abstractions + Add Mipmaps
+// TODO: General texture (not only 2d) + Add Mipmaps
+// This moves away from the original objects a bit more than the other wrappers
 public class Texture2d implements IOglObject {
-    private int id = -1;
+    private final int id;
+    private boolean isDisposed = false;
 
     public Texture2d(@Nullable ByteBuffer pixels, @NotNull TextureInternalFormats internalFormat, @NotNull TextureTexelFormats texelFormat, @NotNull TextureDataTypes dataType, int width, int height) {
+        id = glGenTextures();
+        Logger.log(LogSeverity.Debug, "Texture", "Texture2d created with id " + id);
+        bind();
         init(pixels, internalFormat, texelFormat, dataType, width, height);
+        unbind();
     }
     public Texture2d(@Nullable ByteBuffer pixels, @NotNull TexturePresets preset, int width, int height) {
+        id = glGenTextures();
+        Logger.log(LogSeverity.Debug, "Texture", "Texture2d created with id " + id);
+        bind();
         switch (preset) {
             case Color -> init(pixels, TextureInternalFormats.RGBA, TextureTexelFormats.RGBA, TextureDataTypes.UNSIGNED_BYTE, width, height);
             case DephthStencil -> init(pixels, TextureInternalFormats.DEPTH24_STENCIL8, TextureTexelFormats.DEPTH_STENCIL, TextureDataTypes.UNSIGNED_INT_24_8, width, height);
         }
+        unbind();
     }
 
+    @RequiresBind
     private void init(@Nullable ByteBuffer pixels, @NotNull TextureInternalFormats internalFormat, @NotNull TextureTexelFormats texelFormat, @NotNull TextureDataTypes dataType, int width, int height) {
-        if (id != -1) {
-            Logger.log(LogSeverity.Debug, "TextureLoader", "Texture  " + id + " was already initialized");
-            return;
-        }
-
-        id = glGenTextures();
-        bind();
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-        glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+        setResizeFilter(TextureResizeFilters.Nearest);
+        setWrappingStyle(TextureWrappingStyles.Repeat);
         glTexImage2D(GL_TEXTURE_2D, 0, internalFormat.getValue(), width, height, 0, texelFormat.getValue(), dataType.getValue(), pixels);
-        Logger.log(LogSeverity.Debug, "TextureLoader", "Texture created in slot " + id);
+        Logger.log(LogSeverity.Debug, "Texture", "Texture2d " + id + " initialized");
     }
 
     public int getId() {
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
         return id;
     }
 
     public void bind() {
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
         glBindTexture(GL_TEXTURE_2D, getId());
     }
 
-    public void dispose() {
-        if (id != -1) {
-            glDeleteTextures(id);
-            Logger.log(LogSeverity.Debug, "TextureLoader", "Texture deleted from slot " + id);
-            id = -1;
+    public static void unbind() {
+        glBindTexture(GL_TEXTURE_2D, 0);
+    }
 
-        } else
-            Logger.log(LogSeverity.Debug, "TextureLoader", "Texture is already deleted");
+    public void dispose() {
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
+        glDeleteTextures(id);
+        isDisposed = true;
+        Logger.log(LogSeverity.Debug, "Texture", "Texture2d deleted with id " + id);
     }
 
     // TODO: GetPixels from changeable texture attributes
@@ -65,35 +71,55 @@ public class Texture2d implements IOglObject {
         return temp;
     }*/
 
+    @RequiresBind
     public void reinitialize(@Nullable ByteBuffer pixels, @NotNull TexturePresets preset, int width, int height) {
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
         switch (preset) {
             case Color -> reinitialize(pixels, TextureInternalFormats.RGBA, TextureTexelFormats.RGBA, TextureDataTypes.UNSIGNED_BYTE, width, height);
             case DephthStencil -> reinitialize(pixels, TextureInternalFormats.DEPTH24_STENCIL8, TextureTexelFormats.DEPTH_STENCIL, TextureDataTypes.UNSIGNED_INT_24_8, width, height);
         }
     }
+    @RequiresBind
     public void reinitialize(@Nullable ByteBuffer pixels, @NotNull TextureInternalFormats internalFormat, @NotNull TextureTexelFormats texelFormat, @NotNull TextureDataTypes dataType, int width, int height) {
-        bind();
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
         glTexImage2D(GL_TEXTURE_2D, 0, internalFormat.getValue(), width, height, 0, texelFormat.getValue(), dataType.getValue(), pixels);
-        Logger.log(LogSeverity.Debug, "TextureLoader", "Texture " + id + " reinitialized");
+        Logger.log(LogSeverity.Debug, "Texture", "Texture2d " + id + " reinitialized");
     }
 
-    public int getWidth() {
-        bind();
-        return glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_WIDTH);
-    }
-    public int getHeight() {
-        bind();
-        return glGetTexLevelParameteri(GL_TEXTURE_2D, 0, GL_TEXTURE_HEIGHT);
+    @RequiresBind
+    public int getTexParameter(TextureParameters param) {
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
+        return glGetTexParameteri(GL_TEXTURE_2D, param.getValue());
     }
 
+    @RequiresBind
+    public int getTexLevelParameter(int level, TextureLevelParameters param) {
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
+        return glGetTexLevelParameteri(GL_TEXTURE_2D, level, param.getValue());
+    }
+    @RequiresBind
+    public int getWidth(int level) {
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
+        return glGetTexLevelParameteri(GL_TEXTURE_2D, level, GL_TEXTURE_WIDTH);
+    }
+    @RequiresBind
+    public int getHeight(int level) {
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
+        return glGetTexLevelParameteri(GL_TEXTURE_2D, level, GL_TEXTURE_HEIGHT);
+    }
+
+    @RequiresBind
     public void setWrappingStyle(@NotNull TextureWrappingStyles style) {
-        bind();
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, style.getValue());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, style.getValue());
     }
+    @RequiresBind
     public void setResizeFilter(@NotNull TextureResizeFilters filter) {
-        bind();
+        if (isDisposed) throw new DisposedException("Texture2d was already disposed");
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, filter.getValue());
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, filter.getValue());
     }
+
+    // TODO: General parameter set
 }
