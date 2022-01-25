@@ -27,9 +27,9 @@ public class Shader implements IOglObject {
     }
 
     private final int id;
-    private boolean isDisposed = false;
     private final String source;
     private final ShaderTypes shaderType;
+    private boolean isDisposed = false;
 
     public Shader(@NotNull String source, @NotNull ShaderTypes type) {
         this.source = source;
@@ -47,6 +47,10 @@ public class Shader implements IOglObject {
         }
 
         Logger.log(LogSeverity.Debug, "Shader", typeNames.get(type) + " compiled in slot " + id);
+    }
+
+    public @NotNull ShaderTypes getShaderType() {
+        return shaderType;
     }
 
     public @NotNull String getSource() {

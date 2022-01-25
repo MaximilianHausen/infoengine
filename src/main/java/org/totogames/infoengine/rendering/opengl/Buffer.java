@@ -14,8 +14,8 @@ import static org.lwjgl.opengl.GL46C.*;
 // TODO: Bind to any target
 public class Buffer implements IOglObject {
     private final int id;
-    private boolean isDisposed = false;
     private final BufferBindTargets bufferType;
+    private boolean isDisposed = false;
 
     public Buffer(BufferBindTargets bufferType) {
         id = glGenBuffers();
