@@ -4,6 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.totogames.infoengine.DisposedException;
 import org.totogames.infoengine.rendering.opengl.enums.*;
+import org.totogames.infoengine.rendering.opengl.enums.custom.TexturePresets;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
