@@ -1,4 +1,4 @@
-package org.totogames.infoengine.rendering.opengl;
+package org.totogames.infoengine.rendering.opengl.wrappers;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

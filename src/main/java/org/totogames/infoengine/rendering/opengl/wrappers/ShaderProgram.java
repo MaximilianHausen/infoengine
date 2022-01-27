@@ -1,4 +1,4 @@
-package org.totogames.infoengine.rendering.opengl;
+package org.totogames.infoengine.rendering.opengl.wrappers;
 
 import org.jetbrains.annotations.NotNull;
 import org.totogames.infoengine.DisposedException;
