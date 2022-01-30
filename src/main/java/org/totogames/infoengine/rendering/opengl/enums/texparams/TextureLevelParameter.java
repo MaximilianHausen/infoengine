@@ -1,8 +1,8 @@
-package org.totogames.infoengine.rendering.opengl.enums;
+package org.totogames.infoengine.rendering.opengl.enums.texparams;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-public enum TextureLevelParameters {
+public enum TextureLevelParameter {
     TEXTURE_WIDTH(GL_TEXTURE_WIDTH),
     TEXTURE_HEIGHT(GL_TEXTURE_HEIGHT),
     TEXTURE_DEPTH(GL_TEXTURE_DEPTH),
@@ -26,7 +26,7 @@ public enum TextureLevelParameters {
 
     private final int value;
 
-    TextureLevelParameters(int value) {
+    TextureLevelParameter(int value) {
         this.value = value;
     }
 

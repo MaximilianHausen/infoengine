@@ -2,7 +2,7 @@ package org.totogames.infoengine.rendering.opengl.enums;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-public enum ShaderTypes {
+public enum ShaderType {
     VERTEX_SHADER(GL_VERTEX_SHADER),
     FRAGMENT_SHADER(GL_FRAGMENT_SHADER),
     GEOMETRY_SHADER(GL_GEOMETRY_SHADER),
@@ -11,7 +11,7 @@ public enum ShaderTypes {
 
     private final int value;
 
-    ShaderTypes(int value) {
+    ShaderType(int value) {
         this.value = value;
     }
 

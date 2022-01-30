@@ -2,7 +2,7 @@ package org.totogames.infoengine.rendering.opengl.enums;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-public enum ShaderParameters {
+public enum ShaderParameter {
     SHADER_TYPE(GL_SHADER_TYPE),
     DELETE_STATUS(GL_DELETE_STATUS),
     COMPILE_STATUS(GL_COMPILE_STATUS),
@@ -11,7 +11,7 @@ public enum ShaderParameters {
 
     private final int value;
 
-    ShaderParameters(int value) {
+    ShaderParameter(int value) {
         this.value = value;
     }
 

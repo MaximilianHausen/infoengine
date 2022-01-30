@@ -2,7 +2,7 @@ package org.totogames.infoengine.rendering.opengl.enums;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-public enum BufferBindTargets {
+public enum BufferBindTarget {
     ARRAY_BUFFER(GL_ARRAY_BUFFER),
     ELEMENT_ARRAY_BUFFER(GL_ELEMENT_ARRAY_BUFFER),
     COPY_READ_BUFFER(GL_COPY_READ_BUFFER),
@@ -20,7 +20,7 @@ public enum BufferBindTargets {
 
     private final int value;
 
-    BufferBindTargets(int value) {
+    BufferBindTarget(int value) {
         this.value = value;
     }
 

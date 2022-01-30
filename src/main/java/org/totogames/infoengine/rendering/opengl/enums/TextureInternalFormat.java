@@ -2,7 +2,7 @@ package org.totogames.infoengine.rendering.opengl.enums;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-public enum TextureInternalFormats {
+public enum TextureInternalFormat {
     RED(GL_RED),
     RG(GL_RG),
     RGB(GL_RGB),
@@ -105,7 +105,7 @@ public enum TextureInternalFormats {
 
     private final int value;
 
-    TextureInternalFormats(int value) {
+    TextureInternalFormat(int value) {
         this.value = value;
     }
 

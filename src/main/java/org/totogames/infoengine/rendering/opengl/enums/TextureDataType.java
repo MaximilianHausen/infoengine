@@ -2,7 +2,7 @@ package org.totogames.infoengine.rendering.opengl.enums;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-public enum TextureDataTypes {
+public enum TextureDataType {
     UNSIGNED_BYTE(GL_UNSIGNED_BYTE),
     BYTE(GL_BYTE),
     UNSIGNED_SHORT(GL_UNSIGNED_SHORT),
@@ -30,7 +30,7 @@ public enum TextureDataTypes {
 
     private final int value;
 
-    TextureDataTypes(int value) {
+    TextureDataType(int value) {
         this.value = value;
     }
 

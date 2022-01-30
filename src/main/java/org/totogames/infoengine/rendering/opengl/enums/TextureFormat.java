@@ -2,7 +2,7 @@ package org.totogames.infoengine.rendering.opengl.enums;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-public enum TextureTexelFormats {
+public enum TextureFormat {
     RED(GL_RED),
     GREEN(GL_GREEN),
     BLUE(GL_BLUE),
@@ -27,7 +27,7 @@ public enum TextureTexelFormats {
 
     private final int value;
 
-    TextureTexelFormats(int value) {
+    TextureFormat(int value) {
         this.value = value;
     }
 

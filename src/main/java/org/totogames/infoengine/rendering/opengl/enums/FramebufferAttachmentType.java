@@ -2,7 +2,7 @@ package org.totogames.infoengine.rendering.opengl.enums;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-public enum FramebufferAttachmentTypes {
+public enum FramebufferAttachmentType {
     //TODO: Multiple color attachments
     Color(GL_COLOR_ATTACHMENT0),
     Depth(GL_DEPTH_ATTACHMENT),
@@ -11,7 +11,7 @@ public enum FramebufferAttachmentTypes {
 
     private final int value;
 
-    FramebufferAttachmentTypes(int value) {
+    FramebufferAttachmentType(int value) {
         this.value = value;
     }
 

@@ -16,7 +16,7 @@ Auch das ahmt Events aus C# nach, ist aber trotzdem wegen der Sprachunterschiede
 Wichtig: Lambdas können ohne Weiteres nicht unsubscriben, weil, selbst wenn die lambda gleich aussieht, jedes Mal eine neue anonyme Klasse erzeugt wird:
 
 ```java
-// Das ist alles das Gleiche
+// Das ist alles (fast) das Gleiche
 event.subscribe(this::doSomething);
 event.subscribe(() -> doSomething());
 event.subscribe(new Action0 {

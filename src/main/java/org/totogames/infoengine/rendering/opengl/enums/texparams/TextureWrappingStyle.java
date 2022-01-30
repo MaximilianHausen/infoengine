@@ -1,8 +1,8 @@
-package org.totogames.infoengine.rendering.opengl.enums;
+package org.totogames.infoengine.rendering.opengl.enums.texparams;
 
 import static org.lwjgl.opengl.GL46.*;
 
-public enum TextureWrappingStyles {
+public enum TextureWrappingStyle {
     Repeat(GL_REPEAT),
     MirroredRepeat(GL_MIRRORED_REPEAT),
     ClampToEdge(GL_CLAMP_TO_EDGE),
@@ -12,7 +12,7 @@ public enum TextureWrappingStyles {
 
     private final int value;
 
-    TextureWrappingStyles(int value) {
+    TextureWrappingStyle(int value) {
         this.value = value;
     }
 

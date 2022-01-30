@@ -2,7 +2,7 @@ package org.totogames.infoengine.rendering.opengl.wrappers;
 
 import org.jetbrains.annotations.NotNull;
 import org.totogames.infoengine.DisposedException;
-import org.totogames.infoengine.rendering.opengl.enums.FramebufferAttachmentTypes;
+import org.totogames.infoengine.rendering.opengl.enums.FramebufferAttachmentType;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -28,7 +28,7 @@ public class Framebuffer implements IOglObject {
     }
 
     @RequiresBind
-    public void attachTexture(@NotNull Texture2d tex, @NotNull FramebufferAttachmentTypes attachmentType) {
+    public void attachTexture(@NotNull Texture2d tex, @NotNull FramebufferAttachmentType attachmentType) {
         if (isDisposed) throw new DisposedException("Framebuffer was already disposed");
         glFramebufferTexture2D(GL_FRAMEBUFFER, attachmentType.getValue(), GL_TEXTURE_2D, tex.getId(), 0); // TODO: Mipmaps
     }

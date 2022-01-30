@@ -2,7 +2,7 @@ package org.totogames.infoengine.rendering.opengl.wrappers;
 
 import org.jetbrains.annotations.NotNull;
 import org.totogames.infoengine.DisposedException;
-import org.totogames.infoengine.rendering.opengl.enums.ShaderTypes;
+import org.totogames.infoengine.rendering.opengl.enums.ShaderType;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -22,9 +22,9 @@ public class ShaderProgram implements IOglObject {
             String error = null;
             if (vertexShader.isDisposed() || fragmentShader.isDisposed())
                 error = "Program could not be linked because some shaders are already disposed";
-            if (vertexShader.getShaderType() != ShaderTypes.VERTEX_SHADER)
+            if (vertexShader.getShaderType() != ShaderType.VERTEX_SHADER)
                 error = "Program could not be linked because the shader specified as the vertex shader is not a vertex shader";
-            if (fragmentShader.getShaderType() != ShaderTypes.FRAGMENT_SHADER)
+            if (fragmentShader.getShaderType() != ShaderType.FRAGMENT_SHADER)
                 error = "Program could not be linked because the shader specified as the fragment shader is not a fragment shader";
 
             if (error != null) {
@@ -72,7 +72,7 @@ public class ShaderProgram implements IOglObject {
                             	FragColor = texColor;
                             }""";
             //endregion
-            defaultShader = new ShaderProgram(new Shader(vertShaderSource, ShaderTypes.VERTEX_SHADER), new Shader(fragShaderSource, ShaderTypes.FRAGMENT_SHADER));
+            defaultShader = new ShaderProgram(new Shader(vertShaderSource, ShaderType.VERTEX_SHADER), new Shader(fragShaderSource, ShaderType.FRAGMENT_SHADER));
         }
         return defaultShader;
     }

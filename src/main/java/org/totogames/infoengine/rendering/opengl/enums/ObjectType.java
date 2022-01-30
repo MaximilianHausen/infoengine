@@ -2,7 +2,7 @@ package org.totogames.infoengine.rendering.opengl.enums;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-public enum ObjectTypes {
+public enum ObjectType {
     BUFFER(GL_BUFFER),
     SHADER(GL_SHADER),
     PROGRAM(GL_PROGRAM),
@@ -17,7 +17,7 @@ public enum ObjectTypes {
 
     private final int value;
 
-    ObjectTypes(int value) {
+    ObjectType(int value) {
         this.value = value;
     }
 

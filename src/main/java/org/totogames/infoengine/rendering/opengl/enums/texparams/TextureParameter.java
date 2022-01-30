@@ -1,8 +1,8 @@
-package org.totogames.infoengine.rendering.opengl.enums;
+package org.totogames.infoengine.rendering.opengl.enums.texparams;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-public enum TextureParameters {
+public enum TextureParameter {
     TEXTURE_BASE_LEVEL(GL_TEXTURE_BASE_LEVEL),
     TEXTURE_BORDER_COLOR(GL_TEXTURE_BORDER_COLOR),
     TEXTURE_COMPARE_MODE(GL_TEXTURE_COMPARE_MODE),
@@ -33,7 +33,7 @@ public enum TextureParameters {
 
     private final int value;
 
-    TextureParameters(int value) {
+    TextureParameter(int value) {
         this.value = value;
     }
 

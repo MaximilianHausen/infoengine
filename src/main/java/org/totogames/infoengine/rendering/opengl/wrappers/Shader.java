@@ -2,8 +2,8 @@ package org.totogames.infoengine.rendering.opengl.wrappers;
 
 import org.jetbrains.annotations.NotNull;
 import org.totogames.infoengine.DisposedException;
-import org.totogames.infoengine.rendering.opengl.enums.ShaderParameters;
-import org.totogames.infoengine.rendering.opengl.enums.ShaderTypes;
+import org.totogames.infoengine.rendering.opengl.enums.ShaderParameter;
+import org.totogames.infoengine.rendering.opengl.enums.ShaderType;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -14,24 +14,24 @@ import static org.lwjgl.opengl.GL20C.*;
 import static org.lwjgl.opengl.GL46C.glDeleteShader;
 
 public class Shader implements IOglObject {
-    private final static HashMap<ShaderTypes, String> typeNames;
+    private final static HashMap<ShaderType, String> typeNames;
 
     static {
-        HashMap<ShaderTypes, String> temp = new HashMap<>();
-        temp.put(ShaderTypes.VERTEX_SHADER, "VertexShader");
-        temp.put(ShaderTypes.FRAGMENT_SHADER, "FragmentShader");
-        temp.put(ShaderTypes.GEOMETRY_SHADER, "GeometryShader");
-        temp.put(ShaderTypes.TESS_CONTROL_SHADER, "TessControlShader");
-        temp.put(ShaderTypes.TESS_EVALUATION_SHADER, "TessEvaluationShader");
+        HashMap<ShaderType, String> temp = new HashMap<>();
+        temp.put(ShaderType.VERTEX_SHADER, "VertexShader");
+        temp.put(ShaderType.FRAGMENT_SHADER, "FragmentShader");
+        temp.put(ShaderType.GEOMETRY_SHADER, "GeometryShader");
+        temp.put(ShaderType.TESS_CONTROL_SHADER, "TessControlShader");
+        temp.put(ShaderType.TESS_EVALUATION_SHADER, "TessEvaluationShader");
         typeNames = temp;
     }
 
     private final int id;
     private final String source;
-    private final ShaderTypes shaderType;
+    private final ShaderType shaderType;
     private boolean isDisposed = false;
 
-    public Shader(@NotNull String source, @NotNull ShaderTypes type) {
+    public Shader(@NotNull String source, @NotNull ShaderType type) {
         this.source = source;
         this.shaderType = type;
 
@@ -49,7 +49,7 @@ public class Shader implements IOglObject {
         Logger.log(LogSeverity.Debug, "Shader", typeNames.get(type) + " compiled in slot " + id);
     }
 
-    public @NotNull ShaderTypes getShaderType() {
+    public @NotNull ShaderType getShaderType() {
         return shaderType;
     }
 
@@ -58,7 +58,7 @@ public class Shader implements IOglObject {
         return source;
     }
 
-    public int getShaderParameter(@NotNull ShaderParameters param) {
+    public int getShaderParameter(@NotNull ShaderParameter param) {
         if (isDisposed) throw new DisposedException("Shader was already disposed");
         return glGetShaderi(id, param.getValue());
     }

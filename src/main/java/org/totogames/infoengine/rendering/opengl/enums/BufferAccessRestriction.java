@@ -4,7 +4,7 @@ import java.util.Arrays;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-public enum BufferAccessRestrictions {
+public enum BufferAccessRestriction {
     MAP_READ_BIT(GL_MAP_READ_BIT),
     MAP_WRITE_BIT(GL_MAP_WRITE_BIT),
     DYNAMIC_STORAGE_BIT(GL_DYNAMIC_STORAGE_BIT),
@@ -14,12 +14,12 @@ public enum BufferAccessRestrictions {
 
     private final int value;
 
-    BufferAccessRestrictions(int value) {
+    BufferAccessRestriction(int value) {
         this.value = value;
     }
 
-    public static int combineFlags(BufferAccessRestrictions... flags) {
-        return Arrays.stream(flags).map(BufferAccessRestrictions::getValue).reduce(0, (result, next) -> result | next);
+    public static int combineFlags(BufferAccessRestriction... flags) {
+        return Arrays.stream(flags).map(BufferAccessRestriction::getValue).reduce(0, (result, next) -> result | next);
     }
 
     public int getValue() {
