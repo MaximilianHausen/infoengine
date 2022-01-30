@@ -24,7 +24,7 @@ import static org.lwjgl.opengl.GL46C.*;
 public class Buffer implements IOglObject {
     private final int id;
     private boolean isDisposed = false;
-    private final static HashBiMap<Buffer, BufferBindTarget> bindStatus = HashBiMap.create(32);
+    private final static HashBiMap<Buffer, BufferBindTarget> bindStatus = HashBiMap.create();
 
     public Buffer() {
         id = glGenBuffers();
@@ -41,7 +41,7 @@ public class Buffer implements IOglObject {
     @RequiresBind
     public void unbind() {
         if (isDisposed) throw new BufferDisposedException();
-        if (bindStatus.inverse().containsValue(this)) {
+        if (bindStatus.containsKey(this)) {
             BufferBindTarget target = bindStatus.get(this);
             glBindBuffer(target.getValue(), 0);
             bindStatus.remove(this);

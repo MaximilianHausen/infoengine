@@ -1,5 +1,6 @@
 package org.totogames.infoengine.rendering.opengl.wrappers;
 
+import com.google.common.collect.HashBiMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
 import org.totogames.infoengine.rendering.opengl.enums.*;
@@ -7,6 +8,7 @@ import org.totogames.infoengine.rendering.opengl.enums.texparams.TextureLevelPar
 import org.totogames.infoengine.rendering.opengl.enums.texparams.TextureParameter;
 import org.totogames.infoengine.rendering.opengl.enums.texparams.TextureResizeFilter;
 import org.totogames.infoengine.rendering.opengl.enums.texparams.TextureWrappingStyle;
+import org.totogames.infoengine.util.Pair;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -19,6 +21,7 @@ import static org.lwjgl.opengl.GL46C.*;
 public abstract class Texture implements IOglObject {
     private final int id;
     private final TextureType type;
+    private static final HashBiMap<Texture, Pair<TextureUnit, TextureType>> bindStatus = HashBiMap.create(32);
     private boolean isDisposed = false;
 
     public Texture(@NotNull TextureType type) {
@@ -27,19 +30,30 @@ public abstract class Texture implements IOglObject {
         Logger.log(LogSeverity.Debug, "OpenGL", "Texture of type created with id " + id + " and type " + type);
     }
 
+    @RequiresBind
+    public void activate() {
+        if (isDisposed) throw new TextureDisposedException();
+        if (bindStatus.containsKey(this))
+            glActiveTexture(bindStatus.get(this).getLeft().getValue());
+    }
     public void bind(@Range(from = 0, to = 31) int textureUnit) {
         if (isDisposed) throw new TextureDisposedException();
-        TextureUnit texUnit = TextureUnit.fromNumber(0); //TODO: Multiple texture units
+        TextureUnit texUnit = TextureUnit.fromNumber(textureUnit);
         glActiveTexture(texUnit.getValue());
         glBindTexture(type.getValue(), id);
+        bindStatus.forcePut(this, new Pair<>(texUnit, type));
         Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + "bound to target " + texUnit);
     }
     @RequiresBind
     public void unbind() {
         if (isDisposed) throw new TextureDisposedException();
-        glActiveTexture(TextureUnit.TEXTURE0.getValue());
-        glBindTexture(type.getValue(), id);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + " unbound from target GL_TEXTURE0");
+        Pair<TextureUnit, TextureType> target = bindStatus.get(this);
+        if (target != null) {
+            glActiveTexture(target.getLeft().getValue());
+            glBindBuffer(target.getRight().getValue(), 0);
+            bindStatus.remove(this);
+            Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + " unbound from unit " + target.getLeft().toNumber());
+        }
     }
 
     @RequiresBind

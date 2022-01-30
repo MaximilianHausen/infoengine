@@ -45,7 +45,7 @@ public enum TextureUnit {
     }
 
     public static TextureUnit fromNumber(@Range(from = 0, to = 31) int number) {
-        return switch(number) {
+        return switch (number) {
             case 1 -> TEXTURE1;
             case 2 -> TEXTURE2;
             case 3 -> TEXTURE3;
@@ -78,6 +78,43 @@ public enum TextureUnit {
             case 30 -> TEXTURE30;
             case 31 -> TEXTURE31;
             default -> TEXTURE0;
+        };
+    }
+
+    public @Range(from = 0, to = 31) int toNumber() {
+        return switch (this) {
+            case TEXTURE1 -> 1;
+            case TEXTURE2 -> 2;
+            case TEXTURE3 -> 3;
+            case TEXTURE4 -> 4;
+            case TEXTURE5 -> 5;
+            case TEXTURE6 -> 6;
+            case TEXTURE7 -> 7;
+            case TEXTURE8 -> 8;
+            case TEXTURE9 -> 9;
+            case TEXTURE10 -> 10;
+            case TEXTURE11 -> 11;
+            case TEXTURE12 -> 12;
+            case TEXTURE13 -> 13;
+            case TEXTURE14 -> 14;
+            case TEXTURE15 -> 15;
+            case TEXTURE16 -> 16;
+            case TEXTURE17 -> 17;
+            case TEXTURE18 -> 18;
+            case TEXTURE19 -> 19;
+            case TEXTURE20 -> 20;
+            case TEXTURE21 -> 21;
+            case TEXTURE22 -> 22;
+            case TEXTURE23 -> 23;
+            case TEXTURE24 -> 24;
+            case TEXTURE25 -> 25;
+            case TEXTURE26 -> 26;
+            case TEXTURE27 -> 27;
+            case TEXTURE28 -> 28;
+            case TEXTURE29 -> 29;
+            case TEXTURE30 -> 30;
+            case TEXTURE31 -> 31;
+            default -> 0;
         };
     }
 
