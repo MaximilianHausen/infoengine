@@ -23,3 +23,6 @@ Der Status der verschiedenen Targets wird in bindStatus gespeichert, damit beim 
 Die verschiedenen [Texturtypen](../../src/main/java/org/totogames/infoengine/rendering/opengl/enums/TextureType.java) haben zu große Unterschiede, um sie sinnvoll in einer Klasse zu kombinieren.
 Deshalb hat die abstrakte Klasse alle allgemeinen Aktionen (z.B. bind, dispose), die Implementierungen die speziellen Sachen für den Typ (z.B. Passende Methoden zum Schreiben).
 Der Typ der Textur wird, um Reflection zu vermeiden, aus dem Konstruktor gelesen, den alle Implementationen aufrufen müssen. (Verlässt sich darauf, dass die Implementierung den richtigen Typ angibt)
+
+### Highlights
+- Nix, OpenGL ist blöd

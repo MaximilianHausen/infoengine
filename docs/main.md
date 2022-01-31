@@ -1,9 +1,9 @@
 #### Hinweis: Der Code und die Kommentare sind auf Englisch, weil viele Sachen in Deutsch länger sind
 
 ## Allgemeines
-- Ich verwende IntelliJ Idea mit Java 17 und Gradle 7.2 (Kotlin Buildscript). Wenn es woanders nicht funktioniert liegt es wahrscheinlich am Kotlin Buildscript
+- Ich verwende IntelliJ Idea mit Java 17 und Gradle 7.3 (Groovy Buildscript).
 - Die Documentation ist so aufgebaut, dass sie den Packages möglichst ähnlich ist
-- Einfache Nutzungsbeispiele für fast alles gibt es in den Unit-Tests
+- Einfache Nutzungsbeispiele für vieles alles gibt es in den Unit-Tests
 
 ### Highlights
 In jeder Unterkategorie gibt es eine Liste mit meiner Meinung nach besonders schönen Codeabschnitten

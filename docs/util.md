@@ -41,3 +41,4 @@ Kann verschiedene Sachen aus Dateien lesen.
 
 ### Highlights
 - Functional Interfaces, Lambdas und ihre Verwendung in Events
+- Generics sind cool

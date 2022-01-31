@@ -51,6 +51,6 @@ Lädt Szenen aus Json-Text (Format unten)
 ```
 
 ### Highlights
-- Builder sind cool
+- Builder-Pattern
 - Json-Deserialization zu Objekten
 - Rekursion: Kinder von Entities mitladen
