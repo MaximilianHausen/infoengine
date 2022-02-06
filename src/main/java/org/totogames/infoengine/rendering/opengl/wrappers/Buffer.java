@@ -22,9 +22,9 @@ import static org.lwjgl.opengl.GL46C.*;
  * @see <a href="https://khronos.org/opengl/wiki/Buffer_Object">OpenGL Wiki: Buffers</a>
  */
 public class Buffer implements IOglObject {
+    private final static HashBiMap<Buffer, BufferBindTarget> bindStatus = HashBiMap.create();
     private final int id;
     private boolean isDisposed = false;
-    private final static HashBiMap<Buffer, BufferBindTarget> bindStatus = HashBiMap.create();
 
     public Buffer() {
         id = glGenBuffers();

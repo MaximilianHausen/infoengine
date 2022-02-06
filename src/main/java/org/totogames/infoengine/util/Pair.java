@@ -12,11 +12,17 @@ public class Pair<L, R> {
         this.right = right;
     }
 
-    public @NotNull L getLeft() { return left; }
-    public @NotNull R getRight() { return right; }
+    public @NotNull L getLeft() {
+        return left;
+    }
+    public @NotNull R getRight() {
+        return right;
+    }
 
     @Override
-    public int hashCode() { return left.hashCode() ^ right.hashCode(); }
+    public int hashCode() {
+        return left.hashCode() ^ right.hashCode();
+    }
 
     @Override
     public boolean equals(Object o) {

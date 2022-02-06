@@ -1,8 +1,8 @@
 package org.totogames.infoengine.rendering.opengl.wrappers;
 
 import org.totogames.infoengine.rendering.opengl.enums.TextureDataType;
-import org.totogames.infoengine.rendering.opengl.enums.TextureInternalFormat;
 import org.totogames.infoengine.rendering.opengl.enums.TextureFormat;
+import org.totogames.infoengine.rendering.opengl.enums.TextureInternalFormat;
 import org.totogames.infoengine.rendering.opengl.enums.TextureType;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;

@@ -3,7 +3,8 @@ package org.totogames.infoengine.rendering.opengl.wrappers;
 import com.google.common.collect.HashBiMap;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Range;
-import org.totogames.infoengine.rendering.opengl.enums.*;
+import org.totogames.infoengine.rendering.opengl.enums.TextureType;
+import org.totogames.infoengine.rendering.opengl.enums.TextureUnit;
 import org.totogames.infoengine.rendering.opengl.enums.texparams.TextureLevelParameter;
 import org.totogames.infoengine.rendering.opengl.enums.texparams.TextureParameter;
 import org.totogames.infoengine.rendering.opengl.enums.texparams.TextureResizeFilter;
@@ -19,9 +20,9 @@ import static org.lwjgl.opengl.GL46C.*;
  * @see <a href="https://www.khronos.org/opengl/wiki/Texture_Storage">OpenGL Wiki: Texture Storage</a>
  */
 public abstract class Texture implements IOglObject {
+    private static final HashBiMap<Texture, Pair<TextureUnit, TextureType>> bindStatus = HashBiMap.create(32);
     private final int id;
     private final TextureType type;
-    private static final HashBiMap<Texture, Pair<TextureUnit, TextureType>> bindStatus = HashBiMap.create(32);
     private boolean isDisposed = false;
 
     public Texture(@NotNull TextureType type) {
