@@ -1,9 +1,7 @@
 package org.totogames.infoengine.rendering.opengl.wrappers;
 
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Range;
 import org.totogames.infoengine.rendering.opengl.enums.BufferBindTarget;
-import org.totogames.infoengine.rendering.opengl.enums.VertexAttribDataType;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -14,6 +12,7 @@ public class VertexArray implements IOglObject {
     private static VertexArray currentBound;
     private final int id;
     private boolean isDisposed = false;
+    private int activatedAttributes = 0;
 
     public VertexArray() {
         id = glGenVertexArrays();
@@ -36,19 +35,31 @@ public class VertexArray implements IOglObject {
         }
     }
 
-    /**
-     * @param vertexBuffer The buffer to set as the attribute
-     * @param index        The vertex attrib to set
-     * @param size         Number of values per vertex
-     * @param type         Type of the values
-     * @param stride       Bytes per vertex, must be the same for all attributes
-     */
     @RequiresBind
-    public void setVertexAttribute(@NotNull Buffer vertexBuffer, int index, @Range(from = 1, to = 4) int size, VertexAttribDataType type, int stride) {
+    public void setVertexAttributes(VertexAttribute... attributes) {
         if (isDisposed) throw new VertexArrayDisposedException();
-        vertexBuffer.bind(BufferBindTarget.ARRAY_BUFFER);
-        glEnableVertexAttribArray(index);
-        glVertexAttribPointer(index, size, type.getValue(), false, stride, 0);
+
+        // Enable/Disable vertex attributes
+        if (attributes.length < activatedAttributes)
+            for (int i = attributes.length - 1; i < activatedAttributes; i++)
+                glDisableVertexAttribArray(i);
+        else if (attributes.length > activatedAttributes)
+            for (int i = activatedAttributes; i < attributes.length; i++)
+                glEnableVertexAttribArray(i);
+
+        // Calculate stride
+        int stride = 0;
+        for (var attribute : attributes)
+            stride += attribute.getByteSize();
+
+        // Set attribute pointers
+        for (int i = 0; i < attributes.length; i++) {
+            VertexAttribute attribute = attributes[i];
+            attribute.getVertexBuffer().bind(BufferBindTarget.ARRAY_BUFFER);
+            glVertexAttribPointer(i, attribute.getSize(), attribute.getType().getValue(), false, stride, 0);
+        }
+
+        activatedAttributes = attributes.length;
     }
     @RequiresBind
     public void setElementBuffer(@NotNull Buffer elementBuffer) {
