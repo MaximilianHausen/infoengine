@@ -2,13 +2,14 @@ package org.totogames.infoengine.rendering;
 
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.totogames.infoengine.rendering.opengl.wrappers.Framebuffer;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class Window {
+public class Window implements IRenderTarget {
     static {
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -118,5 +119,14 @@ public class Window {
 
     public void setVsync(boolean bool) {
         glfwSwapInterval(bool ? 1 : 0);
+    }
+
+
+    public void activate() {
+        Framebuffer.unbind();
+    }
+    public void renderedFrame() {
+        glfwSwapBuffers(id);
+        glfwPollEvents();
     }
 }
