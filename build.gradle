@@ -7,39 +7,117 @@ group = "org.totogames"
 version = "0.1"
 
 project.ext.lwjglVersion = "3.3.0"
-project.ext.lwjglNatives = "natives-windows"
 
 repositories {
     mavenCentral()
 }
 
-dependencies {
-	implementation "org.lwjgl:lwjgl:$lwjglVersion"
-	implementation "org.lwjgl:lwjgl-assimp:$lwjglVersion"
-	implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
-	implementation "org.lwjgl:lwjgl-openal:$lwjglVersion"
-	implementation "org.lwjgl:lwjgl-opengl:$lwjglVersion"
-	implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
-	runtimeOnly "org.lwjgl:lwjgl:$lwjglVersion:$lwjglNatives"
-	runtimeOnly "org.lwjgl:lwjgl-assimp:$lwjglVersion:$lwjglNatives"
-	runtimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:$lwjglNatives"
-	runtimeOnly "org.lwjgl:lwjgl-openal:$lwjglVersion:$lwjglNatives"
-	runtimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:$lwjglNatives"
-	runtimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:$lwjglNatives"
-
-    implementation "com.google.code.gson:gson:2.8.9"
-    implementation "com.google.guava:guava:31.0.1-jre"
-
-    api "org.joml:joml:1.10.3"
-    api "org.jetbrains:annotations:22.0.0"
-
-    testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
-    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
-}
-
 java {
     withSourcesJar()
     withJavadocJar()
+    registerFeature('x64windows') {
+        usingSourceSet(sourceSets.main)
+    }
+    registerFeature('x86windows') {
+        usingSourceSet(sourceSets.main)
+    }
+    registerFeature('arm64windows') {
+        usingSourceSet(sourceSets.main)
+    }
+    registerFeature('x64linux') {
+        usingSourceSet(sourceSets.main)
+    }
+    registerFeature('arm64linux') {
+        usingSourceSet(sourceSets.main)
+    }
+    registerFeature('arm32linux') {
+        usingSourceSet(sourceSets.main)
+    }
+    registerFeature('x64macos') {
+        usingSourceSet(sourceSets.main)
+    }
+    registerFeature('arm64macos') {
+        usingSourceSet(sourceSets.main)
+    }
+}
+
+dependencies {
+    testImplementation "org.junit.jupiter:junit-jupiter-api:5.8.2"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
+
+    implementation "com.google.code.gson:gson:2.8.9"
+    implementation "com.google.guava:guava:31.0.1-jre"
+    api "org.joml:joml:1.10.3"
+    api "org.jetbrains:annotations:22.0.0"
+
+    implementation "org.lwjgl:lwjgl:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-assimp:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-openal:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-opengl:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
+
+    //region windows-natives
+    x64windowsRuntimeOnly "org.lwjgl:lwjgl:$lwjglVersion:natives-windows"
+    x64windowsRuntimeOnly "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-windows"
+    x64windowsRuntimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-windows"
+    x64windowsRuntimeOnly "org.lwjgl:lwjgl-openal:$lwjglVersion:natives-windows"
+    x64windowsRuntimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:natives-windows"
+    x64windowsRuntimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-windows"
+
+    x86windowsRuntimeOnly "org.lwjgl:lwjgl:$lwjglVersion:natives-windows-x86"
+    x86windowsRuntimeOnly "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-windows-x86"
+    x86windowsRuntimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-windows-x86"
+    x86windowsRuntimeOnly "org.lwjgl:lwjgl-openal:$lwjglVersion:natives-windows-x86"
+    x86windowsRuntimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:natives-windows-x86"
+    x86windowsRuntimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-windows-x86"
+
+    arm64windowsRuntimeOnly "org.lwjgl:lwjgl:$lwjglVersion:natives-windows-arm64"
+    arm64windowsRuntimeOnly "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-windows-arm64"
+    arm64windowsRuntimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-windows-arm64"
+    arm64windowsRuntimeOnly "org.lwjgl:lwjgl-openal:$lwjglVersion:natives-windows-arm64"
+    arm64windowsRuntimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:natives-windows-arm64"
+    arm64windowsRuntimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-windows-arm64"
+    //endregion
+
+    //region linux-natives
+    x64linuxRuntimeOnly "org.lwjgl:lwjgl:$lwjglVersion:natives-linux"
+    x64linuxRuntimeOnly "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-linux"
+    x64linuxRuntimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-linux"
+    x64linuxRuntimeOnly "org.lwjgl:lwjgl-openal:$lwjglVersion:natives-linux"
+    x64linuxRuntimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:natives-linux"
+    x64linuxRuntimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-linux"
+
+    arm64linuxRuntimeOnly "org.lwjgl:lwjgl:$lwjglVersion:natives-linux-arm64"
+    arm64linuxRuntimeOnly "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-linux-arm64"
+    arm64linuxRuntimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-linux-arm64"
+    arm64linuxRuntimeOnly "org.lwjgl:lwjgl-openal:$lwjglVersion:natives-linux-arm64"
+    arm64linuxRuntimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:natives-linux-arm64"
+    arm64linuxRuntimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-linux-arm64"
+
+    arm32linuxRuntimeOnly "org.lwjgl:lwjgl:$lwjglVersion:natives-linux-arm32"
+    arm32linuxRuntimeOnly "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-linux-arm32"
+    arm32linuxRuntimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-linux-arm32"
+    arm32linuxRuntimeOnly "org.lwjgl:lwjgl-openal:$lwjglVersion:natives-linux-arm32"
+    arm32linuxRuntimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:natives-linux-arm32"
+    arm32linuxRuntimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-linux-arm32"
+    //endregion
+
+    //region macos-natives
+    x64macosRuntimeOnly "org.lwjgl:lwjgl:$lwjglVersion:natives-macos"
+    x64macosRuntimeOnly "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-macos"
+    x64macosRuntimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-macos"
+    x64macosRuntimeOnly "org.lwjgl:lwjgl-openal:$lwjglVersion:natives-macos"
+    x64macosRuntimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:natives-macos"
+    x64macosRuntimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-macos"
+
+    arm64macosRuntimeOnly "org.lwjgl:lwjgl:$lwjglVersion:natives-macos-arm64"
+    arm64macosRuntimeOnly "org.lwjgl:lwjgl-assimp:$lwjglVersion:natives-macos-arm64"
+    arm64macosRuntimeOnly "org.lwjgl:lwjgl-glfw:$lwjglVersion:natives-macos-arm64"
+    arm64macosRuntimeOnly "org.lwjgl:lwjgl-openal:$lwjglVersion:natives-macos-arm64"
+    arm64macosRuntimeOnly "org.lwjgl:lwjgl-opengl:$lwjglVersion:natives-macos-arm64"
+    arm64macosRuntimeOnly "org.lwjgl:lwjgl-stb:$lwjglVersion:natives-macos-arm64"
+    //endregion
 }
 
 publishing {
