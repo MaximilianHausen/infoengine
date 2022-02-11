@@ -1,6 +1,7 @@
 package org.totogames.infoengine.rendering;
 
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.totogames.infoengine.ecs.Scene;
 import org.totogames.infoengine.rendering.opengl.enums.BufferBindTarget;
 import org.totogames.infoengine.rendering.opengl.enums.BufferUsage;
@@ -22,11 +23,12 @@ public class Renderer {
     }
 
     public void startRender() {
-        renderLoop();
-        /*if (activeThread == null)
+        if (activeThread == null) {
+            Window.makeNotCurrent();
             activeThread = new Thread(this::renderLoop);
-        else
-            Logger.log(LogSeverity.Critical, "Renderer", "Render thread already running");*/
+            activeThread.start();
+        }
+        else Logger.log(LogSeverity.Critical, "Renderer", "Render thread already running");
     }
     public void stopRender() {
         if (activeThread != null) {
@@ -35,6 +37,9 @@ public class Renderer {
         } else Logger.log(LogSeverity.Critical, "Renderer", "No render thread running");
     }
 
+    public @Nullable Thread getActiveThread() {
+        return activeThread;
+    }
     public void setScene(@NotNull Scene scene) {
         this.scene = scene;
     }
@@ -43,6 +48,7 @@ public class Renderer {
     }
 
     private void renderLoop() {
+        Window.getActiveWindow().makeCurrent();
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 

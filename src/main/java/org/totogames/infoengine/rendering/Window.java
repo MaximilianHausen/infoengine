@@ -2,6 +2,7 @@ package org.totogames.infoengine.rendering;
 
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.totogames.infoengine.IDisposable;
 import org.totogames.infoengine.rendering.opengl.wrappers.Framebuffer;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
@@ -9,7 +10,7 @@ import org.totogames.infoengine.util.logging.Logger;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
-public class Window implements IRenderTarget {
+public class Window implements IDisposable, IRenderTarget {
     static {
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -21,31 +22,52 @@ public class Window implements IRenderTarget {
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     }
 
+    private static Window activeWindow;
+
     private final long id;
+    private boolean isDisposed;
     private WindowModes currentMode = WindowModes.Windowed;
     // Used to configure the window when exiting fullscreen
     private int lastWindowPosX = 0, lastWindowPosY = 0, lastWindowSizeX = 0, lastWindowSizeY = 0;
 
     public Window(@NotNull String title, int width, int height) {
-        id = glfwCreateWindow(width, height, title, NULL, NULL);
+        id = glfwCreateWindow(width, height, title, NULL, activeWindow != null ? activeWindow.getId() : NULL);
         if (id == NULL)
-            Logger.log(LogSeverity.Critical, "Window", "Window could not be created");
+            Logger.log(LogSeverity.Critical, "GLFW", "Window could not be created");
 
         glfwMakeContextCurrent(id);
         glfwSwapInterval(1); // Enable v-sync
         glfwShowWindow(id);
         org.lwjgl.opengl.GL.createCapabilities();
+        activeWindow = this;
+
+        Logger.log(LogSeverity.Debug, "GLFW", "Window " + id + " created and set as current");
     }
 
+    public static Window getActiveWindow() {
+        return activeWindow;
+    }
     public long getId() {
+        if (isDisposed) throw new WindowDisposedException();
         return id;
     }
 
     public void makeCurrent() {
+        if (isDisposed) throw new WindowDisposedException();
         glfwMakeContextCurrent(id);
+        org.lwjgl.opengl.GL.createCapabilities();
+    }
+    public static void makeNotCurrent() {
+        glfwMakeContextCurrent(NULL);
+    }
+
+    public void setActive() {
+        if (isDisposed) throw new WindowDisposedException();
+        activeWindow = this;
     }
 
     public void setMode(@NotNull WindowModes mode) {
+        if (isDisposed) throw new WindowDisposedException();
         switch (mode) {
             case Windowed -> setWindowed();
             case Borderless -> Logger.log(LogSeverity.Error, "Window", "Borderless mode is not supported yet");
@@ -89,14 +111,17 @@ public class Window implements IRenderTarget {
     }
 
     public void setPos(int x, int y) {
+        if (isDisposed) throw new WindowDisposedException();
         glfwSetWindowPos(id, x, y);
     }
 
     public void setSize(int x, int y) {
+        if (isDisposed) throw new WindowDisposedException();
         glfwSetWindowSize(id, x, y);
     }
 
     public void setVisible(boolean bool) {
+        if (isDisposed) throw new WindowDisposedException();
         if ((bool ? GLFW_TRUE : GLFW_FALSE) == glfwGetWindowAttrib(id, GLFW_VISIBLE)) {
             Logger.log(LogSeverity.Debug, "WindowManager", "Window " + id + " already " + (bool ? "visible" : "hidden"));
             return;
@@ -108,6 +133,7 @@ public class Window implements IRenderTarget {
     }
 
     public void setResizable(boolean bool) {
+        if (isDisposed) throw new WindowDisposedException();
         if ((bool ? GLFW_TRUE : GLFW_FALSE) == glfwGetWindowAttrib(id, GLFW_VISIBLE)) {
             Logger.log(LogSeverity.Debug, "Window", "Window " + id + " already " + (bool ? "" : "not ") + "resizable");
             return;
@@ -118,9 +144,18 @@ public class Window implements IRenderTarget {
     }
 
     public void setVsync(boolean bool) {
+        if (isDisposed) throw new WindowDisposedException();
         glfwSwapInterval(bool ? 1 : 0);
     }
 
+    public void dispose() {
+        if (isDisposed) throw new WindowDisposedException();
+        glfwDestroyWindow(id);
+        isDisposed = true;
+    }
+    public boolean isDisposed() {
+        return isDisposed;
+    }
 
     public void activate() {
         Framebuffer.unbind();
