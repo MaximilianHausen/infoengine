@@ -6,7 +6,10 @@ import org.totogames.infoengine.ecs.Scene;
 import org.totogames.infoengine.rendering.opengl.enums.BufferBindTarget;
 import org.totogames.infoengine.rendering.opengl.enums.BufferUsage;
 import org.totogames.infoengine.rendering.opengl.enums.VertexAttribDataType;
-import org.totogames.infoengine.rendering.opengl.wrappers.*;
+import org.totogames.infoengine.rendering.opengl.wrappers.Buffer;
+import org.totogames.infoengine.rendering.opengl.wrappers.ShaderProgram;
+import org.totogames.infoengine.rendering.opengl.wrappers.VertexArray;
+import org.totogames.infoengine.rendering.opengl.wrappers.VertexAttribute;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -27,8 +30,7 @@ public class Renderer {
             Window.makeNotCurrent();
             activeThread = new Thread(this::renderLoop);
             activeThread.start();
-        }
-        else Logger.log(LogSeverity.Critical, "Renderer", "Render thread already running");
+        } else Logger.log(LogSeverity.Critical, "Renderer", "Render thread already running");
     }
     public void stopRender() {
         if (activeThread != null) {
@@ -58,10 +60,10 @@ public class Renderer {
         glGetIntegerv(GL_VIEWPORT, viewportSize);
 
         float[] vertices = {
-                0.5f,  0.5f, 0.0f,  // top right
+                0.5f, 0.5f, 0.0f,  // top right
                 0.5f, -0.5f, 0.0f,  // bottom right
-               -0.5f, -0.5f, 0.0f,  // bottom left
-               -0.5f,  0.5f, 0.0f   // top left
+                -0.5f, -0.5f, 0.0f,  // bottom left
+                -0.5f, 0.5f, 0.0f   // top left
         };
         int[] indices = {
                 0, 1, 3,

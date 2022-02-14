@@ -1,5 +1,6 @@
 package org.totogames.infoengine.rendering.opengl.wrappers;
 
+import org.totogames.infoengine.rendering.Image;
 import org.totogames.infoengine.rendering.opengl.enums.TextureDataType;
 import org.totogames.infoengine.rendering.opengl.enums.TextureFormat;
 import org.totogames.infoengine.rendering.opengl.enums.TextureInternalFormat;
@@ -12,8 +13,40 @@ import java.nio.*;
 import static org.lwjgl.opengl.GL46C.*;
 
 public class Texture2d extends Texture {
+    /**
+     * This only creates the texture. To initialize it, use setMutable or setImmutable
+     */
     public Texture2d() {
         super(TextureType.TEXTURE_2D);
+    }
+
+    public static Texture2d fromImage(Image img) {
+        Texture2d tex = new Texture2d();
+
+        TextureInternalFormat internalFormat = switch (img.getChannels()) {
+            case 1 -> TextureInternalFormat.RED;
+            case 2 -> TextureInternalFormat.RG;
+            case 3 -> TextureInternalFormat.RGB;
+            default -> TextureInternalFormat.RGBA;
+        };
+        TextureFormat format = switch (img.getChannels()) {
+            case 1 -> TextureFormat.RED;
+            case 2 -> TextureFormat.RG;
+            case 3 -> TextureFormat.RGB;
+            default -> TextureFormat.RGBA;
+        };
+
+        tex.setMutable(1, internalFormat, img.getWidth(), img.getHeight());
+        tex.setPartialData(0, 0, 0, img.getWidth(), img.getHeight(), format, TextureDataType.UNSIGNED_BYTE, img.getPixels());
+        return tex;
+    }
+
+    @RequiresBind
+    public void setMutable(int mipmapLevel, TextureInternalFormat internalFormat, int width, int height) {
+        if (isDisposed()) throw new TextureDisposedException();
+        // This works because the base formats from TextureInternalFormat are shared with TextureFormat and the specific format is not important because no data is transferred
+        int format = internalFormat.getBaseFormat().getValue();
+        glTexImage2D(GL_TEXTURE_2D, mipmapLevel, internalFormat.getValue(), width, height, 0, format, GL_UNSIGNED_BYTE, (ByteBuffer) null);
     }
 
     @RequiresBind

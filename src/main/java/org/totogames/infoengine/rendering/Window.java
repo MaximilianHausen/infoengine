@@ -11,6 +11,8 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
 public class Window implements IDisposable, IRenderTarget {
+    private static Window activeWindow;
+
     static {
         GLFWErrorCallback.createPrint(System.err).set();
 
@@ -21,8 +23,6 @@ public class Window implements IDisposable, IRenderTarget {
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
         glfwWindowHint(GLFW_RESIZABLE, GLFW_TRUE);
     }
-
-    private static Window activeWindow;
 
     private final long id;
     private boolean isDisposed;
@@ -47,20 +47,18 @@ public class Window implements IDisposable, IRenderTarget {
     public static Window getActiveWindow() {
         return activeWindow;
     }
+    public static void makeNotCurrent() {
+        glfwMakeContextCurrent(NULL);
+    }
     public long getId() {
         if (isDisposed) throw new WindowDisposedException();
         return id;
     }
-
     public void makeCurrent() {
         if (isDisposed) throw new WindowDisposedException();
         glfwMakeContextCurrent(id);
         org.lwjgl.opengl.GL.createCapabilities();
     }
-    public static void makeNotCurrent() {
-        glfwMakeContextCurrent(NULL);
-    }
-
     public void setActive() {
         if (isDisposed) throw new WindowDisposedException();
         activeWindow = this;
