@@ -3,13 +3,6 @@ package org.totogames.infoengine.rendering;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.totogames.infoengine.ecs.Scene;
-import org.totogames.infoengine.rendering.opengl.enums.BufferBindTarget;
-import org.totogames.infoengine.rendering.opengl.enums.BufferUsage;
-import org.totogames.infoengine.rendering.opengl.enums.VertexAttribDataType;
-import org.totogames.infoengine.rendering.opengl.wrappers.Buffer;
-import org.totogames.infoengine.rendering.opengl.wrappers.ShaderProgram;
-import org.totogames.infoengine.rendering.opengl.wrappers.VertexArray;
-import org.totogames.infoengine.rendering.opengl.wrappers.VertexAttribute;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -59,40 +52,9 @@ public class Renderer {
         int[] viewportSize = new int[4];
         glGetIntegerv(GL_VIEWPORT, viewportSize);
 
-        float[] vertices = {
-                0.5f, 0.5f, 0.0f,  // top right
-                0.5f, -0.5f, 0.0f,  // bottom right
-                -0.5f, -0.5f, 0.0f,  // bottom left
-                -0.5f, 0.5f, 0.0f   // top left
-        };
-        int[] indices = {
-                0, 1, 3,
-                1, 2, 3
-        };
-
-        Buffer vbo = new Buffer();
-        vbo.bind(BufferBindTarget.ARRAY_BUFFER);
-        vbo.setData(vertices, BufferUsage.STATIC_DRAW);
-        vbo.unbind();
-        Buffer ebo = new Buffer();
-        ebo.bind(BufferBindTarget.ELEMENT_ARRAY_BUFFER);
-        ebo.setData(indices, BufferUsage.STATIC_DRAW);
-        ebo.unbind();
-
-        VertexArray vao = new VertexArray();
-        vao.bind();
-        vao.setElementBuffer(ebo);
-        vao.setVertexAttributes(new VertexAttribute(vbo, VertexAttribDataType.FLOAT, 3));
-        vao.unbind();
-
         while (!Thread.interrupted()) {
             target.activate();
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-
-            ShaderProgram.getDefault().use();
-            vao.bind();
-            glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
-            vao.unbind();
 
             scene.beforeRender();
             scene.render();
