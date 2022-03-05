@@ -30,13 +30,13 @@ public class Renderer {
             Window.makeNotCurrent();
             activeThread = new Thread(this::renderLoop);
             activeThread.start();
-        } else Logger.log(LogSeverity.Critical, "Renderer", "Render thread already running");
+        } else Logger.log(LogSeverity.Error, "Renderer", "Render thread already running");
     }
     public void stopRender() {
         if (activeThread != null) {
             activeThread.interrupt();
             activeThread = null;
-        } else Logger.log(LogSeverity.Critical, "Renderer", "No render thread running");
+        } else Logger.log(LogSeverity.Error, "Renderer", "No render thread running");
     }
 
     public @Nullable Thread getActiveThread() {
@@ -54,7 +54,7 @@ public class Renderer {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        Logger.log(LogSeverity.Debug, "Renderer", "Render loop started");
+        Logger.log(LogSeverity.Debug, "Renderer", "Render loop started on Thread " + Thread.currentThread().getName());
 
         int[] viewportSize = new int[4];
         glGetIntegerv(GL_VIEWPORT, viewportSize);

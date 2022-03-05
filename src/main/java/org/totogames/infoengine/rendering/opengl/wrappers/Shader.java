@@ -9,9 +9,7 @@ import org.totogames.infoengine.util.logging.Logger;
 
 import java.util.HashMap;
 
-import static org.lwjgl.opengl.GL11C.GL_FALSE;
-import static org.lwjgl.opengl.GL20C.*;
-import static org.lwjgl.opengl.GL46C.glDeleteShader;
+import static org.lwjgl.opengl.GL46C.*;
 
 public class Shader implements IOglObject {
     private final static HashMap<ShaderType, String> typeNames;

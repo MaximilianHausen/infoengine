@@ -1,6 +1,9 @@
 package org.totogames.infoengine.rendering.opengl.wrappers;
 
 import org.jetbrains.annotations.NotNull;
+import org.joml.Matrix2f;
+import org.joml.Matrix3f;
+import org.joml.Matrix4f;
 import org.totogames.infoengine.DisposedException;
 import org.totogames.infoengine.rendering.opengl.enums.ShaderType;
 import org.totogames.infoengine.util.logging.LogSeverity;
@@ -48,7 +51,6 @@ public class ShaderProgram implements IOglObject {
 
     public static ShaderProgram getDefault() {
         if (defaultShader == null) {
-            //region vertShaderSource
             String vertShaderSource =
                     """
                             #version 460 core
@@ -57,8 +59,6 @@ public class ShaderProgram implements IOglObject {
                             {
                             	gl_Position = vec4(vPos, 1.0);
                             }""";
-            //endregion
-            //region fragShaderSource
             String fragShaderSource =
                     """
                             #version 460 core
@@ -68,7 +68,6 @@ public class ShaderProgram implements IOglObject {
                             	vec4 texColor = vec4(1.0, 1.0, 1.0, 1.0);
                             	FragColor = texColor;
                             }""";
-            //endregion
             defaultShader = new ShaderProgram(new Shader(vertShaderSource, ShaderType.VERTEX_SHADER), new Shader(fragShaderSource, ShaderType.FRAGMENT_SHADER));
         }
         return defaultShader;
@@ -88,6 +87,51 @@ public class ShaderProgram implements IOglObject {
         if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
         return fragmentShader;
     }
+
+    //region Uniforms
+    public void setUniform(String name, int... values) {
+        if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
+        switch (values.length) {
+            case 1 -> glUniform1iv(glGetUniformLocation(getId(), name), values);
+            case 2 -> glUniform2iv(glGetUniformLocation(getId(), name), values);
+            case 3 -> glUniform3iv(glGetUniformLocation(getId(), name), values);
+            case 4 -> glUniform4iv(glGetUniformLocation(getId(), name), values);
+        }
+    }
+    public void setUniform(String name, float... values) {
+        if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
+        switch (values.length) {
+            case 1 -> glUniform1fv(glGetUniformLocation(getId(), name), values);
+            case 2 -> glUniform2fv(glGetUniformLocation(getId(), name), values);
+            case 3 -> glUniform3fv(glGetUniformLocation(getId(), name), values);
+            case 4 -> glUniform4fv(glGetUniformLocation(getId(), name), values);
+        }
+    }
+    public void setUniform(String name, double... values) {
+        if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
+        switch (values.length) {
+            case 1 -> glUniform1dv(glGetUniformLocation(getId(), name), values);
+            case 2 -> glUniform2dv(glGetUniformLocation(getId(), name), values);
+            case 3 -> glUniform3dv(glGetUniformLocation(getId(), name), values);
+            case 4 -> glUniform4dv(glGetUniformLocation(getId(), name), values);
+        }
+    }
+
+    public void setUniform(String name, Matrix2f matrix) {
+        if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
+        glUniformMatrix2fv(glGetUniformLocation(getId(), name), false, matrix.get(new float[4]));
+    }
+    public void setUniform(String name, Matrix3f matrix) {
+        if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
+        glUniformMatrix3fv(glGetUniformLocation(getId(), name), false, matrix.get(new float[9]));
+    }
+    public void setUniform(String name, Matrix4f matrix) {
+        if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
+        glUniformMatrix4fv(glGetUniformLocation(getId(), name), false, matrix.get(new float[16]));
+    }
+
+    //TODO: Get Uniforms
+    //endregion
 
     public int getId() {
         if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");

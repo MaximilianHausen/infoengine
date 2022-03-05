@@ -35,10 +35,9 @@ public class Window implements IDisposable, IRenderTarget {
         if (id == NULL)
             Logger.log(LogSeverity.Critical, "GLFW", "Window could not be created");
 
-        glfwMakeContextCurrent(id);
+        makeCurrent();
         glfwSwapInterval(1); // Enable v-sync
         glfwShowWindow(id);
-        org.lwjgl.opengl.GL.createCapabilities();
         activeWindow = this;
 
         Logger.log(LogSeverity.Debug, "GLFW", "Window " + id + " created and set as current");
@@ -50,6 +49,10 @@ public class Window implements IDisposable, IRenderTarget {
     public static void makeNotCurrent() {
         glfwMakeContextCurrent(NULL);
     }
+    public static void pollEvents() {
+        glfwPollEvents();
+    }
+
     public long getId() {
         if (isDisposed) throw new WindowDisposedException();
         return id;
@@ -160,6 +163,5 @@ public class Window implements IDisposable, IRenderTarget {
     }
     public void renderedFrame() {
         glfwSwapBuffers(id);
-        glfwPollEvents();
     }
 }
