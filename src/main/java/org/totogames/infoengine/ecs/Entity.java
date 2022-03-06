@@ -1,6 +1,5 @@
 package org.totogames.infoengine.ecs;
 
-import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
@@ -13,7 +12,7 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class Entity {
+public final class Entity {
     private final Vector3f position = new Vector3f();
     private final Quaternionf rotation = new Quaternionf();
 
@@ -22,19 +21,17 @@ public abstract class Entity {
 
     private Entity parent;
     private Scene scene;
+    private boolean active;
 
-    public abstract void initialized();
-
-    public Scene getScene() {
+    public @Nullable Scene getScene() {
         return scene;
     }
 
     public @NotNull Vector3f getWorldPosition() {
         if (parent == null) return new Vector3f(position);
-
         return parent.getWorldPosition().add(position);
     }
-    public @NotNull Vector3f getPostion() {
+    public @NotNull Vector3f getPosition() {
         return position;
     }
     public void setPosition(@NotNull Vector3f position) {
@@ -43,7 +40,6 @@ public abstract class Entity {
 
     public @NotNull Quaternionf getWorldRotation() {
         if (parent == null) return new Quaternionf(rotation);
-
         return parent.getWorldRotation().mul(rotation);
     }
     public @NotNull Quaternionf getRotation() {
@@ -51,6 +47,13 @@ public abstract class Entity {
     }
     public void setRotation(@NotNull Quaternionf rotation) {
         this.rotation.set(rotation);
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+    public void setActive(boolean active) {
+        this.active = active;
     }
 
     public @NotNull List<Entity> getHierarchy() {
@@ -63,7 +66,7 @@ public abstract class Entity {
         temp.add(this);
         return temp;
     }
-    public Entity getParent() {
+    public @Nullable Entity getParent() {
         return parent;
     }
     public void setParent(@Nullable Entity parent) {
@@ -79,20 +82,15 @@ public abstract class Entity {
         return Collections.unmodifiableList(children);
     }
 
-    @MustBeInvokedByOverriders
-    public void added(@NotNull Scene scene) {
-        this.scene = scene;
-    }
-    @MustBeInvokedByOverriders
-    public void removed(@NotNull Scene scene) {
-        this.scene = null;
-    }
-
     public void addChild(@NotNull Entity child) {
         child.setParent(this);
     }
     public void removeChild(@NotNull Entity child) {
         child.setParent(null);
+    }
+
+    public <T extends Component> @Nullable T getComponent(@NotNull Class<T> type) {
+        return (T) components.stream().filter(c -> c.getClass().equals(type)).findFirst().orElse(null);
     }
 
     public void addComponent(@NotNull Component component) {
@@ -114,41 +112,67 @@ public abstract class Entity {
         scene.remove(this);
     }
 
-    @MustBeInvokedByOverriders
-    public void beforeUpdate() {
-        for (Component component : components) {
-            if (component.isActive()) component.beforeUpdate();
-        }
+    void added(@NotNull Scene scene) {
+        this.scene = scene;
     }
-    @MustBeInvokedByOverriders
-    public void update() {
-        for (Component component : components) {
-            if (component.isActive()) component.update();
-        }
-    }
-    @MustBeInvokedByOverriders
-    public void afterUpdate() {
-        for (Component component : components) {
-            if (component.isActive()) component.afterUpdate();
-        }
+    void removed(@NotNull Scene scene) {
+        this.scene = null;
     }
 
-    @MustBeInvokedByOverriders
-    public void beforeRender() {
-        for (Component component : components) {
-            if (component.isVisible()) component.beforeRender();
-        }
+    void beforeUpdate() {
+        for (Component component : components)
+            if (component.isActive()) component.beforeUpdate();
+        for (Entity child : children)
+            if (child.isActive()) child.beforeUpdate();
     }
-    @MustBeInvokedByOverriders
-    public void render() {
-        for (Component component : components) {
-            if (component.isVisible()) component.render();
-        }
+    void update() {
+        for (Component component : components)
+            if (component.isActive()) component.update();
+        for (Entity child : children)
+            if (child.isActive()) child.update();
     }
-    @MustBeInvokedByOverriders
-    public void afterRender() {
-        for (Component component : components) {
-            if (component.isVisible()) component.afterRender();
-        }
+    void afterUpdate() {
+        for (Component component : components)
+            if (component.isActive()) component.afterUpdate();
+        for (Entity child : children)
+            if (child.isActive()) child.afterUpdate();
+    }
+
+    void beforeRender() {
+        for (Component component : components)
+            if (component.isActive()) component.beforeRender();
+        for (Entity child : children)
+            if (child.isActive()) child.beforeRender();
+    }
+    void render() {
+        for (Component component : components)
+            if (component.isActive()) component.render();
+        for (Entity child : children)
+            if (child.isActive()) child.render();
+    }
+    void afterRender() {
+        for (Component component : components)
+            if (component.isActive()) component.afterRender();
+        for (Entity child : children)
+            if (child.isActive()) child.afterRender();
+    }
+
+    void beforeDebugRender() {
+        for (Component component : components)
+            if (component.isActive()) component.beforeDebugRender();
+        for (Entity child : children)
+            if (child.isActive()) child.beforeDebugRender();
+    }
+    void debugRender() {
+        for (Component component : components)
+            if (component.isActive()) component.debugRender();
+        for (Entity child : children)
+            if (child.isActive()) child.debugRender();
+    }
+    void afterDebugRender() {
+        for (Component component : components)
+            if (component.isActive()) component.afterDebugRender();
+        for (Entity child : children)
+            if (child.isActive()) child.afterDebugRender();
     }
 }

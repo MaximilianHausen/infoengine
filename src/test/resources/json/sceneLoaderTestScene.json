@@ -2,28 +2,29 @@
   "editorVersion": "1.0.0",
   "formatVersion": "1.0.0",
   "name": "TestScene",
-  "type": "org.totogames.infoengine.ecs.Scene",
   "entities": [
     {
       "name": "ExampleEntityName",
-      "type": "org.totogames.infoengine.tests.loading.SceneLoaderTests$TestEntity",
       "x": 0,
       "y": 0,
       "z": 0,
-      "data": {
-        "testField": "TestValue"
-      }
+      "components": [
+        {
+          "type": "org.totogames.infoengine.tests.loading.SceneLoaderTests$TestComponent",
+          "data": {
+            "testField": "TestValue"
+          }
+        }
+      ]
     },
     {
       "name": "ExampleParentName",
-      "type": "org.totogames.infoengine.tests.loading.SceneLoaderTests$TestEntity",
       "x": 1,
       "y": 1,
       "z": 1,
       "children": [
         {
           "name": "ExampleChildName",
-          "type": "org.totogames.infoengine.tests.loading.SceneLoaderTests$TestEntity",
           "x": 0,
           "y": 0,
           "z": 0

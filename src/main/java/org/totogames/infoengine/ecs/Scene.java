@@ -8,7 +8,7 @@ import java.util.Collections;
 import java.util.List;
 
 public final class Scene {
-    private final List<Entity> entities = new ArrayList<>(); // TODO: Linked vs Array
+    private final List<Entity> entities = new ArrayList<>();
 
     public @UnmodifiableView @NotNull List<Entity> getEntities() {
         return Collections.unmodifiableList(entities);
@@ -25,34 +25,41 @@ public final class Scene {
     }
 
     public void beforeUpdate() {
-        for (Entity entity : entities) {
-            entity.beforeUpdate();
-        }
+        for (Entity entity : entities)
+            if (entity.isActive()) entity.beforeUpdate();
     }
     public void update() {
-        for (Entity entity : entities) {
-            entity.update();
-        }
+        for (Entity entity : entities)
+            if (entity.isActive()) entity.update();
     }
     public void afterUpdate() {
-        for (Entity entity : entities) {
-            entity.afterUpdate();
-        }
+        for (Entity entity : entities)
+            if (entity.isActive()) entity.afterUpdate();
     }
 
     public void beforeRender() {
-        for (Entity entity : entities) {
-            entity.beforeRender();
-        }
+        for (Entity entity : entities)
+            if (entity.isActive()) entity.beforeRender();
     }
     public void render() {
-        for (Entity entity : entities) {
-            entity.render();
-        }
+        for (Entity entity : entities)
+            if (entity.isActive()) entity.render();
     }
     public void afterRender() {
-        for (Entity entity : entities) {
-            entity.afterRender();
-        }
+        for (Entity entity : entities)
+            if (entity.isActive()) entity.afterRender();
+    }
+
+    public void beforeDebugRender() {
+        for (Entity entity : entities)
+            if (entity.isActive()) entity.beforeDebugRender();
+    }
+    public void debugRender() {
+        for (Entity entity : entities)
+            if (entity.isActive()) entity.debugRender();
+    }
+    public void afterDebugRender() {
+        for (Entity entity : entities)
+            if (entity.isActive()) entity.afterDebugRender();
     }
 }

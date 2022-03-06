@@ -1,8 +1,5 @@
 {
   "editorVersion": "1.0.0",
   "formatVersion": "1.0.0",
-  "name": "EmptyScene",
-  "type": "org.totogames.infoengine.ecs.Scene",
-  "entities": [
-  ]
+  "name": "EmptyScene"
 }

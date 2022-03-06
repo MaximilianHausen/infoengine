@@ -15,36 +15,33 @@ Lädt Szenen aus Json-Text (Format unten)
 {
   "editorVersion": "1.0.0",
   "formatVersion": "1.0.0",
-
   "name": "ExampleSceneName",
-  "type": "org.totogames.infoengine.ecs.Scene",
 
   "entities": [
     {
       "name": "ExampleEntityName",
-      "type": "org.totogames.exampleproject.ExampleEntity",
       "x": 0,
       "y": 0,
       "z": 0,
-      "data": {
-        "fieldName": "fieldValue"
-      },
+      "components": [
+        {
+          "type": "org.totogames.exampleproject.ExampleComponent",
+          "data": {
+            "fieldName": "fieldValue"
+          }
+        },
+        {
+          "type": "org.totogames.exampleproject.SimpleExampleComponent"
+        }
+      ],
       "children": [
         {
-          "name": "ExampleChildName",
-          "type": "org.totogames.exampleproject.ExampleEntity",
+          "name": "ExampleChildEntityName",
           "x": 0,
           "y": 0,
           "z": 0
         }
       ]
-    },
-    {
-      "name": "AnotherEntityName",
-      "type": "org.totogames.exampleproject.ExampleEntity",
-      "x": 0,
-      "y": 0,
-      "z": 0
     }
   ]
 }

@@ -13,38 +13,23 @@ import org.totogames.infoengine.tests.CamelCaseGenerator;
 public class EntityBuilderTests {
     @Test
     public void emptyBuild() {
-        TestEntity classEntity = new EntityBuilder().build(TestEntity.class);
-        TestEntity stringEntity = (TestEntity) new EntityBuilder().build(TestEntity.class.getName());
-        Assertions.assertAll(
-                () -> Assertions.assertNotNull(classEntity),
-                () -> Assertions.assertNotNull(stringEntity)
-        );
+        Entity classEntity = new EntityBuilder().build();
+        Assertions.assertNotNull(classEntity);
     }
 
     @Test
     public void fullDataSet() {
-        TestEntity parent = new TestEntity();
-        TestEntity entity = new EntityBuilder()
+        Entity parent = new Entity();
+        Entity entity = new EntityBuilder()
                 .setPosition(new Vector3f(1, 2, 3))
                 .setRotation(new Quaternionf(1, 2, 3, 4))
-                .addFieldOverride("testField", "TestString")
                 .setParent(parent)
-                .build(TestEntity.class);
+                .build();
         Assertions.assertAll(
-                () -> Assertions.assertEquals(new Vector3f(1, 2, 3), entity.getPostion()),
+                () -> Assertions.assertEquals(new Vector3f(1, 2, 3), entity.getPosition()),
                 () -> Assertions.assertEquals(new Quaternionf(1, 2, 3, 4), entity.getRotation()),
-                () -> Assertions.assertEquals("TestString", entity.testField),
                 () -> Assertions.assertEquals(parent, entity.getParent()),
                 () -> Assertions.assertTrue(parent.getChildren().contains(entity))
         );
-    }
-
-    public static class TestEntity extends Entity {
-        private String testField;
-
-        @Override
-        public void initialized() {
-
-        }
     }
 }

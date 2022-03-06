@@ -6,6 +6,7 @@ import com.google.gson.JsonSyntaxException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector3f;
+import org.totogames.infoengine.ecs.Component;
 import org.totogames.infoengine.ecs.Entity;
 import org.totogames.infoengine.ecs.Scene;
 import org.totogames.infoengine.util.IO;
@@ -48,16 +49,23 @@ public class SceneLoader {
     }
 
     public Entity loadEntity(@NotNull EntityModel entityModel, @Nullable Entity parent) {
-        Entity entity = new EntityBuilder()
-                .setParent(parent)
-                .setFieldOverrides(entityModel.data)
-                .setPosition(new Vector3f(entityModel.x, entityModel.y, entityModel.z)) // TODO: Set rotation
-                .build(entityModel.type);
+        Entity entity = new Entity();
+        entity.setParent(parent);
+        entity.setPosition(new Vector3f(entityModel.x, entityModel.y, entityModel.z));
+        // TODO: Set rotation
 
+        for (ComponentModel componentModel : entityModel.components)
+            entity.addComponent(loadComponent(componentModel));
         for (EntityModel child : entityModel.children)
             loadEntity(child, entity);
 
         return entity;
+    }
+
+    public Component loadComponent(@NotNull ComponentModel componentModel) {
+        return new ComponentBuilder()
+                .setFieldOverrides(componentModel.data)
+                .build(componentModel.type);
     }
 
     private void addToSceneRecursive(@NotNull Entity entity, @NotNull Scene scene) {

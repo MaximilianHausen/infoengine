@@ -8,7 +8,6 @@ import org.totogames.infoengine.util.logging.Logger;
 public abstract class Component {
     private Entity entity;
     private boolean active;
-    private boolean visible;
 
     public abstract void initialized();
 
@@ -34,24 +33,25 @@ public abstract class Component {
         entity.removeComponent(this);
     }
 
-    public void beforeUpdate() {
-
+    void beforeUpdate() {
     }
-    public void update() {
-
+    void update() {
     }
-    public void afterUpdate() {
-
+    void afterUpdate() {
     }
 
-    public void beforeRender() {
-
+    void beforeRender() {
     }
-    public void render() {
-
+    void render() {
     }
-    public void afterRender() {
+    void afterRender() {
+    }
 
+    void beforeDebugRender() {
+    }
+    void debugRender() {
+    }
+    void afterDebugRender() {
     }
 
     public boolean isActive() {
@@ -59,12 +59,5 @@ public abstract class Component {
     }
     public void setActive(boolean active) {
         this.active = active;
-    }
-
-    public boolean isVisible() {
-        return visible;
-    }
-    public void setVisible(boolean visible) {
-        this.visible = visible;
     }
 }

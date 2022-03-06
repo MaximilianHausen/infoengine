@@ -4,22 +4,23 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.totogames.infoengine.ecs.Component;
 import org.totogames.infoengine.ecs.Entity;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
+/**
+ * Helper class for instantiating entities. Does nothing special, but can be nicer to use. Can be reused, all parameters reset after each build.
+ */
 public class EntityBuilder {
-    private static final Map<String, Class<? extends Entity>> cache = new HashMap<>();
-
     private Entity parent = null;
     private Vector3f position = new Vector3f();
     private Quaternionf rotation = new Quaternionf();
-    private Map<String, Object> fieldOverrides = new HashMap<>();
+    private List<Component> components = new LinkedList<>();
 
     public @NotNull EntityBuilder setParent(@Nullable Entity parent) {
         this.parent = parent;
@@ -33,64 +34,30 @@ public class EntityBuilder {
         this.rotation = rotation;
         return this;
     }
-    public @NotNull EntityBuilder setFieldOverrides(@NotNull Map<String, Object> fieldOverrides) {
-        this.fieldOverrides = fieldOverrides;
+    public @NotNull EntityBuilder setComponents(@NotNull Component... components) {
+        this.components = Arrays.stream(components).toList();
         return this;
     }
-    public @NotNull EntityBuilder addFieldOverride(@NotNull String fieldName, Object object) {
-        fieldOverrides.put(fieldName, object);
+    public @NotNull EntityBuilder addComponent(@NotNull Component component) {
+        components.add(component);
         return this;
     }
 
-    public Entity build(@NotNull String typeName) {
-        if (!cache.containsKey(typeName)) {
-            try {
-                cache.put(typeName, (Class<? extends Entity>) Class.forName(typeName));
-            } catch (ClassNotFoundException e) {
-                Logger.log(LogSeverity.Critical, "EntityBuilder", "Class <" + typeName + "> could not be found");
-                return null;
-            } catch (ClassCastException e) {
-                Logger.log(LogSeverity.Critical, "EntityBuilder", "Class <" + typeName + "> does not extend Entity");
-                return null;
-            }
-        }
-
-        return build(cache.get(typeName));
-    }
-
-    public <T extends Entity> T build(@NotNull Class<T> type) {
-        T entity;
-
-        try {
-            entity = type.getConstructor().newInstance();
-        } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            Logger.log(LogSeverity.Critical, "EntityBuilder", "Error while initializing Entity: Class <" + type.getName() + "> could not be instantiated");
-            return null;
-        }
-
-        // Set fields
-        for (Map.Entry<String, Object> override : fieldOverrides.entrySet()) {
-            try {
-                Field field = type.getDeclaredField(override.getKey());
-                field.setAccessible(true);
-                field.set(entity, override.getValue());
-            } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
-                Logger.log(LogSeverity.Error, "EntityBuilder", "Error while initializing Entity: Field <" + override.getKey() + "> could not be set");
-            }
-        }
+    public Entity build() {
+        Entity entity = new Entity();
 
         entity.setParent(parent);
         entity.setPosition(position);
         entity.setRotation(rotation);
+        components.forEach(entity::addComponent);
 
-        entity.initialized();
+        //entity.initialized();
         Logger.log(LogSeverity.Debug, "EntityBuilder", "Entity instantiated and initialized"); //TODO: Better log
 
         // Reset build args
         parent = null;
         position = new Vector3f();
         rotation = new Quaternionf();
-        fieldOverrides.clear();
         return entity;
     }
 }
