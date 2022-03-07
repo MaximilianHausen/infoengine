@@ -9,7 +9,8 @@ public abstract class Component {
     private Entity entity;
     private boolean active;
 
-    public abstract void initialized();
+    public void initialized() {
+    }
 
     public Entity getEntity() {
         return entity;
@@ -33,25 +34,25 @@ public abstract class Component {
         entity.removeComponent(this);
     }
 
-    void beforeUpdate() {
+    public void beforeUpdate() {
     }
-    void update() {
+    public void update() {
     }
-    void afterUpdate() {
-    }
-
-    void beforeRender() {
-    }
-    void render() {
-    }
-    void afterRender() {
+    public void afterUpdate() {
     }
 
-    void beforeDebugRender() {
+    public void beforeRender() {
     }
-    void debugRender() {
+    public void render() {
     }
-    void afterDebugRender() {
+    public void afterRender() {
+    }
+
+    public void beforeDebugRender() {
+    }
+    public void debugRender() {
+    }
+    public void afterDebugRender() {
     }
 
     public boolean isActive() {

@@ -119,57 +119,57 @@ public final class Entity {
         this.scene = null;
     }
 
-    void beforeUpdate() {
+    public void beforeUpdate() {
         for (Component component : components)
             if (component.isActive()) component.beforeUpdate();
         for (Entity child : children)
             if (child.isActive()) child.beforeUpdate();
     }
-    void update() {
+    public void update() {
         for (Component component : components)
             if (component.isActive()) component.update();
         for (Entity child : children)
             if (child.isActive()) child.update();
     }
-    void afterUpdate() {
+    public void afterUpdate() {
         for (Component component : components)
             if (component.isActive()) component.afterUpdate();
         for (Entity child : children)
             if (child.isActive()) child.afterUpdate();
     }
 
-    void beforeRender() {
+    public void beforeRender() {
         for (Component component : components)
             if (component.isActive()) component.beforeRender();
         for (Entity child : children)
             if (child.isActive()) child.beforeRender();
     }
-    void render() {
+    public void render() {
         for (Component component : components)
             if (component.isActive()) component.render();
         for (Entity child : children)
             if (child.isActive()) child.render();
     }
-    void afterRender() {
+    public void afterRender() {
         for (Component component : components)
             if (component.isActive()) component.afterRender();
         for (Entity child : children)
             if (child.isActive()) child.afterRender();
     }
 
-    void beforeDebugRender() {
+    public void beforeDebugRender() {
         for (Component component : components)
             if (component.isActive()) component.beforeDebugRender();
         for (Entity child : children)
             if (child.isActive()) child.beforeDebugRender();
     }
-    void debugRender() {
+    public void debugRender() {
         for (Component component : components)
             if (component.isActive()) component.debugRender();
         for (Entity child : children)
             if (child.isActive()) child.debugRender();
     }
-    void afterDebugRender() {
+    public void afterDebugRender() {
         for (Component component : components)
             if (component.isActive()) component.afterDebugRender();
         for (Entity child : children)
