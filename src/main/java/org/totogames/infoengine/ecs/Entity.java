@@ -21,7 +21,7 @@ public final class Entity {
 
     private Entity parent;
     private Scene scene;
-    private boolean active;
+    private boolean active = true;
 
     public @Nullable Scene getScene() {
         return scene;

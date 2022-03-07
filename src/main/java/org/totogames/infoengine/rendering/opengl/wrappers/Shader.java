@@ -34,17 +34,17 @@ public class Shader implements IOglObject {
         this.shaderType = type;
 
         id = glCreateShader(type.getValue());
-        Logger.log(LogSeverity.Debug, "Shader", typeNames.get(type) + " created in slot " + id);
+        Logger.log(LogSeverity.Debug, "OpenGL", typeNames.get(type) + " created in slot " + id);
         glShaderSource(id, source);
         glCompileShader(id);
 
         if (glGetShaderi(id, GL_COMPILE_STATUS) == GL_FALSE) {
-            Logger.log(LogSeverity.Critical, "Shader", typeNames.get(type) + " " + id + " could not be compiled");
+            Logger.log(LogSeverity.Critical, "OpenGL", typeNames.get(type) + " " + id + " could not be compiled");
             dispose();
             return;
         }
 
-        Logger.log(LogSeverity.Debug, "Shader", typeNames.get(type) + " compiled in slot " + id);
+        Logger.log(LogSeverity.Debug, "OpenGL", typeNames.get(type) + " compiled in slot " + id);
     }
 
     public @NotNull ShaderType getShaderType() {
@@ -70,7 +70,7 @@ public class Shader implements IOglObject {
         if (isDisposed) throw new DisposedException("Shader was already disposed");
         glDeleteShader(id);
         isDisposed = true;
-        Logger.log(LogSeverity.Debug, "Shader", typeNames.get(shaderType) + " deleted from slot " + id);
+        Logger.log(LogSeverity.Debug, "OpenGL", typeNames.get(shaderType) + " deleted from slot " + id);
     }
     public boolean isDisposed() {
         return isDisposed;

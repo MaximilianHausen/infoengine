@@ -36,7 +36,7 @@ public class Texture2d extends Texture {
             default -> TextureFormat.RGBA;
         };
 
-        tex.setMutable(1, internalFormat, img.getWidth(), img.getHeight());
+        tex.setMutable(0, internalFormat, img.getWidth(), img.getHeight());
         tex.setPartialData(0, 0, 0, img.getWidth(), img.getHeight(), format, TextureDataType.UNSIGNED_BYTE, img.getPixels());
         return tex;
     }

@@ -7,7 +7,7 @@ import org.totogames.infoengine.util.logging.Logger;
 
 public abstract class Component {
     private Entity entity;
-    private boolean active;
+    private boolean active = true;
 
     public void initialized() {
     }

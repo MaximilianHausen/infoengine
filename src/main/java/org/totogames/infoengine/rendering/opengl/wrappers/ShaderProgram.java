@@ -31,7 +31,7 @@ public class ShaderProgram implements IOglObject {
                 error = "Program could not be linked because the shader specified as the fragment shader is not a fragment shader";
 
             if (error != null) {
-                Logger.log(LogSeverity.Error, "Shader", error);
+                Logger.log(LogSeverity.Error, "OpenGL", error);
                 isDisposed = true;
                 id = -1;
                 return;
@@ -46,7 +46,7 @@ public class ShaderProgram implements IOglObject {
         glAttachShader(id, fragmentShader.getId());
         glLinkProgram(id);
 
-        Logger.log(LogSeverity.Debug, "Shader", "Program linked with id " + id);
+        Logger.log(LogSeverity.Debug, "OpenGL", "Program linked with id " + id);
     }
 
     public static ShaderProgram getDefault() {
@@ -89,6 +89,7 @@ public class ShaderProgram implements IOglObject {
     }
 
     //region Uniforms
+    @RequiresBind
     public void setUniform(String name, int... values) {
         if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
         switch (values.length) {
@@ -98,6 +99,7 @@ public class ShaderProgram implements IOglObject {
             case 4 -> glUniform4iv(glGetUniformLocation(getId(), name), values);
         }
     }
+    @RequiresBind
     public void setUniform(String name, float... values) {
         if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
         switch (values.length) {
@@ -107,6 +109,7 @@ public class ShaderProgram implements IOglObject {
             case 4 -> glUniform4fv(glGetUniformLocation(getId(), name), values);
         }
     }
+    @RequiresBind
     public void setUniform(String name, double... values) {
         if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
         switch (values.length) {
@@ -117,14 +120,17 @@ public class ShaderProgram implements IOglObject {
         }
     }
 
+    @RequiresBind
     public void setUniform(String name, Matrix2f matrix) {
         if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
         glUniformMatrix2fv(glGetUniformLocation(getId(), name), false, matrix.get(new float[4]));
     }
+    @RequiresBind
     public void setUniform(String name, Matrix3f matrix) {
         if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
         glUniformMatrix3fv(glGetUniformLocation(getId(), name), false, matrix.get(new float[9]));
     }
+    @RequiresBind
     public void setUniform(String name, Matrix4f matrix) {
         if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
         glUniformMatrix4fv(glGetUniformLocation(getId(), name), false, matrix.get(new float[16]));
@@ -142,7 +148,7 @@ public class ShaderProgram implements IOglObject {
         if (isDisposed) throw new DisposedException("ShaderProgram was already disposed");
         glDeleteProgram(id);
         isDisposed = true;
-        Logger.log(LogSeverity.Debug, "Shader", "Program deleted from slot " + id);
+        Logger.log(LogSeverity.Debug, "OpenGL", "Program deleted from slot " + id);
     }
     public boolean isDisposed() {
         return isDisposed;

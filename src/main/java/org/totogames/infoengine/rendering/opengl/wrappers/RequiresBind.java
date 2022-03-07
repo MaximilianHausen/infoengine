@@ -9,6 +9,6 @@ import java.lang.annotation.Target;
  * This method requires the object to be bound before use
  */
 @Target(ElementType.METHOD)
-@Retention(RetentionPolicy.CLASS)
+@Retention(RetentionPolicy.SOURCE)
 public @interface RequiresBind {
 }

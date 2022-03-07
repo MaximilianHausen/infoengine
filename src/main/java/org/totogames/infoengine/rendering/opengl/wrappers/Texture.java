@@ -28,7 +28,7 @@ public abstract class Texture implements IOglObject {
     public Texture(@NotNull TextureType type) {
         id = glGenTextures();
         this.type = type;
-        Logger.log(LogSeverity.Debug, "OpenGL", "Texture of type created with id " + id + " and type " + type);
+        Logger.log(LogSeverity.Debug, "OpenGL", "Texture created with id " + id + " and type " + type);
     }
 
     @RequiresBind
@@ -43,7 +43,7 @@ public abstract class Texture implements IOglObject {
         glActiveTexture(texUnit.getValue());
         glBindTexture(type.getValue(), id);
         bindStatus.forcePut(this, new Pair<>(texUnit, type));
-        Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + "bound to target " + texUnit);
+        Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + " bound to target " + texUnit);
     }
     @RequiresBind
     public void unbind() {
@@ -51,7 +51,7 @@ public abstract class Texture implements IOglObject {
         Pair<TextureUnit, TextureType> target = bindStatus.get(this);
         if (target != null) {
             glActiveTexture(target.getLeft().getValue());
-            glBindBuffer(target.getRight().getValue(), 0);
+            glBindTexture(target.getRight().getValue(), 0);
             bindStatus.remove(this);
             Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + " unbound from unit " + target.getLeft().toNumber());
         }
