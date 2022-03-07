@@ -7,7 +7,6 @@ import org.totogames.infoengine.util.logging.Logger;
 
 import static org.lwjgl.opengl.GL46C.*;
 
-//TODO: Cache current attributes and autocalculate stride
 public class VertexArray implements IOglObject {
     private static VertexArray currentBound;
     private final int id;
@@ -47,16 +46,21 @@ public class VertexArray implements IOglObject {
             for (int i = activatedAttributes; i < attributes.length; i++)
                 glEnableVertexAttribArray(i);
 
-        // Calculate stride
+        // Calculate stride + offsets
         int stride = 0;
-        for (var attribute : attributes)
+        int[] offsets = new int[attributes.length];
+        for (int i = 0; i < attributes.length; i++) {
+            VertexAttribute attribute = attributes[i];
             stride += attribute.getByteSize();
+            if (i < attributes.length - 1)
+                offsets[i + 1] = offsets[i] + attribute.getByteSize();
+        }
 
         // Set attribute pointers
         for (int i = 0; i < attributes.length; i++) {
             VertexAttribute attribute = attributes[i];
             attribute.getVertexBuffer().bind(BufferBindTarget.ARRAY_BUFFER);
-            glVertexAttribPointer(i, attribute.getSize(), attribute.getType().getValue(), false, stride, 0);
+            glVertexAttribPointer(i, attribute.getSize(), attribute.getType().getValue(), false, stride, offsets[i]);
         }
 
         activatedAttributes = attributes.length;

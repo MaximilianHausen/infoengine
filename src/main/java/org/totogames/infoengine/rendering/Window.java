@@ -53,6 +53,11 @@ public class Window implements IDisposable, IRenderTarget {
         glfwPollEvents();
     }
 
+    public boolean shouldClose() {
+        if (isDisposed) throw new WindowDisposedException();
+        return glfwWindowShouldClose(id);
+    }
+
     public long getId() {
         if (isDisposed) throw new WindowDisposedException();
         return id;
@@ -75,7 +80,6 @@ public class Window implements IDisposable, IRenderTarget {
             case Fullscreen -> setFullscreen();
         }
     }
-
     private void setWindowed() {
         switch (currentMode) {
             case Windowed -> Logger.log(LogSeverity.Debug, "Window", "Window " + id + " already in windowed mode");
@@ -87,7 +91,6 @@ public class Window implements IDisposable, IRenderTarget {
             }
         }
     }
-
     private void setFullscreen() {
         switch (currentMode) {
             case Windowed -> {
@@ -115,12 +118,10 @@ public class Window implements IDisposable, IRenderTarget {
         if (isDisposed) throw new WindowDisposedException();
         glfwSetWindowPos(id, x, y);
     }
-
     public void setSize(int x, int y) {
         if (isDisposed) throw new WindowDisposedException();
         glfwSetWindowSize(id, x, y);
     }
-
     public void setVisible(boolean bool) {
         if (isDisposed) throw new WindowDisposedException();
         if ((bool ? GLFW_TRUE : GLFW_FALSE) == glfwGetWindowAttrib(id, GLFW_VISIBLE)) {
@@ -132,7 +133,6 @@ public class Window implements IDisposable, IRenderTarget {
         else glfwHideWindow(id);
         Logger.log(LogSeverity.Info, "Window", "Window " + id + " set as  " + (bool ? "visible" : "hidden"));
     }
-
     public void setResizable(boolean bool) {
         if (isDisposed) throw new WindowDisposedException();
         if ((bool ? GLFW_TRUE : GLFW_FALSE) == glfwGetWindowAttrib(id, GLFW_VISIBLE)) {
@@ -143,7 +143,6 @@ public class Window implements IDisposable, IRenderTarget {
         glfwSetWindowAttrib(id, GLFW_RESIZABLE, bool ? GLFW_TRUE : GLFW_FALSE);
         Logger.log(LogSeverity.Info, "Window", "Window " + id + " set as " + (bool ? "" : "not ") + "resizable");
     }
-
     public void setVsync(boolean bool) {
         if (isDisposed) throw new WindowDisposedException();
         glfwSwapInterval(bool ? 1 : 0);

@@ -25,12 +25,6 @@ public class Texture3d extends Texture {
 
     //region setPartialData
     @RequiresBind
-    public void setPartialData(int mipmapLevel, int xOffset, int yOffset, int zOffset, int width, int height, int depth, TextureFormat format, TextureDataType dataType, long data) {
-        if (isDisposed()) throw new TextureDisposedException();
-        glTexSubImage3D(GL_TEXTURE_3D, mipmapLevel, xOffset, yOffset, zOffset, width, height, depth, format.getValue(), dataType.getValue(), data);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_3D");
-    }
-    @RequiresBind
     public void setPartialData(int mipmapLevel, int xOffset, int yOffset, int zOffset, int width, int height, int depth, TextureFormat format, TextureDataType dataType, ByteBuffer data) {
         if (isDisposed()) throw new TextureDisposedException();
         glTexSubImage3D(GL_TEXTURE_3D, mipmapLevel, xOffset, yOffset, zOffset, width, height, depth, format.getValue(), dataType.getValue(), data);

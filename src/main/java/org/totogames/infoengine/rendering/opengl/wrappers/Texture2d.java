@@ -12,6 +12,7 @@ import java.nio.*;
 
 import static org.lwjgl.opengl.GL46C.*;
 
+// TODO: Mipmaps
 public class Texture2d extends Texture {
     /**
      * This only creates the texture. To initialize it, use setMutable or setImmutable
@@ -36,8 +37,10 @@ public class Texture2d extends Texture {
             default -> TextureFormat.RGBA;
         };
 
+        tex.bind(0);
         tex.setMutable(0, internalFormat, img.getWidth(), img.getHeight());
         tex.setPartialData(0, 0, 0, img.getWidth(), img.getHeight(), format, TextureDataType.UNSIGNED_BYTE, img.getPixels());
+        tex.unbind();
         return tex;
     }
 
@@ -50,19 +53,13 @@ public class Texture2d extends Texture {
     }
 
     @RequiresBind
-    public void setImmutable(int mipmapLevelCount, TextureInternalFormat format, int width, int height) {
+    public void setImmutable(int mipmapLevelCount, TextureInternalFormat internalFormat, int width, int height) {
         if (isDisposed()) throw new TextureDisposedException();
-        glTexStorage2D(GL_TEXTURE_2D, mipmapLevelCount, format.getValue(), width, height);
+        glTexStorage2D(GL_TEXTURE_2D, mipmapLevelCount, internalFormat.getValue(), width, height);
         Logger.log(LogSeverity.Trace, "OpenGL", "Immutable storage allocated for texture " + getId() + " of type TEXTURE_2D");
     }
 
     //region SetPartialData
-    @RequiresBind
-    public void setPartialData(int mipmapLevel, int xOffset, int yOffset, int width, int height, TextureFormat format, TextureDataType dataType, long data) {
-        if (isDisposed()) throw new TextureDisposedException();
-        glTexSubImage2D(GL_TEXTURE_2D, mipmapLevel, xOffset, yOffset, width, height, format.getValue(), dataType.getValue(), data);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
-    }
     @RequiresBind
     public void setPartialData(int mipmapLevel, int xOffset, int yOffset, int width, int height, TextureFormat format, TextureDataType dataType, ByteBuffer data) {
         if (isDisposed()) throw new TextureDisposedException();

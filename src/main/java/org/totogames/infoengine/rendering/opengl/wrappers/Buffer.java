@@ -109,12 +109,6 @@ public class Buffer implements IOglObject {
 
     //region SetData
     @RequiresBind
-    public void setData(@Range(from = 0, to = Long.MAX_VALUE) long size, @NotNull BufferUsage optimisationMode) {
-        if (isDisposed) throw new BufferDisposedException();
-        glBufferData(bindStatus.get(this).getValue(), size, optimisationMode.getValue());
-        Logger.log(LogSeverity.Trace, "OpenGL", "Data set for buffer " + id);
-    }
-    @RequiresBind
     public void setData(@NotNull ByteBuffer data, @NotNull BufferUsage optimisationMode) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferData(bindStatus.get(this).getValue(), data, optimisationMode.getValue());
@@ -185,12 +179,6 @@ public class Buffer implements IOglObject {
     //region SetImmutableData
     // For some reason there is no LongBuffer variant
     @RequiresBind
-    public void setImmutableData(@Range(from = 0, to = Long.MAX_VALUE) long size, @NotNull BufferAccessRestriction... flags) {
-        if (isDisposed) throw new BufferDisposedException();
-        glBufferStorage(bindStatus.get(this).getValue(), size, BufferAccessRestriction.combineFlags(flags));
-        Logger.log(LogSeverity.Trace, "OpenGL", "Immutable data set for buffer " + id);
-    }
-    @RequiresBind
     public void setImmutableData(@NotNull ByteBuffer data, @NotNull BufferAccessRestriction... flags) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferStorage(bindStatus.get(this).getValue(), data, BufferAccessRestriction.combineFlags(flags));
@@ -247,12 +235,6 @@ public class Buffer implements IOglObject {
     //endregion
 
     //region SetPartialData
-    @RequiresBind
-    public void setPartialData(@Range(from = 0, to = Long.MAX_VALUE) long offset, @NotNull ByteBuffer data) {
-        if (isDisposed) throw new BufferDisposedException();
-        glBufferSubData(bindStatus.get(this).getValue(), offset, data);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Partial data set for buffer " + id + " with offset " + offset);
-    }
     @RequiresBind
     public void setPartialData(@Range(from = 0, to = Long.MAX_VALUE) long offset, @NotNull ShortBuffer data) {
         if (isDisposed) throw new BufferDisposedException();
