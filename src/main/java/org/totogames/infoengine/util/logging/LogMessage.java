@@ -16,8 +16,8 @@ public class LogMessage {
 
     /**
      * @param severity The importance of the message
-     * @param source The source of the message
-     * @param message The main message
+     * @param source   The source of the message
+     * @param message  The main message
      */
     public LogMessage(@NotNull LogSeverity severity, @NotNull String source, @NotNull String message) {
         this.severity = severity;

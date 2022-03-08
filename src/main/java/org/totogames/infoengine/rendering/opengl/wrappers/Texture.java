@@ -35,7 +35,7 @@ public abstract class Texture implements IOglObject {
     public void activate() {
         if (isDisposed) throw new TextureDisposedException();
         if (bindStatus.containsKey(this))
-            glActiveTexture(bindStatus.get(this).getLeft().getValue());
+            glActiveTexture(bindStatus.get(this).left().getValue());
     }
     public void bind(@Range(from = 0, to = 31) int textureUnit) {
         if (isDisposed) throw new TextureDisposedException();
@@ -50,10 +50,10 @@ public abstract class Texture implements IOglObject {
         if (isDisposed) throw new TextureDisposedException();
         Pair<TextureUnit, TextureType> target = bindStatus.get(this);
         if (target != null) {
-            glActiveTexture(target.getLeft().getValue());
-            glBindTexture(target.getRight().getValue(), 0);
+            glActiveTexture(target.left().getValue());
+            glBindTexture(target.left().getValue(), 0);
             bindStatus.remove(this);
-            Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + " unbound from unit " + target.getLeft().toNumber());
+            Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + " unbound from unit " + target.left().toNumber());
         }
     }
 

@@ -18,7 +18,6 @@ import static org.lwjgl.opengl.GL46C.*;
 
 /**
  * Java wrapper for OpenGL buffer objects
- *
  * @see <a href="https://khronos.org/opengl/wiki/Buffer_Object">OpenGL Wiki: Buffers</a>
  */
 public class Buffer implements IOglObject {
