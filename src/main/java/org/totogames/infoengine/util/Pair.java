@@ -1,7 +1,5 @@
 package org.totogames.infoengine.util;
 
-// https://stackoverflow.com/a/521235
-
 import org.jetbrains.annotations.NotNull;
 
 /**

@@ -3,8 +3,10 @@ package org.totogames.infoengine.ecs;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.UnmodifiableView;
+import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -13,8 +15,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 public final class Entity {
-    private final Vector3f position = new Vector3f();
-    private final Quaternionf rotation = new Quaternionf();
+    private final Matrix4f transform = new Matrix4f();
 
     private final LinkedList<Component> components = new LinkedList<>();
     private final List<Entity> children = new LinkedList<>();
@@ -27,26 +28,39 @@ public final class Entity {
         return scene;
     }
 
-    public @NotNull Vector3f getWorldPosition() {
-        if (parent == null) return new Vector3f(position);
-        return parent.getWorldPosition().add(position);
+    public @NotNull Matrix4f getTransform() {
+        return transform;
     }
-    public @NotNull Vector3f getPosition() {
-        return position;
+    public void setTransform(@NotNull Matrix4f transform) {
+        this.transform.set(transform);
     }
-    public void setPosition(@NotNull Vector3f position) {
-        this.position.set(position);
+    public @NotNull Matrix4f getWorldTransform() {
+        if (parent == null) return new Matrix4f().set(transform);
+        return transform.mul(parent.getWorldTransform());
     }
 
-    public @NotNull Quaternionf getWorldRotation() {
-        if (parent == null) return new Quaternionf(rotation);
-        return parent.getWorldRotation().mul(rotation);
+    public @NotNull Vector3f getPosition() {
+        return transform.getTranslation(new Vector3f());
     }
+    public void setPosition(@NotNull Vector3f position) {
+        transform.setTranslation(position);
+    }
+    public @NotNull Vector3f getWorldPosition() {
+        if (parent == null) return getPosition();
+        // TODO: This is really inefficient and probably wrong
+        Vector4f temp = new Vector4f(parent.getWorldPosition(), 1).mul(transform);
+        return new Vector3f(temp.x, temp.y, temp.z);
+    }
+
     public @NotNull Quaternionf getRotation() {
-        return rotation;
+        return transform.getNormalizedRotation(new Quaternionf());
     }
     public void setRotation(@NotNull Quaternionf rotation) {
-        this.rotation.set(rotation);
+        transform.rotateAround(rotation, 0, 0, 0);
+    }
+    public @NotNull Quaternionf getWorldRotation() {
+        if (parent == null) return getRotation();
+        return getRotation().mul(parent.getWorldRotation());
     }
 
     public boolean isActive() {
