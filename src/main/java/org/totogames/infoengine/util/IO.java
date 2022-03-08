@@ -17,6 +17,9 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 
+/**
+ * Temporary helper class for IO, used until proper resource handling is implemented
+ */
 public class IO {
     public static @NotNull String getTextFromFile(@NotNull File file) {
         try {

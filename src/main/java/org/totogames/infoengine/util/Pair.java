@@ -3,6 +3,12 @@ package org.totogames.infoengine.util;
 import org.jetbrains.annotations.NotNull;
 
 // https://stackoverflow.com/a/521235
+
+/**
+ * Stores a immutable pair of values.
+ * @param <L> The type of the left value
+ * @param <R> The type of the right value
+ */
 public class Pair<L, R> {
     private final L left;
     private final R right;

@@ -1,5 +1,9 @@
 package org.totogames.infoengine.util.logging;
 
+/**
+ * Represents the importance/severity of a log message.
+ * Used by the {@link Logger} to discard unimportant messages
+ */
 public enum LogSeverity {
     Trace(0),
     Debug(1),
