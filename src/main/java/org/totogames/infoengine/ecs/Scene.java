@@ -24,6 +24,13 @@ public final class Scene {
         entity.removed(this);
     }
 
+    void addSilent(@NotNull Entity entity) {
+        entities.add(entity);
+    }
+    void removeSilent(@NotNull Entity entity) {
+        entities.remove(entity);
+    }
+
     public void beforeUpdate() {
         for (Entity entity : entities)
             if (entity.isActive()) entity.beforeUpdate();

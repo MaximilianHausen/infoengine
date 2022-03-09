@@ -53,10 +53,9 @@ public final class Entity {
     }
 
     public @NotNull Quaternionf getRotation() {
-        return transform.getNormalizedRotation(new Quaternionf());
+        return null;
     }
     public void setRotation(@NotNull Quaternionf rotation) {
-        transform.rotateAround(rotation, 0, 0, 0);
     }
     public @NotNull Quaternionf getWorldRotation() {
         if (parent == null) return getRotation();
@@ -70,25 +69,40 @@ public final class Entity {
         this.active = active;
     }
 
-    public @NotNull List<Entity> getHierarchy() {
-        if (parent == null) {
-            List<Entity> temp = new LinkedList<>();
-            temp.add(this);
-            return temp;
-        }
-        List<Entity> temp = parent.getHierarchy();
-        temp.add(this);
-        return temp;
+    public @NotNull List<Entity> getAllParentEntities(@NotNull List<Entity> addTo) {
+        addTo.add(this);
+        if (parent != null) parent.getAllParentEntities(addTo);
+        return addTo;
     }
+    public @NotNull List<Entity> getAllChildEntities(@NotNull List<Entity> addTo) {
+        addTo.add(this);
+        for (Entity child : children)
+            child.getAllChildEntities(addTo);
+        return addTo;
+    }
+
     public @Nullable Entity getParent() {
         return parent;
     }
     public void setParent(@Nullable Entity parent) {
         if (this.parent == parent) return;
+
         if (this.parent != null)
             this.parent.children.remove(this);
         if (parent != null)
             parent.children.add(this);
+
+        if (this.parent == null && parent != null && scene != null) {
+            scene.removeSilent(this);
+        }
+        if (this.parent != null && parent == null && scene != null) {
+            scene.addSilent(this);
+        }
+
+        if (parent != null && this.scene != parent.scene) {
+            scene = parent.scene;
+        }
+
         this.parent = parent;
     }
 
