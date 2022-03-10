@@ -88,7 +88,7 @@ public class Program implements IOglObject {
     public void use() {
         if (isDisposed) throw new ProgramDisposedException();
         glUseProgram(getId());
-        Logger.log(LogSeverity.Debug, "OpenGL", "Using program " + id);
+        Logger.log(LogSeverity.Trace, "OpenGL", "Using program " + id);
     }
 
     public Shader getVertexShader() {
