@@ -3,7 +3,7 @@ plugins {
     id 'maven-publish'
 }
 
-group = "org.totogames"
+group = "net.totodev"
 version = "0.1"
 
 project.ext.lwjglVersion = "3.3.0"
