@@ -2,6 +2,7 @@ package org.totogames.infoengine.rendering.opengl.wrappers;
 
 import com.google.common.collect.HashBiMap;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
 import org.totogames.infoengine.rendering.opengl.enums.TextureType;
 import org.totogames.infoengine.rendering.opengl.enums.TextureUnit;
@@ -9,18 +10,18 @@ import org.totogames.infoengine.rendering.opengl.enums.texparams.TextureLevelPar
 import org.totogames.infoengine.rendering.opengl.enums.texparams.TextureParameter;
 import org.totogames.infoengine.rendering.opengl.enums.texparams.TextureResizeFilter;
 import org.totogames.infoengine.rendering.opengl.enums.texparams.TextureWrappingStyle;
-import org.totogames.infoengine.util.Pair;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
 import static org.lwjgl.opengl.GL46C.*;
 
 /**
+ * Base class for all texture wrappers. Contains all the general texture stuff.
  * @see <a href="https://khronos.org/opengl/wiki/Texture">OpenGL Wiki: Textures</a>
  * @see <a href="https://www.khronos.org/opengl/wiki/Texture_Storage">OpenGL Wiki: Texture Storage</a>
  */
 public abstract class Texture implements IOglObject {
-    private static final HashBiMap<Texture, Pair<TextureUnit, TextureType>> bindStatus = HashBiMap.create(32);
+    private static final HashBiMap<Texture, TextureBindTarget> bindStatus = HashBiMap.create(32);
     private final int id;
     private final TextureType type;
     private boolean isDisposed = false;
@@ -31,43 +32,83 @@ public abstract class Texture implements IOglObject {
         Logger.log(LogSeverity.Debug, "OpenGL", "Texture created with id " + id + " and type " + type);
     }
 
+    /**
+     * Gets the currently bound texture
+     * @param target The target to get the texture from
+     * @return The texture, or null if nothing is bound on that target
+     */
+    public static @Nullable Texture getBoundTexture(@NotNull TextureBindTarget target) {
+        return bindStatus.inverse().get(target);
+    }
+
+    /**
+     * Activates the texture unit this is currently bound to
+     */
     @RequiresBind
     public void activate() {
         if (isDisposed) throw new TextureDisposedException();
         if (bindStatus.containsKey(this))
-            glActiveTexture(bindStatus.get(this).left().getValue());
+            glActiveTexture(bindStatus.get(this).texUnit().getValue());
     }
+
+    /**
+     * Binds this texture and activates the respective texture unit
+     * @param textureUnit The texture unit to bind to
+     */
     public void bind(@Range(from = 0, to = 31) int textureUnit) {
         if (isDisposed) throw new TextureDisposedException();
         TextureUnit texUnit = TextureUnit.fromNumber(textureUnit);
         glActiveTexture(texUnit.getValue());
         glBindTexture(type.getValue(), id);
-        bindStatus.forcePut(this, new Pair<>(texUnit, type));
+        bindStatus.forcePut(this, new TextureBindTarget(texUnit, type));
         Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + " bound to target " + texUnit);
     }
+
+    /**
+     * Unbinds this texture from the texture unit it is currently bound to
+     */
     @RequiresBind
     public void unbind() {
         if (isDisposed) throw new TextureDisposedException();
-        Pair<TextureUnit, TextureType> target = bindStatus.get(this);
+        TextureBindTarget target = bindStatus.get(this);
         if (target != null) {
-            glActiveTexture(target.left().getValue());
-            glBindTexture(target.left().getValue(), 0);
+            TextureUnit oldTexUnit = TextureUnit.fromNumber(glGetInteger(GL_ACTIVE_TEXTURE));
+            glActiveTexture(target.texUnit().getValue());
+            glBindTexture(target.texUnit().getValue(), 0);
             bindStatus.remove(this);
-            Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + " unbound from unit " + target.left().toNumber());
+            glActiveTexture(oldTexUnit.getValue());
+            Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + " unbound from unit " + target.texUnit().toNumber());
         }
     }
 
+    public @Nullable TextureBindTarget getBindStatus() {
+        if (isDisposed) throw new TextureDisposedException();
+        return bindStatus.get(this);
+    }
+
+    /**
+     * Gets a texture parameter from the OpenGL object.
+     * @param param The parameter to get
+     * @return The value of the parameter as a OpenGL constant
+     */
     @RequiresBind
     public int getTexParameter(@NotNull TextureParameter param) {
         if (isDisposed) throw new TextureDisposedException();
         return glGetTexParameteri(type.getValue(), param.getValue());
     }
 
+    /**
+     * Gets a texture level parameter from the OpenGL object.
+     * @param level The Mipmap level to read from
+     * @param param The parameter to get
+     * @return The value of the parameter as a OpenGL constant
+     */
     @RequiresBind
     public int getTexLevelParameter(int level, @NotNull TextureLevelParameter param) {
         if (isDisposed) throw new TextureDisposedException();
         return glGetTexLevelParameteri(type.getValue(), level, param.getValue());
     }
+
     @RequiresBind
     public int getWidth(int level) {
         if (isDisposed) throw new TextureDisposedException();
@@ -79,9 +120,15 @@ public abstract class Texture implements IOglObject {
         return glGetTexLevelParameteri(type.getValue(), level, GL_TEXTURE_HEIGHT);
     }
 
+    /**
+     * Sets a texture parameter on the OpenGL object.
+     * @param param The parameter to set
+     * @param value The value of the parameter as a OpenGL constant
+     */
     @RequiresBind
     public void setTexParam(@NotNull TextureParameter param, int value) {
         if (isDisposed) throw new TextureDisposedException();
+        Logger.log(LogSeverity.Trace, "OpenGL", "Parameter " + param + " for texture " + id + " of type " + type + " set to " + value);
     }
 
     @RequiresBind

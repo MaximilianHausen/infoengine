@@ -8,6 +8,9 @@ import org.totogames.infoengine.util.logging.Logger;
 
 import static org.lwjgl.opengl.GL46C.*;
 
+/**
+ * A renderer can render a scene to a render target
+ */
 public class Renderer {
     private Scene scene;
     private IRenderTarget target;
@@ -18,6 +21,9 @@ public class Renderer {
         this.target = target;
     }
 
+    /**
+     * Starts rendering on a new thread.
+     */
     public void startRender() {
         if (activeThread == null) {
             Window.makeNotCurrent();
@@ -25,6 +31,10 @@ public class Renderer {
             activeThread.start();
         } else Logger.log(LogSeverity.Error, "Renderer", "Render thread already running");
     }
+
+    /**
+     * Stops rendering on the currently active render thread.
+     */
     public void stopRender() {
         if (activeThread != null) {
             activeThread.interrupt();

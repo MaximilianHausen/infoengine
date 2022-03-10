@@ -7,6 +7,10 @@ import org.totogames.infoengine.util.logging.Logger;
 
 import static org.lwjgl.opengl.GL46C.*;
 
+/**
+ * Java wrapper for OpenGL vertex array objects
+ * @see <a href="https://www.khronos.org/opengl/wiki/Vertex_Specification#Vertex_Array_Object">OpenGL Wiki: VertexArray</a>
+ */
 public class VertexArray implements IOglObject {
     private static VertexArray currentBound;
     private final int id;
@@ -18,22 +22,32 @@ public class VertexArray implements IOglObject {
         Logger.log(LogSeverity.Debug, "OpenGL", "VertexArray created with id " + id);
     }
 
+    /**
+     * Binds this vertex array.
+     */
     public void bind() {
         if (isDisposed) throw new VertexArrayDisposedException();
         glBindVertexArray(id);
         currentBound = this;
         Logger.log(LogSeverity.Trace, "OpenGL", "VertexArray " + id + " bound");
     }
+    /**
+     * Unbinds this vertex array
+     */
     @RequiresBind
     public void unbind() {
         if (isDisposed) throw new VertexArrayDisposedException();
         if (currentBound == this) {
-            glBindVertexArray(id);
+            glBindVertexArray(0);
             currentBound = null;
             Logger.log(LogSeverity.Trace, "OpenGL", "VertexArray " + id + " unbound");
         }
     }
 
+    /**
+     * Sets the vertex attributes. Stride, offset and enabling/disabling is handled automatically
+     * @param attributes The vertex attributes to set
+     */
     @RequiresBind
     public void setVertexAttributes(VertexAttribute... attributes) {
         if (isDisposed) throw new VertexArrayDisposedException();
@@ -59,12 +73,17 @@ public class VertexArray implements IOglObject {
         // Set attribute pointers
         for (int i = 0; i < attributes.length; i++) {
             VertexAttribute attribute = attributes[i];
-            attribute.getVertexBuffer().bind(BufferBindTarget.ARRAY_BUFFER);
-            glVertexAttribPointer(i, attribute.getSize(), attribute.getType().getValue(), false, stride, offsets[i]);
+            attribute.vertexBuffer().bind(BufferBindTarget.ARRAY_BUFFER);
+            glVertexAttribPointer(i, attribute.size(), attribute.type().getValue(), false, stride, offsets[i]);
         }
 
         activatedAttributes = attributes.length;
     }
+
+    /**
+     * Sets the element buffer. This is equivalent to binding it on ELEMENT_ARRAY_BUFFER
+     * @param elementBuffer The element buffer to set
+     */
     @RequiresBind
     public void setElementBuffer(@NotNull Buffer elementBuffer) {
         if (isDisposed) throw new VertexArrayDisposedException();

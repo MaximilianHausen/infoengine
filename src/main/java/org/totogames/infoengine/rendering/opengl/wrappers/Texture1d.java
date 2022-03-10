@@ -11,6 +11,11 @@ import java.nio.*;
 
 import static org.lwjgl.opengl.GL46C.*;
 
+/**
+ * Java wrapper for OpenGL texture objects of type TEXTURE_1D (Unfinished)
+ * @see <a href="https://khronos.org/opengl/wiki/Texture">OpenGL Wiki: Textures</a>
+ * @see <a href="https://www.khronos.org/opengl/wiki/Texture_Storage">OpenGL Wiki: Texture Storage</a>
+ */
 public class Texture1d extends Texture {
     public Texture1d() {
         super(TextureType.TEXTURE_1D);

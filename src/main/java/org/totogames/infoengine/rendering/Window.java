@@ -3,6 +3,7 @@ package org.totogames.infoengine.rendering;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.totogames.infoengine.IDisposable;
+import org.totogames.infoengine.rendering.opengl.enums.FramebufferBindTarget;
 import org.totogames.infoengine.rendering.opengl.wrappers.Framebuffer;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
@@ -10,6 +11,9 @@ import org.totogames.infoengine.util.logging.Logger;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 
+/**
+ * Represents a glfw window
+ */
 public class Window implements IDisposable, IRenderTarget {
     private static Window activeWindow;
 
@@ -30,6 +34,9 @@ public class Window implements IDisposable, IRenderTarget {
     // Used to configure the window when exiting fullscreen
     private int lastWindowPosX = 0, lastWindowPosY = 0, lastWindowSizeX = 0, lastWindowSizeY = 0;
 
+    /**
+     * Creates a new window
+     */
     public Window(@NotNull String title, int width, int height) {
         id = glfwCreateWindow(width, height, title, NULL, activeWindow != null ? activeWindow.getId() : NULL);
         if (id == NULL)
@@ -46,13 +53,25 @@ public class Window implements IDisposable, IRenderTarget {
     public static Window getActiveWindow() {
         return activeWindow;
     }
+
+    /**
+     * Makes the OpenGL context not current on the calling thread.
+     */
     public static void makeNotCurrent() {
         glfwMakeContextCurrent(NULL);
     }
+
+    /**
+     * Processes all pending events. This should only be called from the main thread!
+     */
     public static void pollEvents() {
         glfwPollEvents();
     }
 
+    /**
+     * Returns if the window should be closed (e.g. by clicking the close button).
+     * @return If window should be closed
+     */
     public boolean shouldClose() {
         if (isDisposed) throw new WindowDisposedException();
         return glfwWindowShouldClose(id);
@@ -62,6 +81,10 @@ public class Window implements IDisposable, IRenderTarget {
         if (isDisposed) throw new WindowDisposedException();
         return id;
     }
+
+    /**
+     * Makes the OpenGL context of this window current on the calling thread.
+     */
     public void makeCurrent() {
         if (isDisposed) throw new WindowDisposedException();
         glfwMakeContextCurrent(id);
@@ -158,7 +181,8 @@ public class Window implements IDisposable, IRenderTarget {
     }
 
     public void activate() {
-        Framebuffer.unbind();
+        Framebuffer fbo = Framebuffer.getBoundFramebuffer(FramebufferBindTarget.FRAMEBUFFER);
+        if (fbo != null) fbo.unbind();
     }
     public void renderedFrame() {
         glfwSwapBuffers(id);

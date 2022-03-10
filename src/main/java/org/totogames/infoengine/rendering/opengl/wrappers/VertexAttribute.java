@@ -8,10 +8,14 @@ import java.util.HashMap;
 
 import static org.totogames.infoengine.rendering.opengl.enums.VertexAttribDataType.*;
 
-public class VertexAttribute {
+/**
+ * All information needed to set a vertex attribute
+ */
+public record VertexAttribute(@NotNull Buffer vertexBuffer, @NotNull  VertexAttribDataType type, @Range(from = 1, to = 4) int size) {
     private static final HashMap<VertexAttribDataType, Integer> dataSizes;
 
     static {
+        // Initialize data sizes
         HashMap<VertexAttribDataType, Integer> temp = new HashMap<>();
         temp.put(BYTE, 1);
         temp.put(UNSIGNED_BYTE, 1);
@@ -29,26 +33,10 @@ public class VertexAttribute {
         dataSizes = temp;
     }
 
-    private final Buffer vertexBuffer;
-    private final int size;
-    private final VertexAttribDataType type;
-
-    public VertexAttribute(@NotNull Buffer vertexBuffer, VertexAttribDataType type, @Range(from = 1, to = 4) int size) {
-        this.vertexBuffer = vertexBuffer;
-        this.type = type;
-        this.size = size;
-    }
-
-    public Buffer getVertexBuffer() {
-        return vertexBuffer;
-    }
-    public VertexAttribDataType getType() {
-        return type;
-    }
-    public int getSize() {
-        return size;
-    }
-
+    /**
+     * Gets the total size of this vertex array in bytes.
+     * @return The size in bytes
+     */
     public @Range(from = 0, to = Integer.MAX_VALUE) int getByteSize() {
         return dataSizes.get(type) * size;
     }

@@ -7,6 +7,7 @@ import org.jetbrains.annotations.Range;
 import org.totogames.infoengine.rendering.opengl.enums.BufferAccessRestriction;
 import org.totogames.infoengine.rendering.opengl.enums.BufferBindTarget;
 import org.totogames.infoengine.rendering.opengl.enums.BufferUsage;
+import org.totogames.infoengine.rendering.opengl.enums.FramebufferBindTarget;
 import org.totogames.infoengine.util.logging.LogSeverity;
 import org.totogames.infoengine.util.logging.Logger;
 
@@ -30,6 +31,19 @@ public class Buffer implements IOglObject {
         Logger.log(LogSeverity.Debug, "OpenGL", "Buffer created with id " + id);
     }
 
+    /**
+     * Gets the currently bound buffer
+     * @param target The target to get the buffer from
+     * @return The buffer, or null if nothing is bound on that target
+     */
+    public static @Nullable Buffer getBoundBuffer(@NotNull BufferBindTarget target) {
+        return bindStatus.inverse().get(target);
+    }
+
+    /**
+     * Binds this buffer to a buffer bind target.
+     * @param target The target to bind to
+     */
     public void bind(BufferBindTarget target) {
         if (isDisposed) throw new BufferDisposedException();
         glBindBuffer(target.getValue(), id);
@@ -37,6 +51,10 @@ public class Buffer implements IOglObject {
 
         Logger.log(LogSeverity.Trace, "OpenGL", "Buffer " + id + " bound to target " + target);
     }
+
+    /**
+     * Unbinds this buffer from the targets it is currently bound to
+     */
     @RequiresBind
     public void unbind() {
         if (isDisposed) throw new BufferDisposedException();
@@ -48,6 +66,12 @@ public class Buffer implements IOglObject {
         }
     }
 
+    public @Nullable BufferBindTarget getBindStatus() {
+        if (isDisposed) throw new BufferDisposedException();
+        return bindStatus.get(this);
+    }
+
+    // Not doing javadoc for these, it would be a stupid amount of copying and pasting
     //region GetPartialData
     @RequiresBind
     public void getPartialData(long offset, @NotNull ByteBuffer target) {
@@ -296,6 +320,13 @@ public class Buffer implements IOglObject {
     }
     //endregion
 
+    /**
+     * Copies data from this buffer to another
+     * @param target The buffer to write the data to
+     * @param readOffset The position in this buffer to start reading
+     * @param writeOffset The position in the receiving buffer to start writing
+     * @param size The amount of data to copy, in bytes
+     */
     public void copy(Buffer target, @Range(from = 0, to = Long.MAX_VALUE) long readOffset, @Range(from = 0, to = Long.MAX_VALUE) long writeOffset, @Range(from = 0, to = Long.MAX_VALUE) long size) {
         if (target == this) throw new UnsupportedOperationException("Copying to the same buffer is not yet supported");
         BufferBindTarget temp1 = bindStatus.get(this);
@@ -313,21 +344,25 @@ public class Buffer implements IOglObject {
         Logger.log(LogSeverity.Trace, "OpenGL", size + " bytes copied from buffer " + id + " with offset " + readOffset + " to buffer " + id + " with offset " + writeOffset);
     }
 
+    /**
+     * Completely resets/invalidates this buffer
+     */
     public void reset() {
         if (isDisposed) throw new BufferDisposedException();
         glInvalidateBufferData(id);
         Logger.log(LogSeverity.Trace, "OpenGL", "Data invalidated/reset for buffer " + id);
     }
+    /**
+     * Reset/invalidate a part of this buffer
+     * @param offset The position in this buffer to start resetting
+     * @param length The amount of data to reset, in bytes
+     */
     public void partialReset(@Range(from = 0, to = Long.MAX_VALUE) long offset, @Range(from = 0, to = Long.MAX_VALUE) long length) {
         if (isDisposed) throw new BufferDisposedException();
         glInvalidateBufferSubData(id, offset, length);
         Logger.log(LogSeverity.Trace, "OpenGL", "Data [" + offset + ".." + (offset + length) + "] invalidated/reset for buffer " + id);
     }
 
-    public @Nullable BufferBindTarget getBindStatus() {
-        if (isDisposed) throw new BufferDisposedException();
-        return bindStatus.get(this);
-    }
     public int getId() {
         if (isDisposed) throw new BufferDisposedException();
         return id;
@@ -336,8 +371,8 @@ public class Buffer implements IOglObject {
     public void dispose() {
         if (isDisposed) throw new BufferDisposedException();
         glDeleteBuffers(id);
-        isDisposed = true;
         bindStatus.remove(this);
+        isDisposed = true;
         Logger.log(LogSeverity.Debug, "OpenGL", "Buffer deleted with id " + id);
     }
     public boolean isDisposed() {

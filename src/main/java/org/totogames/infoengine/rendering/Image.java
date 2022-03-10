@@ -2,6 +2,9 @@ package org.totogames.infoengine.rendering;
 
 import java.nio.ByteBuffer;
 
+/**
+ * A byte buffer with associated image data
+ */
 public class Image {
     private final ByteBuffer pixels;
     private final int width;
