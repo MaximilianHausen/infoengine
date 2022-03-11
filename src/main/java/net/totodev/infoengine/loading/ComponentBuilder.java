@@ -1,7 +1,7 @@
 package net.totodev.infoengine.loading;
 
 import net.totodev.infoengine.ecs.Component;
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -32,10 +32,10 @@ public class ComponentBuilder {
             try {
                 cache.put(typeName, (Class<? extends Component>) Class.forName(typeName));
             } catch (ClassNotFoundException e) {
-                Logger.log(LogSeverity.Critical, "ComponentBuilder", "Class <" + typeName + "> could not be found");
+                Logger.log(LogLevel.Critical, "ComponentBuilder", "Class <" + typeName + "> could not be found");
                 return null;
             } catch (ClassCastException e) {
-                Logger.log(LogSeverity.Critical, "ComponentBuilder", "Class <" + typeName + "> does not extend Component");
+                Logger.log(LogLevel.Critical, "ComponentBuilder", "Class <" + typeName + "> does not extend Component");
                 return null;
             }
         }
@@ -49,7 +49,7 @@ public class ComponentBuilder {
         try {
             component = type.getConstructor().newInstance();
         } catch (NoSuchMethodException | InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            Logger.log(LogSeverity.Error, "ComponentBuilder", "Error while initializing Component: Class <" + type.getName() + "> could not be instantiated");
+            Logger.log(LogLevel.Error, "ComponentBuilder", "Error while initializing Component: Class <" + type.getName() + "> could not be instantiated");
             return null;
         }
 
@@ -60,12 +60,12 @@ public class ComponentBuilder {
                 field.setAccessible(true);
                 field.set(component, override.getValue());
             } catch (NoSuchFieldException | IllegalArgumentException | IllegalAccessException e) {
-                Logger.log(LogSeverity.Error, "ComponentBuilder", "Error while initializing Component: Field <" + override.getKey() + "> could not be set");
+                Logger.log(LogLevel.Error, "ComponentBuilder", "Error while initializing Component: Field <" + override.getKey() + "> could not be set");
             }
         }
 
         component.initialized();
-        Logger.log(LogSeverity.Debug, "ComponentBuilder", "Component instantiated and initialized"); //TODO: Better log
+        Logger.log(LogLevel.Debug, "ComponentBuilder", "Component instantiated and initialized"); //TODO: Better log
 
         // Reset build args
         fieldOverrides.clear();

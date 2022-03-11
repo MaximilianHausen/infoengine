@@ -1,6 +1,6 @@
 package net.totodev.infoengine.util;
 
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -57,7 +57,7 @@ public class Collector<TResult> implements Func<ArrayList<TResult>> {
      */
     public ArrayList<TResult> run() {
         if (log)
-            Logger.log(LogSeverity.Debug, "Collector", "Invoked " + name);
+            Logger.log(LogLevel.Debug, "Collector", "Invoked " + name);
 
         ArrayList<TResult> results = new ArrayList<>(subscribers.size());
         for (Func<TResult> func : subscribers)

@@ -7,7 +7,7 @@ import net.totodev.infoengine.rendering.opengl.enums.texparams.TextureLevelParam
 import net.totodev.infoengine.rendering.opengl.enums.texparams.TextureParameter;
 import net.totodev.infoengine.rendering.opengl.enums.texparams.TextureResizeFilter;
 import net.totodev.infoengine.rendering.opengl.enums.texparams.TextureWrappingStyle;
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +29,7 @@ public abstract class Texture implements IOglObject {
     public Texture(@NotNull TextureType type) {
         id = glGenTextures();
         this.type = type;
-        Logger.log(LogSeverity.Debug, "OpenGL", "Texture created with id " + id + " and type " + type);
+        Logger.log(LogLevel.Debug, "OpenGL", "Texture created with id " + id + " and type " + type);
     }
 
     /**
@@ -61,7 +61,7 @@ public abstract class Texture implements IOglObject {
         glActiveTexture(texUnit.getValue());
         glBindTexture(type.getValue(), id);
         bindStatus.forcePut(this, new TextureBindTarget(texUnit, type));
-        Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + " bound to target " + texUnit);
+        Logger.log(LogLevel.Trace, "OpenGL", "Texture " + id + " of type " + type + " bound to target " + texUnit);
     }
 
     /**
@@ -77,7 +77,7 @@ public abstract class Texture implements IOglObject {
             glBindTexture(target.texUnit().getValue(), 0);
             bindStatus.remove(this);
             glActiveTexture(oldTexUnit.getValue());
-            Logger.log(LogSeverity.Trace, "OpenGL", "Texture " + id + " of type " + type + " unbound from unit " + target.texUnit().toNumber());
+            Logger.log(LogLevel.Trace, "OpenGL", "Texture " + id + " of type " + type + " unbound from unit " + target.texUnit().toNumber());
         }
     }
 
@@ -128,7 +128,7 @@ public abstract class Texture implements IOglObject {
     @RequiresBind
     public void setTexParam(@NotNull TextureParameter param, int value) {
         if (isDisposed) throw new TextureDisposedException();
-        Logger.log(LogSeverity.Trace, "OpenGL", "Parameter " + param + " for texture " + id + " of type " + type + " set to " + value);
+        Logger.log(LogLevel.Trace, "OpenGL", "Parameter " + param + " for texture " + id + " of type " + type + " set to " + value);
     }
 
     @RequiresBind
@@ -136,14 +136,14 @@ public abstract class Texture implements IOglObject {
         if (isDisposed) throw new TextureDisposedException();
         glTexParameteri(type.getValue(), GL_TEXTURE_WRAP_S, style.getValue());
         glTexParameteri(type.getValue(), GL_TEXTURE_WRAP_T, style.getValue());
-        Logger.log(LogSeverity.Trace, "OpenGL", "Wrapping style set to " + style + " on texture " + id + " of type " + type);
+        Logger.log(LogLevel.Trace, "OpenGL", "Wrapping style set to " + style + " on texture " + id + " of type " + type);
     }
     @RequiresBind
     public void setResizeFilter(@NotNull TextureResizeFilter filter) {
         if (isDisposed) throw new TextureDisposedException();
         glTexParameteri(type.getValue(), GL_TEXTURE_MIN_FILTER, filter.getValue());
         glTexParameteri(type.getValue(), GL_TEXTURE_MAG_FILTER, filter.getValue());
-        Logger.log(LogSeverity.Trace, "OpenGL", "Texture resize filter set to " + filter + " on texture " + id + " of type " + type);
+        Logger.log(LogLevel.Trace, "OpenGL", "Texture resize filter set to " + filter + " on texture " + id + " of type " + type);
     }
 
     public int getId() {
@@ -155,7 +155,7 @@ public abstract class Texture implements IOglObject {
         if (isDisposed) throw new TextureDisposedException();
         glDeleteTextures(id);
         isDisposed = true;
-        Logger.log(LogSeverity.Debug, "OpenGL", "Texture of type deleted with id " + id);
+        Logger.log(LogLevel.Debug, "OpenGL", "Texture of type deleted with id " + id);
     }
     public boolean isDisposed() {
         return isDisposed;

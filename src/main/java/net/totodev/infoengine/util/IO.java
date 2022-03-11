@@ -3,7 +3,7 @@ package net.totodev.infoengine.util;
 import net.totodev.infoengine.rendering.Image;
 import net.totodev.infoengine.rendering.opengl.Texture2d;
 import net.totodev.infoengine.rendering.opengl.enums.TextureFormat;
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -25,7 +25,7 @@ public class IO {
         try {
             return Files.readString(file.toPath());
         } catch (IOException e) {
-            Logger.log(LogSeverity.Error, "IO", "Text could not be read from file <" + file.toPath() + ">");
+            Logger.log(LogLevel.Error, "IO", "Text could not be read from file <" + file.toPath() + ">");
             return "";
         }
     }

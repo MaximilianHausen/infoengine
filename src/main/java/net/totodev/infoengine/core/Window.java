@@ -1,9 +1,10 @@
-package net.totodev.infoengine.rendering;
+package net.totodev.infoengine.core;
 
 import net.totodev.infoengine.IDisposable;
+import net.totodev.infoengine.rendering.IRenderTarget;
 import net.totodev.infoengine.rendering.opengl.Framebuffer;
 import net.totodev.infoengine.rendering.opengl.enums.FramebufferBindTarget;
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.glfw.GLFWErrorCallback;
@@ -21,7 +22,7 @@ public class Window implements IDisposable, IRenderTarget {
         GLFWErrorCallback.createPrint(System.err).set();
 
         if (!glfwInit())
-            Logger.log(LogSeverity.Critical, "Window", "GLFW could not be initialized");
+            Logger.log(LogLevel.Critical, "Window", "GLFW could not be initialized");
 
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -40,14 +41,14 @@ public class Window implements IDisposable, IRenderTarget {
     public Window(@NotNull String title, int width, int height) {
         id = glfwCreateWindow(width, height, title, NULL, activeWindow != null ? activeWindow.getId() : NULL);
         if (id == NULL)
-            Logger.log(LogSeverity.Critical, "GLFW", "Window could not be created");
+            Logger.log(LogLevel.Critical, "GLFW", "Window could not be created");
 
         makeCurrent();
         glfwSwapInterval(1); // Enable v-sync
         glfwShowWindow(id);
         activeWindow = this;
 
-        Logger.log(LogSeverity.Debug, "GLFW", "Window " + id + " created and set as current");
+        Logger.log(LogLevel.Debug, "GLFW", "Window " + id + " created and set as current");
     }
 
     public static Window getActiveWindow() {
@@ -99,18 +100,18 @@ public class Window implements IDisposable, IRenderTarget {
         if (isDisposed) throw new WindowDisposedException();
         switch (mode) {
             case Windowed -> setWindowed();
-            case Borderless -> Logger.log(LogSeverity.Error, "Window", "Borderless mode is not supported yet");
+            case Borderless -> Logger.log(LogLevel.Error, "Window", "Borderless mode is not supported yet");
             case Fullscreen -> setFullscreen();
         }
     }
     private void setWindowed() {
         switch (currentMode) {
-            case Windowed -> Logger.log(LogSeverity.Debug, "Window", "Window " + id + " already in windowed mode");
+            case Windowed -> Logger.log(LogLevel.Debug, "Window", "Window " + id + " already in windowed mode");
             case Fullscreen -> {
                 glfwSetWindowMonitor(id, NULL, lastWindowPosX, lastWindowPosY, lastWindowSizeX, lastWindowSizeY, GLFW_DONT_CARE);
                 glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
                 currentMode = WindowModes.Windowed;
-                Logger.log(LogSeverity.Info, "Window", "Window " + id + " set to windowed mode");
+                Logger.log(LogLevel.Info, "Window", "Window " + id + " set to windowed mode");
             }
         }
     }
@@ -131,9 +132,9 @@ public class Window implements IDisposable, IRenderTarget {
                 glfwSetWindowMonitor(id, glfwGetWindowMonitor(id), 0, 0, monSizeX[0], monSizeY[0], GLFW_DONT_CARE);
                 glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
                 currentMode = WindowModes.Fullscreen;
-                Logger.log(LogSeverity.Info, "Window", "Window " + id + " set to fullscreen mode");
+                Logger.log(LogLevel.Info, "Window", "Window " + id + " set to fullscreen mode");
             }
-            case Fullscreen -> Logger.log(LogSeverity.Debug, "Window", "Window " + id + " already in fullscreen mode");
+            case Fullscreen -> Logger.log(LogLevel.Debug, "Window", "Window " + id + " already in fullscreen mode");
         }
     }
 
@@ -148,23 +149,23 @@ public class Window implements IDisposable, IRenderTarget {
     public void setVisible(boolean bool) {
         if (isDisposed) throw new WindowDisposedException();
         if ((bool ? GLFW_TRUE : GLFW_FALSE) == glfwGetWindowAttrib(id, GLFW_VISIBLE)) {
-            Logger.log(LogSeverity.Debug, "WindowManager", "Window " + id + " already " + (bool ? "visible" : "hidden"));
+            Logger.log(LogLevel.Debug, "WindowManager", "Window " + id + " already " + (bool ? "visible" : "hidden"));
             return;
         }
 
         if (bool) glfwShowWindow(id);
         else glfwHideWindow(id);
-        Logger.log(LogSeverity.Info, "Window", "Window " + id + " set as  " + (bool ? "visible" : "hidden"));
+        Logger.log(LogLevel.Info, "Window", "Window " + id + " set as  " + (bool ? "visible" : "hidden"));
     }
     public void setResizable(boolean bool) {
         if (isDisposed) throw new WindowDisposedException();
         if ((bool ? GLFW_TRUE : GLFW_FALSE) == glfwGetWindowAttrib(id, GLFW_VISIBLE)) {
-            Logger.log(LogSeverity.Debug, "Window", "Window " + id + " already " + (bool ? "" : "not ") + "resizable");
+            Logger.log(LogLevel.Debug, "Window", "Window " + id + " already " + (bool ? "" : "not ") + "resizable");
             return;
         }
 
         glfwSetWindowAttrib(id, GLFW_RESIZABLE, bool ? GLFW_TRUE : GLFW_FALSE);
-        Logger.log(LogSeverity.Info, "Window", "Window " + id + " set as " + (bool ? "" : "not ") + "resizable");
+        Logger.log(LogLevel.Info, "Window", "Window " + id + " set as " + (bool ? "" : "not ") + "resizable");
     }
     public void setVsync(boolean bool) {
         if (isDisposed) throw new WindowDisposedException();

@@ -3,7 +3,7 @@ package net.totodev.infoengine.tests.util;
 import net.totodev.infoengine.tests.CamelCaseGenerator;
 import net.totodev.infoengine.util.Collector;
 import net.totodev.infoengine.util.Func;
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayNameGeneration;
@@ -18,7 +18,7 @@ public class CollectorTests {
     @Test
     public void logs() {
         Collector<String> collector = new Collector<>("TestCollector", true);
-        Logger.setLogLevel(LogSeverity.Debug);
+        Logger.setLogLevel(LogLevel.Debug);
         Logger.setLogTarget(s -> counter++);
         collector.run();
         Assertions.assertEquals(2, counter);

@@ -1,4 +1,4 @@
-package net.totodev.infoengine.rendering;
+package net.totodev.infoengine.core;
 
 import net.totodev.infoengine.DisposedException;
 

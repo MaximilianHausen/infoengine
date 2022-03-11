@@ -2,7 +2,7 @@ package net.totodev.infoengine.loading;
 
 import net.totodev.infoengine.ecs.Component;
 import net.totodev.infoengine.ecs.Entity;
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -52,7 +52,7 @@ public class EntityBuilder {
         components.forEach(entity::addComponent);
 
         //entity.initialized();
-        Logger.log(LogSeverity.Debug, "EntityBuilder", "Entity instantiated and initialized"); //TODO: Better log
+        Logger.log(LogLevel.Debug, "EntityBuilder", "Entity instantiated and initialized"); //TODO: Better log
 
         // Reset build args
         parent = null;

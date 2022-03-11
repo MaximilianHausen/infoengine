@@ -1,6 +1,6 @@
 package net.totodev.infoengine.ecs;
 
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import org.jetbrains.annotations.NotNull;
@@ -27,7 +27,7 @@ public abstract class Component {
 
     public void removeSelf() {
         if (entity == null) {
-            Logger.log(LogSeverity.Error, "Component", "Error while removing a component: The component is not attached to any entity");
+            Logger.log(LogLevel.Error, "Component", "Error while removing a component: The component is not attached to any entity");
             return;
         }
 

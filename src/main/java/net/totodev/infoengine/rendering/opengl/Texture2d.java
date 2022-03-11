@@ -5,7 +5,7 @@ import net.totodev.infoengine.rendering.opengl.enums.TextureDataType;
 import net.totodev.infoengine.rendering.opengl.enums.TextureFormat;
 import net.totodev.infoengine.rendering.opengl.enums.TextureInternalFormat;
 import net.totodev.infoengine.rendering.opengl.enums.TextureType;
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 
 import java.nio.*;
@@ -76,7 +76,7 @@ public class Texture2d extends Texture {
     public void setImmutable(int texLevelCount, TextureInternalFormat internalFormat, int width, int height) {
         if (isDisposed()) throw new TextureDisposedException();
         glTexStorage2D(GL_TEXTURE_2D, texLevelCount, internalFormat.getValue(), width, height);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Immutable storage allocated for texture " + getId() + " of type TEXTURE_2D");
+        Logger.log(LogLevel.Trace, "OpenGL", "Immutable storage allocated for texture " + getId() + " of type TEXTURE_2D");
     }
 
     //region SetPartialData
@@ -84,56 +84,56 @@ public class Texture2d extends Texture {
     public void setPartialData(int texLevel, int xOffset, int yOffset, int width, int height, TextureFormat format, TextureDataType dataType, ByteBuffer data) {
         if (isDisposed()) throw new TextureDisposedException();
         glTexSubImage2D(GL_TEXTURE_2D, texLevel, xOffset, yOffset, width, height, format.getValue(), dataType.getValue(), data);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
+        Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
     }
     @RequiresBind
     public void setPartialData(int texLevel, int xOffset, int yOffset, int width, int height, TextureFormat format, TextureDataType dataType, ShortBuffer data) {
         if (isDisposed()) throw new TextureDisposedException();
         glTexSubImage2D(GL_TEXTURE_2D, texLevel, xOffset, yOffset, width, height, format.getValue(), dataType.getValue(), data);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
+        Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
     }
     @RequiresBind
     public void setPartialData(int texLevel, int xOffset, int yOffset, int width, int height, TextureFormat format, TextureDataType dataType, IntBuffer data) {
         if (isDisposed()) throw new TextureDisposedException();
         glTexSubImage2D(GL_TEXTURE_2D, texLevel, xOffset, yOffset, width, height, format.getValue(), dataType.getValue(), data);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
+        Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
     }
     // No LongBuffer version
     @RequiresBind
     public void setPartialData(int texLevel, int xOffset, int yOffset, int width, int height, TextureFormat format, TextureDataType dataType, FloatBuffer data) {
         if (isDisposed()) throw new TextureDisposedException();
         glTexSubImage2D(GL_TEXTURE_2D, texLevel, xOffset, yOffset, width, height, format.getValue(), dataType.getValue(), data);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
+        Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
     }
     @RequiresBind
     public void setPartialData(int texLevel, int xOffset, int yOffset, int width, int height, TextureFormat format, TextureDataType dataType, DoubleBuffer data) {
         if (isDisposed()) throw new TextureDisposedException();
         glTexSubImage2D(GL_TEXTURE_2D, texLevel, xOffset, yOffset, width, height, format.getValue(), dataType.getValue(), data);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
+        Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
     }
     @RequiresBind
     public void setPartialData(int texLevel, int xOffset, int yOffset, int width, int height, TextureFormat format, TextureDataType dataType, short[] data) {
         if (isDisposed()) throw new TextureDisposedException();
         glTexSubImage2D(GL_TEXTURE_2D, texLevel, xOffset, yOffset, width, height, format.getValue(), dataType.getValue(), data);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
+        Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
     }
     @RequiresBind
     public void setPartialData(int texLevel, int xOffset, int yOffset, int width, int height, TextureFormat format, TextureDataType dataType, int[] data) {
         if (isDisposed()) throw new TextureDisposedException();
         glTexSubImage2D(GL_TEXTURE_2D, texLevel, xOffset, yOffset, width, height, format.getValue(), dataType.getValue(), data);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
+        Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
     }
     @RequiresBind
     public void setPartialData(int texLevel, int xOffset, int yOffset, int width, int height, TextureFormat format, TextureDataType dataType, float[] data) {
         if (isDisposed()) throw new TextureDisposedException();
         glTexSubImage2D(GL_TEXTURE_2D, texLevel, xOffset, yOffset, width, height, format.getValue(), dataType.getValue(), data);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
+        Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
     }
     @RequiresBind
     public void setPartialData(int texLevel, int xOffset, int yOffset, int width, int height, TextureFormat format, TextureDataType dataType, double[] data) {
         if (isDisposed()) throw new TextureDisposedException();
         glTexSubImage2D(GL_TEXTURE_2D, texLevel, xOffset, yOffset, width, height, format.getValue(), dataType.getValue(), data);
-        Logger.log(LogSeverity.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
+        Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for texture " + getId() + " of type TEXTURE_2D");
     }
     //endregion
 }

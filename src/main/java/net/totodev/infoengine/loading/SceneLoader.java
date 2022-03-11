@@ -7,7 +7,7 @@ import net.totodev.infoengine.ecs.Component;
 import net.totodev.infoengine.ecs.Entity;
 import net.totodev.infoengine.ecs.Scene;
 import net.totodev.infoengine.util.IO;
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -28,14 +28,14 @@ public class SceneLoader {
         Scene scene = new Scene();
 
         if (sceneJson.equals("")) {
-            Logger.log(LogSeverity.Critical, "SceneLoader", "File not found or is empty");
+            Logger.log(LogLevel.Critical, "SceneLoader", "File not found or is empty");
             return scene;
         }
 
         try {
             sceneModel = gson.fromJson(sceneJson, SceneModel.class);
         } catch (JsonSyntaxException e) {
-            Logger.log(LogSeverity.Critical, "SceneLoader", "Invalid scene file");
+            Logger.log(LogLevel.Critical, "SceneLoader", "Invalid scene file");
             return scene;
         }
 
@@ -44,7 +44,7 @@ public class SceneLoader {
             addToSceneRecursive(loadEntity(entityModel, null), scene);
         }
 
-        Logger.log(LogSeverity.Critical, "SceneLoader", "Scene <" + sceneModel.name + "> loaded");
+        Logger.log(LogLevel.Critical, "SceneLoader", "Scene <" + sceneModel.name + "> loaded");
         return scene;
     }
 

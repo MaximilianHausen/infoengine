@@ -10,17 +10,17 @@ import java.time.LocalTime;
  * @see Logger
  */
 public class LogMessage {
-    public LogSeverity severity;
+    public LogLevel logLevel;
     public String source;
     public String message;
 
     /**
-     * @param severity The importance of the message
+     * @param logLevel The importance of the message
      * @param source   The source of the message
      * @param message  The main message
      */
-    public LogMessage(@NotNull LogSeverity severity, @NotNull String source, @NotNull String message) {
-        this.severity = severity;
+    public LogMessage(@NotNull LogLevel logLevel, @NotNull String source, @NotNull String message) {
+        this.logLevel = logLevel;
         this.source = source;
         this.message = message;
     }
@@ -31,15 +31,19 @@ public class LogMessage {
      */
     public @NotNull String toString() {
         String spacing = "  ";
-        int sourceWidth = 15; // Width of the source part of the message. Sources longer than this get cut off
+        int sourceWidth = 10; // Width of the source part of the message. Sources longer than this get cut off
 
         String timestamp = LocalTime.now().toString().substring(0, 8);
 
         // Assemble source with padding
-        StringBuilder source = new StringBuilder(this.source);
-        while (source.length() < sourceWidth)
-            source.append(" ");
+        StringBuilder sourceBuilder = new StringBuilder(this.source);
+        while (sourceBuilder.length() < sourceWidth)
+            sourceBuilder.append(" ");
 
-        return timestamp + spacing + source + spacing + message;
+        String source = sourceBuilder.toString();
+        if (source.length() > sourceWidth)
+            source = source.substring(0, 10);
+
+        return timestamp + spacing + logLevel.toString() + spacing + source + spacing + message;
     }
 }

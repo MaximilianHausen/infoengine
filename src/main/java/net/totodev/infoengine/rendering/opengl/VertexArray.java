@@ -1,7 +1,7 @@
 package net.totodev.infoengine.rendering.opengl;
 
 import net.totodev.infoengine.rendering.opengl.enums.BufferBindTarget;
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,7 +19,7 @@ public class VertexArray implements IOglObject {
 
     public VertexArray() {
         id = glGenVertexArrays();
-        Logger.log(LogSeverity.Debug, "OpenGL", "VertexArray created with id " + id);
+        Logger.log(LogLevel.Debug, "OpenGL", "VertexArray created with id " + id);
     }
 
     /**
@@ -29,7 +29,7 @@ public class VertexArray implements IOglObject {
         if (isDisposed) throw new VertexArrayDisposedException();
         glBindVertexArray(id);
         currentBound = this;
-        Logger.log(LogSeverity.Trace, "OpenGL", "VertexArray " + id + " bound");
+        Logger.log(LogLevel.Trace, "OpenGL", "VertexArray " + id + " bound");
     }
     /**
      * Unbinds this vertex array
@@ -40,7 +40,7 @@ public class VertexArray implements IOglObject {
         if (currentBound == this) {
             glBindVertexArray(0);
             currentBound = null;
-            Logger.log(LogSeverity.Trace, "OpenGL", "VertexArray " + id + " unbound");
+            Logger.log(LogLevel.Trace, "OpenGL", "VertexArray " + id + " unbound");
         }
     }
 
@@ -100,7 +100,7 @@ public class VertexArray implements IOglObject {
         glDeleteVertexArrays(id);
         isDisposed = true;
         if (currentBound == this) currentBound = null;
-        Logger.log(LogSeverity.Debug, "OpenGL", "VertexArray deleted with id " + id);
+        Logger.log(LogLevel.Debug, "OpenGL", "VertexArray deleted with id " + id);
     }
     public boolean isDisposed() {
         return isDisposed;

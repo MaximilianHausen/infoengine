@@ -3,7 +3,7 @@ package net.totodev.infoengine.rendering.opengl;
 import com.google.common.collect.HashBiMap;
 import net.totodev.infoengine.rendering.opengl.enums.FramebufferAttachmentType;
 import net.totodev.infoengine.rendering.opengl.enums.FramebufferBindTarget;
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -21,7 +21,7 @@ public class Framebuffer implements IOglObject {
 
     public Framebuffer() {
         id = glGenFramebuffers();
-        Logger.log(LogSeverity.Debug, "OpenGL", "Framebuffer created with id " + id);
+        Logger.log(LogLevel.Debug, "OpenGL", "Framebuffer created with id " + id);
     }
 
     /**
@@ -42,7 +42,7 @@ public class Framebuffer implements IOglObject {
         glBindFramebuffer(GL_FRAMEBUFFER, id);
         bindStatus.forcePut(this, target);
 
-        Logger.log(LogSeverity.Trace, "OpenGL", "Framebuffer " + id + " bound to target " + target);
+        Logger.log(LogLevel.Trace, "OpenGL", "Framebuffer " + id + " bound to target " + target);
     }
     /**
      * Unbinds this framebuffer from the targets it is currently bound to
@@ -54,7 +54,7 @@ public class Framebuffer implements IOglObject {
             FramebufferBindTarget target = bindStatus.get(this);
             glBindFramebuffer(target.getValue(), 0);
             bindStatus.remove(this);
-            Logger.log(LogSeverity.Trace, "OpenGL", "Framebuffer " + id + " unbound from target " + target);
+            Logger.log(LogLevel.Trace, "OpenGL", "Framebuffer " + id + " unbound from target " + target);
         }
     }
 
@@ -84,7 +84,7 @@ public class Framebuffer implements IOglObject {
         glDeleteFramebuffers(id);
         bindStatus.remove(this);
         isDisposed = true;
-        Logger.log(LogSeverity.Debug, "OpenGL", "Framebuffer deleted with id " + id);
+        Logger.log(LogLevel.Debug, "OpenGL", "Framebuffer deleted with id " + id);
     }
     public boolean isDisposed() {
         return isDisposed;

@@ -1,6 +1,6 @@
 package net.totodev.infoengine.util;
 
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 
@@ -56,7 +56,7 @@ public class Event1<T> implements Action1<T> {
      */
     public void run(T args) {
         if (log)
-            Logger.log(LogSeverity.Debug, "Event", "Invoked " + name);
+            Logger.log(LogLevel.Debug, "Event", "Invoked " + name);
         for (Action1<T> action : subscribers)
             action.run(args);
     }

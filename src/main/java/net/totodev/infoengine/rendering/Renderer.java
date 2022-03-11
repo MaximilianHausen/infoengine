@@ -1,7 +1,8 @@
 package net.totodev.infoengine.rendering;
 
+import net.totodev.infoengine.core.Window;
 import net.totodev.infoengine.ecs.Scene;
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -29,7 +30,7 @@ public class Renderer {
             Window.makeNotCurrent();
             activeThread = new Thread(this::renderLoop);
             activeThread.start();
-        } else Logger.log(LogSeverity.Error, "Renderer", "Render thread already running");
+        } else Logger.log(LogLevel.Error, "Renderer", "Render thread already running");
     }
 
     /**
@@ -39,7 +40,7 @@ public class Renderer {
         if (activeThread != null) {
             activeThread.interrupt();
             activeThread = null;
-        } else Logger.log(LogSeverity.Error, "Renderer", "No render thread running");
+        } else Logger.log(LogLevel.Error, "Renderer", "No render thread running");
     }
 
     public @Nullable Thread getActiveThread() {
@@ -57,7 +58,7 @@ public class Renderer {
         glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
         //glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-        Logger.log(LogSeverity.Debug, "Renderer", "Render loop started on Thread " + Thread.currentThread().getName());
+        Logger.log(LogLevel.Debug, "Renderer", "Render loop started on Thread " + Thread.currentThread().getName());
 
         int[] viewportSize = new int[4];
         glGetIntegerv(GL_VIEWPORT, viewportSize);

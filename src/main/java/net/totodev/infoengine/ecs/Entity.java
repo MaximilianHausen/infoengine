@@ -1,6 +1,6 @@
 package net.totodev.infoengine.ecs;
 
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -132,7 +132,7 @@ public final class Entity {
 
     public void removeSelf() {
         if (scene == null) {
-            Logger.log(LogSeverity.Error, "Entity", "Error while removing a entity: The entity is not attached to any scene");
+            Logger.log(LogLevel.Error, "Entity", "Error while removing a entity: The entity is not attached to any scene");
             return;
         }
 

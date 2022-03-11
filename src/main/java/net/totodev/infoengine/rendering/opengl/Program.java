@@ -1,7 +1,7 @@
 package net.totodev.infoengine.rendering.opengl;
 
 import net.totodev.infoengine.rendering.opengl.enums.ShaderType;
-import net.totodev.infoengine.util.logging.LogSeverity;
+import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
 import org.joml.Matrix2f;
@@ -39,7 +39,7 @@ public class Program implements IOglObject {
                 error = "Program could not be linked because the shader specified as the fragment shader is not a fragment shader";
 
             if (error != null) {
-                Logger.log(LogSeverity.Error, "OpenGL", error);
+                Logger.log(LogLevel.Error, "OpenGL", error);
                 isDisposed = true;
                 id = -1;
                 return;
@@ -54,7 +54,7 @@ public class Program implements IOglObject {
         glAttachShader(id, fragmentShader.getId());
         glLinkProgram(id);
 
-        Logger.log(LogSeverity.Debug, "OpenGL", "Program linked with id " + id);
+        Logger.log(LogLevel.Debug, "OpenGL", "Program linked with id " + id);
     }
 
     /**
@@ -88,7 +88,7 @@ public class Program implements IOglObject {
     public void use() {
         if (isDisposed) throw new ProgramDisposedException();
         glUseProgram(getId());
-        Logger.log(LogSeverity.Trace, "OpenGL", "Using program " + id);
+        Logger.log(LogLevel.Trace, "OpenGL", "Using program " + id);
     }
 
     public Shader getVertexShader() {
@@ -115,13 +115,13 @@ public class Program implements IOglObject {
             case 3 -> glUniform3iv(glGetUniformLocation(getId(), name), values);
             case 4 -> glUniform4iv(glGetUniformLocation(getId(), name), values);
             default -> {
-                Logger.log(LogSeverity.Error, "OpenGL", "Uniform " + name + " in program " + id +
+                Logger.log(LogLevel.Error, "OpenGL", "Uniform " + name + " in program " + id +
                         " could not be set because " + Arrays.toString(values) + " contains too many values");
                 return;
             }
         }
 
-        Logger.log(LogSeverity.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
+        Logger.log(LogLevel.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
     }
 
     /**
@@ -138,13 +138,13 @@ public class Program implements IOglObject {
             case 3 -> glUniform3fv(glGetUniformLocation(getId(), name), values);
             case 4 -> glUniform4fv(glGetUniformLocation(getId(), name), values);
             default -> {
-                Logger.log(LogSeverity.Error, "OpenGL", "Uniform " + name + " in program " + id +
+                Logger.log(LogLevel.Error, "OpenGL", "Uniform " + name + " in program " + id +
                         " could not be set because " + Arrays.toString(values) + " contains too many values");
                 return;
             }
         }
 
-        Logger.log(LogSeverity.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
+        Logger.log(LogLevel.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
     }
 
     /**
@@ -161,13 +161,13 @@ public class Program implements IOglObject {
             case 3 -> glUniform3dv(glGetUniformLocation(getId(), name), values);
             case 4 -> glUniform4dv(glGetUniformLocation(getId(), name), values);
             default -> {
-                Logger.log(LogSeverity.Error, "OpenGL", "Uniform " + name + " in program " + id +
+                Logger.log(LogLevel.Error, "OpenGL", "Uniform " + name + " in program " + id +
                         " could not be set because " + Arrays.toString(values) + " contains too many values");
                 return;
             }
         }
 
-        Logger.log(LogSeverity.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
+        Logger.log(LogLevel.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
     }
 
     /**
@@ -179,7 +179,7 @@ public class Program implements IOglObject {
     public void setUniform(String name, Matrix2f matrix) {
         if (isDisposed) throw new ProgramDisposedException();
         glUniformMatrix2fv(glGetUniformLocation(getId(), name), false, matrix.get(new float[4]));
-        Logger.log(LogSeverity.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
+        Logger.log(LogLevel.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
     }
 
     /**
@@ -191,7 +191,7 @@ public class Program implements IOglObject {
     public void setUniform(String name, Matrix3f matrix) {
         if (isDisposed) throw new ProgramDisposedException();
         glUniformMatrix3fv(glGetUniformLocation(getId(), name), false, matrix.get(new float[9]));
-        Logger.log(LogSeverity.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
+        Logger.log(LogLevel.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
     }
 
     /**
@@ -203,7 +203,7 @@ public class Program implements IOglObject {
     public void setUniform(String name, Matrix4f matrix) {
         if (isDisposed) throw new ProgramDisposedException();
         glUniformMatrix4fv(glGetUniformLocation(getId(), name), false, matrix.get(new float[16]));
-        Logger.log(LogSeverity.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
+        Logger.log(LogLevel.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
     }
 
     //TODO: Get Uniforms
@@ -218,7 +218,7 @@ public class Program implements IOglObject {
         if (isDisposed) throw new ProgramDisposedException();
         glDeleteProgram(id);
         isDisposed = true;
-        Logger.log(LogSeverity.Debug, "OpenGL", "Program deleted from slot " + id);
+        Logger.log(LogLevel.Debug, "OpenGL", "Program deleted from slot " + id);
     }
     public boolean isDisposed() {
         return isDisposed;
