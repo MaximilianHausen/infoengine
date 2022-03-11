@@ -1,6 +1,7 @@
 package net.totodev.infoengine.rendering.opengl;
 
 import com.google.common.collect.HashBiMap;
+import net.totodev.infoengine.DisposedException;
 import net.totodev.infoengine.rendering.opengl.enums.FramebufferAttachmentType;
 import net.totodev.infoengine.rendering.opengl.enums.FramebufferBindTarget;
 import net.totodev.infoengine.util.logging.LogLevel;
@@ -16,6 +17,7 @@ import static org.lwjgl.opengl.GL46C.*;
  */
 public class Framebuffer implements IOglObject {
     private final static HashBiMap<Framebuffer, FramebufferBindTarget> bindStatus = HashBiMap.create();
+
     private final int id;
     private boolean isDisposed = false;
 
@@ -24,6 +26,7 @@ public class Framebuffer implements IOglObject {
         Logger.log(LogLevel.Debug, "OpenGL", "Framebuffer created with id " + id);
     }
 
+    //region Binding
     /**
      * Gets the currently bound framebuffer
      * @param target The target to get the framebuffer from
@@ -31,6 +34,11 @@ public class Framebuffer implements IOglObject {
      */
     public static @Nullable Framebuffer getBoundFramebuffer(@NotNull FramebufferBindTarget target) {
         return bindStatus.inverse().get(target);
+    }
+
+    public @Nullable FramebufferBindTarget getBindStatus() {
+        if (isDisposed) throw new FramebufferDisposedException();
+        return bindStatus.get(this);
     }
 
     /**
@@ -44,6 +52,7 @@ public class Framebuffer implements IOglObject {
 
         Logger.log(LogLevel.Trace, "OpenGL", "Framebuffer " + id + " bound to target " + target);
     }
+
     /**
      * Unbinds this framebuffer from the targets it is currently bound to
      */
@@ -57,11 +66,7 @@ public class Framebuffer implements IOglObject {
             Logger.log(LogLevel.Trace, "OpenGL", "Framebuffer " + id + " unbound from target " + target);
         }
     }
-
-    public @Nullable FramebufferBindTarget getBindStatus() {
-        if (isDisposed) throw new FramebufferDisposedException();
-        return bindStatus.get(this);
-    }
+    //endregion
 
     /**
      * Attaches a texture to this framebuffer. It will then be rendered to.
@@ -88,5 +93,14 @@ public class Framebuffer implements IOglObject {
     }
     public boolean isDisposed() {
         return isDisposed;
+    }
+
+    /**
+     * This Exception is thrown when calling a method on a disposed framebuffer.
+     */
+    public static class FramebufferDisposedException extends DisposedException {
+        public FramebufferDisposedException() {
+            super("Framebuffer was already disposed");
+        }
     }
 }

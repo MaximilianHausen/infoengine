@@ -1,5 +1,6 @@
 package net.totodev.infoengine.rendering.opengl;
 
+import net.totodev.infoengine.DisposedException;
 import net.totodev.infoengine.rendering.opengl.enums.ShaderParameter;
 import net.totodev.infoengine.rendering.opengl.enums.ShaderType;
 import net.totodev.infoengine.util.logging.LogLevel;
@@ -88,5 +89,14 @@ public class Shader implements IOglObject {
     }
     public boolean isDisposed() {
         return isDisposed;
+    }
+
+    /**
+     * This Exception is thrown when calling a method on a disposed shader.
+     */
+    public static class ShaderDisposedException extends DisposedException {
+        public ShaderDisposedException() {
+            super("Shader was already disposed");
+        }
     }
 }

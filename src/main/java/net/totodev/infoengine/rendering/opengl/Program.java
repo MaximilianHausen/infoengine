@@ -1,5 +1,6 @@
 package net.totodev.infoengine.rendering.opengl;
 
+import net.totodev.infoengine.DisposedException;
 import net.totodev.infoengine.rendering.opengl.enums.ShaderType;
 import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
@@ -84,7 +85,6 @@ public class Program implements IOglObject {
         return defaultShader;
     }
 
-
     public void use() {
         if (isDisposed) throw new ProgramDisposedException();
         glUseProgram(getId());
@@ -123,7 +123,6 @@ public class Program implements IOglObject {
 
         Logger.log(LogLevel.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
     }
-
     /**
      * Sets a uniform in this program
      * @param name   The name of the uniform
@@ -146,7 +145,6 @@ public class Program implements IOglObject {
 
         Logger.log(LogLevel.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
     }
-
     /**
      * Sets a uniform in this program
      * @param name   The name of the uniform
@@ -169,7 +167,6 @@ public class Program implements IOglObject {
 
         Logger.log(LogLevel.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
     }
-
     /**
      * Sets a uniform in this program
      * @param name   The name of the uniform
@@ -181,7 +178,6 @@ public class Program implements IOglObject {
         glUniformMatrix2fv(glGetUniformLocation(getId(), name), false, matrix.get(new float[4]));
         Logger.log(LogLevel.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
     }
-
     /**
      * Sets a uniform in this program
      * @param name   The name of the uniform
@@ -193,7 +189,6 @@ public class Program implements IOglObject {
         glUniformMatrix3fv(glGetUniformLocation(getId(), name), false, matrix.get(new float[9]));
         Logger.log(LogLevel.Trace, "OpenGL", "Uniform " + name + " in program " + id + " set");
     }
-
     /**
      * Sets a uniform in this program
      * @param name   The name of the uniform
@@ -222,5 +217,14 @@ public class Program implements IOglObject {
     }
     public boolean isDisposed() {
         return isDisposed;
+    }
+
+    /**
+     * This Exception is thrown when calling a method on a disposed program.
+     */
+    public static class ProgramDisposedException extends DisposedException {
+        public ProgramDisposedException() {
+            super("Program was already disposed");
+        }
     }
 }

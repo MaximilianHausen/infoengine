@@ -1,10 +1,10 @@
 package net.totodev.infoengine.core;
 
+import net.totodev.infoengine.DisposedException;
 import net.totodev.infoengine.IDisposable;
 import net.totodev.infoengine.rendering.IRenderTarget;
 import net.totodev.infoengine.rendering.opengl.Framebuffer;
 import net.totodev.infoengine.rendering.opengl.enums.FramebufferBindTarget;
-import net.totodev.infoengine.util.Pair;
 import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -81,6 +81,7 @@ public class Window implements IDisposable, IRenderTarget {
         glfwMakeContextCurrent(id);
         org.lwjgl.opengl.GL.createCapabilities();
     }
+
     public void setActive() {
         if (isDisposed) throw new WindowDisposedException();
         activeWindow = this;
@@ -96,6 +97,7 @@ public class Window implements IDisposable, IRenderTarget {
     }
     //endregion
 
+    //region Minimize/Maximize
     public void minimize() {
         if (isDisposed) throw new WindowDisposedException();
         if (currentMode == WindowModes.Fullscreen) {
@@ -109,6 +111,7 @@ public class Window implements IDisposable, IRenderTarget {
         if (isDisposed) throw new WindowDisposedException();
         return glfwGetWindowAttrib(id, GLFW_ICONIFIED) == GLFW_TRUE;
     }
+
     public void maximize() {
         if (isDisposed) throw new WindowDisposedException();
         if (currentMode == WindowModes.Fullscreen) {
@@ -122,6 +125,7 @@ public class Window implements IDisposable, IRenderTarget {
         if (isDisposed) throw new WindowDisposedException();
         return glfwGetWindowAttrib(id, GLFW_MAXIMIZED) == GLFW_TRUE;
     }
+
     public void restore() {
         if (isDisposed) throw new WindowDisposedException();
         if (currentMode == WindowModes.Fullscreen) {
@@ -131,7 +135,9 @@ public class Window implements IDisposable, IRenderTarget {
         glfwRestoreWindow(id);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " restored");
     }
+    //endregion
 
+    //region Modes
     public void setMode(@NotNull WindowModes mode) {
         if (isDisposed) throw new WindowDisposedException();
         switch (mode) {
@@ -173,7 +179,9 @@ public class Window implements IDisposable, IRenderTarget {
             case Fullscreen -> Logger.log(LogLevel.Debug, "GLFW", "Window " + id + " already in fullscreen mode");
         }
     }
+    //endregion
 
+    //region Pos/Size
     public void setPos(int x, int y) {
         if (isDisposed) throw new WindowDisposedException();
         glfwSetWindowPos(id, x, y);
@@ -196,7 +204,9 @@ public class Window implements IDisposable, IRenderTarget {
         glfwGetWindowSize(id, x, y);
         return new Vector2i(x[0], y[0]);
     }
+    //endregion
 
+    //region Get/Set random stuff
     /**
      * Use -1 to disable one value
      */
@@ -205,11 +215,13 @@ public class Window implements IDisposable, IRenderTarget {
         glfwSetWindowSizeLimits(id, minX, minY, maxX, maxY);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " size limits set to {minX=" + minX + ", minY=" + minY + "}, {maxX=" + maxX + ", maxY=" + maxY + "}");
     }
+
     public void setAspectRatio(int x, int y) {
         if (isDisposed) throw new WindowDisposedException();
         glfwSetWindowAspectRatio(id, x, y);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " aspect ratio set to {x=" + x + ", y=" + y + "}");
     }
+
     public void setTitle(String title) {
         if (isDisposed) throw new WindowDisposedException();
         glfwSetWindowTitle(id, title);
@@ -222,14 +234,16 @@ public class Window implements IDisposable, IRenderTarget {
         glfwGetFramebufferSize(id, x, y);
         return new Vector2i(x[0], y[0]);
     }
+
     public Vector2f getContentScale() {
         if (isDisposed) throw new WindowDisposedException();
         float[] x = new float[1], y = new float[1];
         glfwGetWindowContentScale(id, x, y);
         return new Vector2f(x[0], y[0]);
     }
+    //endregion
 
-    // Attributes
+    //region Attributes
     public boolean isVisible() {
         if (isDisposed) throw new WindowDisposedException();
         return glfwGetWindowAttrib(id, GLFW_VISIBLE) == GLFW_TRUE;
@@ -240,6 +254,7 @@ public class Window implements IDisposable, IRenderTarget {
         else glfwHideWindow(id);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as  " + (bool ? "visible" : "hidden"));
     }
+
     public boolean isResizable() {
         if (isDisposed) throw new WindowDisposedException();
         return glfwGetWindowAttrib(id, GLFW_RESIZABLE) == GLFW_TRUE;
@@ -249,6 +264,7 @@ public class Window implements IDisposable, IRenderTarget {
         glfwSetWindowAttrib(id, GLFW_RESIZABLE, bool ? GLFW_TRUE : GLFW_FALSE);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "resizable");
     }
+
     public boolean isDecorated() {
         if (isDisposed) throw new WindowDisposedException();
         return glfwGetWindowAttrib(id, GLFW_DECORATED) == GLFW_TRUE;
@@ -258,6 +274,7 @@ public class Window implements IDisposable, IRenderTarget {
         glfwSetWindowAttrib(id, GLFW_DECORATED, bool ? GLFW_TRUE : GLFW_FALSE);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "decorated");
     }
+    //endregion
 
     public void setVsync(boolean bool) {
         if (isDisposed) throw new WindowDisposedException();
@@ -282,7 +299,17 @@ public class Window implements IDisposable, IRenderTarget {
         Framebuffer fbo = Framebuffer.getBoundFramebuffer(FramebufferBindTarget.FRAMEBUFFER);
         if (fbo != null) fbo.unbind();
     }
+
     public void renderedFrame() {
         glfwSwapBuffers(id);
+    }
+
+    /**
+     * This Exception is thrown when calling a method on a disposed window.
+     */
+    public static class WindowDisposedException extends DisposedException {
+        public WindowDisposedException() {
+            super("Window was already disposed");
+        }
     }
 }

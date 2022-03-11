@@ -1,6 +1,7 @@
 package net.totodev.infoengine.rendering.opengl;
 
 import com.google.common.collect.HashBiMap;
+import net.totodev.infoengine.DisposedException;
 import net.totodev.infoengine.rendering.opengl.enums.TextureType;
 import net.totodev.infoengine.rendering.opengl.enums.TextureUnit;
 import net.totodev.infoengine.rendering.opengl.enums.texparams.TextureLevelParameter;
@@ -32,6 +33,7 @@ public abstract class Texture implements IOglObject {
         Logger.log(LogLevel.Debug, "OpenGL", "Texture created with id " + id + " and type " + type);
     }
 
+    //region Binding
     /**
      * Gets the currently bound texture
      * @param target The target to get the texture from
@@ -39,6 +41,11 @@ public abstract class Texture implements IOglObject {
      */
     public static @Nullable Texture getBoundTexture(@NotNull TextureBindTarget target) {
         return bindStatus.inverse().get(target);
+    }
+
+    public @Nullable TextureBindTarget getBindStatus() {
+        if (isDisposed) throw new TextureDisposedException();
+        return bindStatus.get(this);
     }
 
     /**
@@ -80,11 +87,7 @@ public abstract class Texture implements IOglObject {
             Logger.log(LogLevel.Trace, "OpenGL", "Texture " + id + " of type " + type + " unbound from unit " + target.texUnit().toNumber());
         }
     }
-
-    public @Nullable TextureBindTarget getBindStatus() {
-        if (isDisposed) throw new TextureDisposedException();
-        return bindStatus.get(this);
-    }
+    //endregion
 
     /**
      * Gets a texture parameter from the OpenGL object.
@@ -159,5 +162,14 @@ public abstract class Texture implements IOglObject {
     }
     public boolean isDisposed() {
         return isDisposed;
+    }
+
+    /**
+     * This Exception is thrown when calling a method on a disposed texture.
+     */
+    public static class TextureDisposedException extends DisposedException {
+        public TextureDisposedException() {
+            super("Texture was already disposed");
+        }
     }
 }

@@ -1,5 +1,6 @@
 package net.totodev.infoengine.rendering.opengl;
 
+import net.totodev.infoengine.DisposedException;
 import net.totodev.infoengine.rendering.opengl.enums.BufferBindTarget;
 import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
@@ -22,6 +23,7 @@ public class VertexArray implements IOglObject {
         Logger.log(LogLevel.Debug, "OpenGL", "VertexArray created with id " + id);
     }
 
+    //region Binding
     /**
      * Binds this vertex array.
      */
@@ -31,6 +33,7 @@ public class VertexArray implements IOglObject {
         currentBound = this;
         Logger.log(LogLevel.Trace, "OpenGL", "VertexArray " + id + " bound");
     }
+
     /**
      * Unbinds this vertex array
      */
@@ -43,6 +46,7 @@ public class VertexArray implements IOglObject {
             Logger.log(LogLevel.Trace, "OpenGL", "VertexArray " + id + " unbound");
         }
     }
+    //endregion
 
     /**
      * Sets the vertex attributes. Stride, offset and enabling/disabling is handled automatically
@@ -104,5 +108,14 @@ public class VertexArray implements IOglObject {
     }
     public boolean isDisposed() {
         return isDisposed;
+    }
+
+    /**
+     * This Exception is thrown when calling a method on a disposed vertex array.
+     */
+    public static class VertexArrayDisposedException extends DisposedException {
+        public VertexArrayDisposedException() {
+            super("VertexArray was already disposed");
+        }
     }
 }

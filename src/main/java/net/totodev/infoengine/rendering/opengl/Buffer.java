@@ -1,6 +1,7 @@
 package net.totodev.infoengine.rendering.opengl;
 
 import com.google.common.collect.HashBiMap;
+import net.totodev.infoengine.DisposedException;
 import net.totodev.infoengine.rendering.opengl.enums.BufferAccessRestriction;
 import net.totodev.infoengine.rendering.opengl.enums.BufferBindTarget;
 import net.totodev.infoengine.rendering.opengl.enums.BufferUsage;
@@ -22,6 +23,7 @@ import static org.lwjgl.opengl.GL46C.*;
  */
 public class Buffer implements IOglObject {
     private final static HashBiMap<Buffer, BufferBindTarget> bindStatus = HashBiMap.create();
+
     private final int id;
     private boolean isDisposed = false;
 
@@ -30,6 +32,7 @@ public class Buffer implements IOglObject {
         Logger.log(LogLevel.Debug, "OpenGL", "Buffer created with id " + id);
     }
 
+    //region Binding
     /**
      * Gets the currently bound buffer
      * @param target The target to get the buffer from
@@ -37,6 +40,11 @@ public class Buffer implements IOglObject {
      */
     public static @Nullable Buffer getBoundBuffer(@NotNull BufferBindTarget target) {
         return bindStatus.inverse().get(target);
+    }
+
+    public @Nullable BufferBindTarget getBindStatus() {
+        if (isDisposed) throw new BufferDisposedException();
+        return bindStatus.get(this);
     }
 
     /**
@@ -64,11 +72,7 @@ public class Buffer implements IOglObject {
             Logger.log(LogLevel.Trace, "OpenGL", "Buffer " + id + " unbound from target " + target);
         }
     }
-
-    public @Nullable BufferBindTarget getBindStatus() {
-        if (isDisposed) throw new BufferDisposedException();
-        return bindStatus.get(this);
-    }
+    //endregion
 
     // Not doing javadoc for these, it would be a stupid amount of copying and pasting
     //region GetPartialData
@@ -351,6 +355,7 @@ public class Buffer implements IOglObject {
         glInvalidateBufferData(id);
         Logger.log(LogLevel.Trace, "OpenGL", "Data invalidated/reset for buffer " + id);
     }
+
     /**
      * Reset/invalidate a part of this buffer
      * @param offset The position in this buffer to start resetting
@@ -376,5 +381,14 @@ public class Buffer implements IOglObject {
     }
     public boolean isDisposed() {
         return isDisposed;
+    }
+
+    /**
+     * This Exception is thrown when calling a method on a disposed buffer.
+     */
+    public static class BufferDisposedException extends DisposedException {
+        public BufferDisposedException() {
+            super("Buffer was already disposed");
+        }
     }
 }
