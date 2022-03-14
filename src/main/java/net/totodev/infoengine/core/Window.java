@@ -41,7 +41,8 @@ public class Window implements IDisposable, IRenderTarget {
     /**
      * Creates a new window
      */
-    public Window(@NotNull String title, int width, int height) {
+    public Window(@NotNull String title, int width, int height, boolean transparentFramebuffer) {
+        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, transparentFramebuffer ? GLFW_TRUE : GLFW_FALSE);
         id = glfwCreateWindow(width, height, title, NULL, activeWindow != null ? activeWindow.getId() : NULL);
         if (id == NULL)
             Logger.log(LogLevel.Critical, "GLFW", "Window could not be created");
@@ -85,6 +86,11 @@ public class Window implements IDisposable, IRenderTarget {
     public void setActive() {
         if (isDisposed) throw new WindowDisposedException();
         activeWindow = this;
+    }
+
+    public void requestAttention() {
+        if (isDisposed) throw new WindowDisposedException();
+        glfwRequestWindowAttention(id);
     }
 
     /**
@@ -228,6 +234,16 @@ public class Window implements IDisposable, IRenderTarget {
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " title set to \"" + title + "\"");
     }
 
+    public boolean isFocused() {
+        if (isDisposed) throw new WindowDisposedException();
+        return glfwGetWindowAttrib(id, GLFW_FOCUSED) == GLFW_TRUE;
+    }
+    public void focus() {
+        if (isDisposed) throw new WindowDisposedException();
+        glfwFocusWindow(id);
+        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " focused");
+    }
+
     public Vector2i getFramebufferSize() {
         if (isDisposed) throw new WindowDisposedException();
         int[] x = new int[1], y = new int[1];
@@ -235,11 +251,21 @@ public class Window implements IDisposable, IRenderTarget {
         return new Vector2i(x[0], y[0]);
     }
 
+    public boolean isFramebufferTransparent() {
+        if (isDisposed) throw new WindowDisposedException();
+        return glfwGetWindowAttrib(id, GLFW_TRANSPARENT_FRAMEBUFFER) == GLFW_TRUE;
+    }
+
     public Vector2f getContentScale() {
         if (isDisposed) throw new WindowDisposedException();
         float[] x = new float[1], y = new float[1];
         glfwGetWindowContentScale(id, x, y);
         return new Vector2f(x[0], y[0]);
+    }
+
+    public boolean isHovered() {
+        if (isDisposed) throw new WindowDisposedException();
+        return glfwGetWindowAttrib(id, GLFW_HOVERED) == GLFW_TRUE;
     }
     //endregion
 
@@ -253,6 +279,15 @@ public class Window implements IDisposable, IRenderTarget {
         if (bool) glfwShowWindow(id);
         else glfwHideWindow(id);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as  " + (bool ? "visible" : "hidden"));
+    }
+
+    public float getOpacity() {
+        if (isDisposed) throw new WindowDisposedException();
+        return glfwGetWindowOpacity(id);
+    }
+    public void setOpacity(float opacity) {
+        if (isDisposed) throw new WindowDisposedException();
+        glfwSetWindowOpacity(id, opacity);
     }
 
     public boolean isResizable() {
@@ -273,6 +308,16 @@ public class Window implements IDisposable, IRenderTarget {
         if (isDisposed) throw new WindowDisposedException();
         glfwSetWindowAttrib(id, GLFW_DECORATED, bool ? GLFW_TRUE : GLFW_FALSE);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "decorated");
+    }
+
+    public boolean isFloating() {
+        if (isDisposed) throw new WindowDisposedException();
+        return glfwGetWindowAttrib(id, GLFW_FLOATING) == GLFW_TRUE;
+    }
+    public void setFloating(boolean bool) {
+        if (isDisposed) throw new WindowDisposedException();
+        glfwSetWindowAttrib(id, GLFW_FLOATING, bool ? GLFW_TRUE : GLFW_FALSE);
+        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "floating");
     }
     //endregion
 
