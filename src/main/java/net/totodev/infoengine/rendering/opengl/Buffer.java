@@ -1,12 +1,13 @@
 package net.totodev.infoengine.rendering.opengl;
 
-import com.google.common.collect.HashBiMap;
 import net.totodev.infoengine.DisposedException;
 import net.totodev.infoengine.rendering.opengl.enums.BufferAccessRestriction;
 import net.totodev.infoengine.rendering.opengl.enums.BufferBindTarget;
 import net.totodev.infoengine.rendering.opengl.enums.BufferUsage;
 import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
+import org.eclipse.collections.api.bimap.MutableBiMap;
+import org.eclipse.collections.api.factory.BiMaps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -22,7 +23,7 @@ import static org.lwjgl.opengl.GL46C.*;
  * @see <a href="https://khronos.org/opengl/wiki/Buffer_Object">OpenGL Wiki: Buffers</a>
  */
 public class Buffer implements IOglObject {
-    private final static HashBiMap<Buffer, BufferBindTarget> bindStatus = HashBiMap.create();
+    private final static MutableBiMap<Buffer, BufferBindTarget> bindStatus = BiMaps.mutable.empty();
 
     private final int id;
     private boolean isDisposed = false;

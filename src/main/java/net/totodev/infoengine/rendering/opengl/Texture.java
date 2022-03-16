@@ -1,6 +1,5 @@
 package net.totodev.infoengine.rendering.opengl;
 
-import com.google.common.collect.HashBiMap;
 import net.totodev.infoengine.DisposedException;
 import net.totodev.infoengine.rendering.opengl.enums.TextureType;
 import net.totodev.infoengine.rendering.opengl.enums.TextureUnit;
@@ -10,6 +9,8 @@ import net.totodev.infoengine.rendering.opengl.enums.texparams.TextureResizeFilt
 import net.totodev.infoengine.rendering.opengl.enums.texparams.TextureWrappingStyle;
 import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
+import org.eclipse.collections.api.bimap.MutableBiMap;
+import org.eclipse.collections.api.factory.BiMaps;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.annotations.Range;
@@ -22,7 +23,7 @@ import static org.lwjgl.opengl.GL46C.*;
  * @see <a href="https://www.khronos.org/opengl/wiki/Texture_Storage">OpenGL Wiki: Texture Storage</a>
  */
 public abstract class Texture implements IOglObject {
-    private static final HashBiMap<Texture, TextureBindTarget> bindStatus = HashBiMap.create(32);
+    private static final MutableBiMap<Texture, TextureBindTarget> bindStatus = BiMaps.mutable.empty();
     private final int id;
     private final TextureType type;
     private boolean isDisposed = false;
