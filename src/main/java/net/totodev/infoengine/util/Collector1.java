@@ -52,8 +52,9 @@ public class Collector1<TResult, TParam> implements Func1<ArrayList<TResult>, TP
     }
 
     /**
-     * Invokes the collector and calls all currently registered funcs. Sends a log message if logging is enabled.
-     * @param param The parameter use for calling the funcs
+     * Invokes the collector and calls all currently registered funcs using the specified parameter.
+     * Sends a log message if logging is enabled.
+     * @param param The parameter to use for calling the funcs
      * @return A list of all return values
      */
     public ArrayList<TResult> run(TParam param) {

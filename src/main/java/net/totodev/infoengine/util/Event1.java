@@ -35,7 +35,7 @@ public class Event1<T> implements Action1<T> {
 
     /**
      * Adds an action to the event.
-     * @param action The action to remove from the event
+     * @param action The action to add to the event
      */
     public void subscribe(@NotNull Action1<T> action) {
         subscribers.add(action);
@@ -50,15 +50,15 @@ public class Event1<T> implements Action1<T> {
     }
 
     /**
-     * Invokes the event and calls all currently registered actions using the specified arguments.
+     * Invokes the event and calls all currently registered actions using the specified parameter.
      * Sends a log message if logging is enabled.
-     * @param args The arguments for
+     * @param param The parameter to use for calling the actions
      */
-    public void run(T args) {
+    public void run(T param) {
         if (log)
             Logger.log(LogLevel.Debug, "Event", "Invoked " + name);
         for (Action1<T> action : subscribers)
-            action.run(args);
+            action.run(param);
     }
 
     public @NotNull String getName() {

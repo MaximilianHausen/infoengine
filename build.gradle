@@ -46,7 +46,11 @@ dependencies {
     testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine:5.8.2"
 
     implementation "com.google.code.gson:gson:2.8.9"
+
     implementation 'org.eclipse.collections:eclipse-collections-api:11.0.0'
+    implementation 'org.eclipse.collections:eclipse-collections:11.0.0'
+    implementation 'it.unimi.dsi:fastutil-core:8.5.8'
+
     api "org.joml:joml:1.10.3"
     api "org.jetbrains:annotations:22.0.0"
 
