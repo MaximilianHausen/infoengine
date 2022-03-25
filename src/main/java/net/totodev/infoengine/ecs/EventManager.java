@@ -16,10 +16,10 @@ public class EventManager {
     private final Object2IntMap<String> eventNameToId = new Object2IntArrayMap<>();
     private int highestId = 0;
 
-    public void registerEvent(String name, Class<?> parameterType) {
+    public void registerEvent(String name, Class<?> parameterType, boolean logging) {
         if (!eventNameToId.containsKey(name))
             eventNameToId.put(name, highestId++);
-        events.put(eventNameToId.getInt(name), Tuples.pair(new Event1<>(name, false), parameterType));
+        events.put(eventNameToId.getInt(name), Tuples.pair(new Event1<>(name, logging), parameterType));
     }
 
     public void invokeEvent(String name, Object param) {
@@ -43,10 +43,28 @@ public class EventManager {
     @SuppressWarnings("unchecked")
     public <T> void subscribe(int id, Action1<T> action, Class<T> paramType) {
         Pair<Event1, Class<?>> eventPair = events.get(id);
+        if (eventPair == null) {
+            Logger.log(LogLevel.Error, "EventManager", "Error while subscribing to event " + id + ": This event could not be found. Maybe you forgot to register it?");
+        }
         if (paramType.isAssignableFrom(eventPair.getTwo())) {
             Logger.log(LogLevel.Error, "EventManager", "Error while subscribing to event " + id + ": Provided parameter of type " + paramType.getName() + " is not assignable to type " + eventPair.getTwo().getName() + ".");
             return;
         }
         eventPair.getOne().subscribe(action);
+    }
+
+    public void unsubscribe(String name, Action1<?> action) {
+        unsubscribe(eventNameToId.getInt(name), action);
+    }
+
+    @SuppressWarnings("unchecked")
+    public void unsubscribe(int id, Action1<?> action) {
+        Pair<Event1, Class<?>> eventPair = events.get(id);
+        if (eventPair == null) {
+            Logger.log(LogLevel.Error, "EventManager", "Error while unsubscribing from event " + id + ": This event could not be found. Maybe you forgot to register it?");
+            return;
+        }
+        // No type checking because unregistering a wrong type won't break anything (Removing from a list only cares about equality)
+        eventPair.getOne().unsubscribe(action);
     }
 }
