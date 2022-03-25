@@ -1,72 +1,46 @@
 package net.totodev.infoengine.ecs;
 
+import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
+import it.unimi.dsi.fastutil.ints.IntSet;
+import it.unimi.dsi.fastutil.ints.IntSets;
+import org.eclipse.collections.api.factory.Maps;
+import org.eclipse.collections.api.map.MutableMap;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.UnmodifiableView;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+public class Scene {
+    //TODO: Custom multi dimensional array
+    private final IntSet entities = IntSets.emptySet();
+    private final IntArrayFIFOQueue freeIds = new IntArrayFIFOQueue();
+    private int highestId = 0;
 
-public final class Scene {
-    private final List<Entity> entities = new ArrayList<>();
+    private final MutableMap<Class<?>, IComponent> components = Maps.mutable.empty();
 
-    public @UnmodifiableView @NotNull List<Entity> getEntities() {
-        return Collections.unmodifiableList(entities);
-    }
-
-    public void add(@NotNull Entity entity) {
-        entities.add(entity);
-        entity.added(this);
-    }
-    public void remove(@NotNull Entity entity) {
-        entity.setParent(null);
-        entities.remove(entity);
-        entity.removed(this);
+    public int createEntity() {
+        if (freeIds.isEmpty()) {
+            highestId++;
+            entities.add(highestId);
+            return highestId;
+        } else {
+            int newId = freeIds.dequeueInt();
+            entities.add(newId);
+            return newId;
+        }
     }
 
-    void addSilent(@NotNull Entity entity) {
-        entities.add(entity);
-    }
-    void removeSilent(@NotNull Entity entity) {
-        entities.remove(entity);
+    public void destroyEntity(int entityId) {
+        entities.remove(entityId);
+        freeIds.enqueue(entityId);
     }
 
-    public void beforeUpdate() {
-        for (Entity entity : entities)
-            if (entity.isActive()) entity.beforeUpdate();
-    }
-    public void update() {
-        for (Entity entity : entities)
-            if (entity.isActive()) entity.update();
-    }
-    public void afterUpdate() {
-        for (Entity entity : entities)
-            if (entity.isActive()) entity.afterUpdate();
+    @SuppressWarnings("unchecked")
+    public <T extends IComponent> @NotNull T getComponent(Class<T> componentClass) {
+        IComponent temp = components.get(componentClass);
+        if (temp == null)
+            throw new IllegalArgumentException("The component of type " + componentClass.getName() + " has not been registered on this EntityManager.");
+        return (T) temp;
     }
 
-    public void beforeRender() {
-        for (Entity entity : entities)
-            if (entity.isActive()) entity.beforeRender();
-    }
-    public void render() {
-        for (Entity entity : entities)
-            if (entity.isActive()) entity.render();
-    }
-    public void afterRender() {
-        for (Entity entity : entities)
-            if (entity.isActive()) entity.afterRender();
-    }
-
-    public void beforeDebugRender() {
-        for (Entity entity : entities)
-            if (entity.isActive()) entity.beforeDebugRender();
-    }
-    public void debugRender() {
-        for (Entity entity : entities)
-            if (entity.isActive()) entity.debugRender();
-    }
-    public void afterDebugRender() {
-        for (Entity entity : entities)
-            if (entity.isActive()) entity.afterDebugRender();
+    public boolean isAlive(int entityId) {
+        return entities.contains(entityId);
     }
 }
