@@ -36,12 +36,12 @@ public class EventManager {
         eventPair.getOne().run(param);
     }
 
-    public <T> void subscribe(String name, Action1<T> action, Class<T> paramType) {
-        subscribe(eventNameToId.getInt(name), action, paramType);
+    public <T> void subscribe(String name, Class<T> paramType, Action1<T> action) {
+        subscribe(eventNameToId.getInt(name), paramType, action);
     }
 
     @SuppressWarnings("unchecked")
-    public <T> void subscribe(int id, Action1<T> action, Class<T> paramType) {
+    public <T> void subscribe(int id, Class<T> paramType, Action1<T> action) {
         Pair<Event1, Class<?>> eventPair = events.get(id);
         if (eventPair == null) {
             Logger.log(LogLevel.Error, "EventManager", "Error while subscribing to event " + id + ": This event could not be found. Maybe you forgot to register it?");
