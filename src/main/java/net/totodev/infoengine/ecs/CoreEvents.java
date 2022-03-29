@@ -2,7 +2,8 @@ package net.totodev.infoengine.ecs;
 
 public enum CoreEvents {
     EntityCreated("EntityCreated", Integer.class, false),
-    EntityDestroyed("EntityDestroyed", Integer.class, false);
+    EntityDestroyed("EntityDestroyed", Integer.class, false),
+    Update("Update", null, false);
 
     public final String name;
     public final Class<?> parameterType;
@@ -16,7 +17,10 @@ public enum CoreEvents {
 
     public static void registerAll(EventManager eventManager) {
         for (CoreEvents event : CoreEvents.values()) {
-            eventManager.registerEvent(event.name, event.parameterType, event.logging);
+            if (event.parameterType == null)
+                eventManager.registerEvent(event.name, event.logging);
+            else
+                eventManager.registerEvent(event.name, event.parameterType, event.logging);
         }
     }
 }
