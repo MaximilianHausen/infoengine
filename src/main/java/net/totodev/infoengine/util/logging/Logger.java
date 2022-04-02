@@ -3,6 +3,8 @@ package net.totodev.infoengine.util.logging;
 import net.totodev.infoengine.util.Action1;
 import org.jetbrains.annotations.NotNull;
 
+import java.time.LocalTime;
+
 /**
  * A simple customizable logger. Set the logging target with {@link #setLogTarget(Action1)}.
  */
@@ -12,26 +14,18 @@ public class Logger {
     private static Action1<String> errLogTarget = System.err::println;
 
     /**
-     * Sends this log message as a string to the logging target.
-     * @param message The LogMessage to send
-     */
-    public static void log(@NotNull LogMessage message) {
-        if (message.logLevel.getValue() < logLevel.getValue())
-            return;
-        if (message.logLevel.getValue() > 2)
-            errLogTarget.run(message.toString());
-        else
-            logTarget.run(message.toString());
-    }
-
-    /**
-     * Constructs a log message and send it as a string to the logging target.
-     * @param severity The importance of the message
+     * Formats a log message and send it to the respective logging target.
+     * @param logLevel The importance of the message
      * @param source   The source of the message
      * @param message  The message
      */
-    public static void log(@NotNull LogLevel severity, @NotNull String source, @NotNull String message) {
-        log(new LogMessage(severity, source, message));
+    public static void log(@NotNull LogLevel logLevel, @NotNull String source, @NotNull String message) {
+        if (logLevel.getValue() < logLevel.getValue())
+            return;
+        if (logLevel.getValue() > 2)
+            errLogTarget.run(formatMessage(source, message));
+        else
+            logTarget.run(formatMessage(source, message));
     }
 
     /**
@@ -60,5 +54,23 @@ public class Logger {
     public static void setErrLogTarget(@NotNull Action1<String> target) {
         errLogTarget = target;
         log(LogLevel.Info, "Logger", "Error log target changed");
+    }
+
+    private static @NotNull String formatMessage(@NotNull String source, @NotNull String message) {
+        String spacing = "  ";
+        int sourceWidth = 10; // Width of the source part of the message. Sources longer than this get cut off
+
+        String timestamp = LocalTime.now().toString().substring(0, 8);
+
+        // Assemble source with padding
+        StringBuilder sourceBuilder = new StringBuilder(source);
+        while (sourceBuilder.length() < sourceWidth)
+            sourceBuilder.append(" ");
+
+        String paddedSource = sourceBuilder.toString();
+        if (paddedSource.length() > sourceWidth)
+            paddedSource = paddedSource.substring(0, 10);
+
+        return timestamp + spacing + logLevel.toString() + spacing + paddedSource + spacing + message;
     }
 }
