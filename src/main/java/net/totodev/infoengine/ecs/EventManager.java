@@ -13,6 +13,7 @@ import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.eclipse.collections.impl.factory.primitive.ObjectIntMaps;
 import org.eclipse.collections.impl.tuple.Tuples;
 
+@SuppressWarnings("rawtypes")
 public class EventManager {
     private final MutableIntObjectMap<Event> simpleEvents = IntObjectMaps.mutable.empty();
     private final MutableIntObjectMap<Pair<Event1, Class<?>>> parameterEvents = IntObjectMaps.mutable.empty();

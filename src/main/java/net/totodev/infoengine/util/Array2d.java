@@ -9,7 +9,7 @@ import java.util.Objects;
 public class Array2d<T> {
     public final int lenX;
     public final int lenY;
-    public Object[] values;
+    public final Object[] values;
 
     public Array2d(int x, int y) {
         values = new Object[x * y];

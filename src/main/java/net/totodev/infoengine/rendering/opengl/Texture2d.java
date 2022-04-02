@@ -30,13 +30,13 @@ public class Texture2d extends Texture {
     public static Texture2d fromImage(Image img) {
         Texture2d tex = new Texture2d();
 
-        TextureInternalFormat internalFormat = switch (img.getChannels()) {
+        TextureInternalFormat internalFormat = switch (img.channels()) {
             case 1 -> TextureInternalFormat.RED;
             case 2 -> TextureInternalFormat.RG;
             case 3 -> TextureInternalFormat.RGB;
             default -> TextureInternalFormat.RGBA;
         };
-        TextureFormat format = switch (img.getChannels()) {
+        TextureFormat format = switch (img.channels()) {
             case 1 -> TextureFormat.RED;
             case 2 -> TextureFormat.RG;
             case 3 -> TextureFormat.RGB;
@@ -44,8 +44,8 @@ public class Texture2d extends Texture {
         };
 
         tex.bind(0);
-        tex.setMutable(0, internalFormat, img.getWidth(), img.getHeight());
-        tex.setPartialData(0, 0, 0, img.getWidth(), img.getHeight(), format, TextureDataType.UNSIGNED_BYTE, img.getPixels());
+        tex.setMutable(0, internalFormat, img.width(), img.height());
+        tex.setPartialData(0, 0, 0, img.width(), img.height(), format, TextureDataType.UNSIGNED_BYTE, img.pixels());
         tex.unbind();
         return tex;
     }
