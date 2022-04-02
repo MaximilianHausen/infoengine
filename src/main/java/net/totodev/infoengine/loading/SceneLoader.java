@@ -3,17 +3,15 @@ package net.totodev.infoengine.loading;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
-import net.totodev.infoengine.ecs.Component;
-import net.totodev.infoengine.ecs.Entity;
+import net.totodev.infoengine.ecs.IComponent;
 import net.totodev.infoengine.ecs.Scene;
 import net.totodev.infoengine.util.IO;
 import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.joml.Vector3f;
 
 import java.io.File;
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 
 public class SceneLoader {
@@ -23,6 +21,7 @@ public class SceneLoader {
         return loadScene(IO.getTextFromFile(new File(path.toUri())));
     }
 
+    @SuppressWarnings("unchecked")
     public @NotNull Scene loadScene(@NotNull String sceneJson) {
         SceneModel sceneModel;
         Scene scene = new Scene();
@@ -39,39 +38,29 @@ public class SceneLoader {
             return scene;
         }
 
-        // Load Scene
-        for (EntityModel entityModel : sceneModel.entities) {
-            addToSceneRecursive(loadEntity(entityModel, null), scene);
+        // Create entities
+        for (int i = 0; i < sceneModel.entityCount(); i++)
+            scene.createEntity();
+
+        // Register and initialize components
+        for (ComponentModel componentModel : sceneModel.components()) {
+            try {
+                Class<? extends IComponent> type = (Class<? extends IComponent>) Class.forName(componentModel.type());
+                IComponent component = type.getDeclaredConstructor().newInstance();
+                scene.registerComponentUnsafe(type, component);
+                component.deserializeState(componentModel.data());
+            } catch (ClassNotFoundException e) {
+                Logger.log(LogLevel.Error, "SceneLoader", "Class " + componentModel.type() + " could not be found. This component will not be added.");
+            } catch (NoSuchMethodException e) {
+                Logger.log(LogLevel.Error, "SceneLoader", "Empty constructor could not found on class " + componentModel.type() + ". This component will not be added.");
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                Logger.log(LogLevel.Error, "SceneLoader", "Error while instantiating class " + componentModel.type() + ". This component will not be added.");
+            }
         }
 
-        Logger.log(LogLevel.Critical, "SceneLoader", "Scene <" + sceneModel.name + "> loaded");
+        //TODO: Systems
+
+        Logger.log(LogLevel.Critical, "SceneLoader", "Scene <" + sceneModel.name() + "> loaded");
         return scene;
-    }
-
-    public Entity loadEntity(@NotNull EntityModel entityModel, @Nullable Entity parent) {
-        Entity entity = new Entity();
-        entity.setParent(parent);
-        entity.setPosition(new Vector3f(entityModel.x, entityModel.y, entityModel.z));
-        // TODO: Set rotation
-
-        for (ComponentModel componentModel : entityModel.components)
-            entity.addComponent(loadComponent(componentModel));
-        for (EntityModel child : entityModel.children)
-            loadEntity(child, entity);
-
-        return entity;
-    }
-
-    public Component loadComponent(@NotNull ComponentModel componentModel) {
-        return new ComponentBuilder()
-                .setFieldOverrides(componentModel.data)
-                .build(componentModel.type);
-    }
-
-    private void addToSceneRecursive(@NotNull Entity entity, @NotNull Scene scene) {
-        scene.add(entity);
-        for (Entity child : entity.getChildren()) {
-            addToSceneRecursive(child, scene);
-        }
     }
 }
