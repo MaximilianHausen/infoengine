@@ -39,28 +39,28 @@ public class SceneLoader {
         }
 
         // Create entities
-        for (int i = 0; i < sceneModel.entityCount(); i++)
+        for (int i = 0; i < sceneModel.entityCount; i++)
             scene.createEntity();
 
         // Register and initialize components
-        for (ComponentModel componentModel : sceneModel.components()) {
+        for (ComponentModel componentModel : sceneModel.components) {
             try {
-                Class<? extends IComponent> type = (Class<? extends IComponent>) Class.forName(componentModel.type());
+                Class<? extends IComponent> type = (Class<? extends IComponent>) Class.forName(componentModel.type);
                 IComponent component = type.getDeclaredConstructor().newInstance();
                 scene.registerComponentUnsafe(type, component);
-                component.deserializeState(componentModel.data());
+                component.deserializeAllState(componentModel.values);
             } catch (ClassNotFoundException e) {
-                Logger.log(LogLevel.Error, "SceneLoader", "Class " + componentModel.type() + " could not be found. This component will not be added.");
+                Logger.log(LogLevel.Error, "SceneLoader", "Class " + componentModel.type + " could not be found. This component will not be added.");
             } catch (NoSuchMethodException e) {
-                Logger.log(LogLevel.Error, "SceneLoader", "Empty constructor could not found on class " + componentModel.type() + ". This component will not be added.");
+                Logger.log(LogLevel.Error, "SceneLoader", "Empty constructor could not found on class " + componentModel.type + ". This component will not be added.");
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                Logger.log(LogLevel.Error, "SceneLoader", "Error while instantiating class " + componentModel.type() + ". This component will not be added.");
+                Logger.log(LogLevel.Error, "SceneLoader", "Error while instantiating class " + componentModel.type + ". This component will not be added.");
             }
         }
 
         //TODO: Systems
 
-        Logger.log(LogLevel.Critical, "SceneLoader", "Scene <" + sceneModel.name() + "> loaded");
+        Logger.log(LogLevel.Info, "SceneLoader", "Scene <" + sceneModel.name + "> loaded");
         return scene;
     }
 }

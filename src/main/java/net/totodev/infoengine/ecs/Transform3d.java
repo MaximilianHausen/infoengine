@@ -9,18 +9,11 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+//TODO: Add on new entities. Maybe in Scene3d?
 public class Transform3d implements IComponent {
     private final MutableIntObjectMap<Matrix4f> transforms = IntObjectMaps.mutable.empty();
-    private final Scene scene;
 
-    public Transform3d(Scene scene) {
-        this.scene = scene;
-        scene.events.subscribe("EntityCreated", Integer.class, (i) -> transforms.put(i, new Matrix4f()));
-        scene.events.subscribe("EntityDestroyed", Integer.class, transforms::remove);
-        //TODO: Move to system
-    }
-
-    public @Nullable Vector3f getPosition(int entityId, @NotNull Vector3f out) {
+    public Vector3f getPosition(int entityId, @NotNull Vector3f out) {
         if (!isPresentOn(entityId)) return null;
         return transforms.get(entityId).getTranslation(out);
     }
@@ -41,7 +34,7 @@ public class Transform3d implements IComponent {
         transforms.get(entityId).translate(posOffset);
     }
 
-    public @Nullable Quaternionf getRotation(int entityId, @NotNull Quaternionf out) {
+    public Quaternionf getRotation(int entityId, @NotNull Quaternionf out) {
         if (!isPresentOn(entityId)) return null;
         return transforms.get(entityId).getUnnormalizedRotation(out);
     }
@@ -68,7 +61,7 @@ public class Transform3d implements IComponent {
         transforms.get(entityId).rotate(rotOffset);
     }
 
-    public @Nullable Vector3f getScale(int entityId, @NotNull Vector3f out) {
+    public Vector3f getScale(int entityId, @NotNull Vector3f out) {
         if (!isPresentOn(entityId)) return null;
         return transforms.get(entityId).getScale(out);
     }
@@ -97,19 +90,13 @@ public class Transform3d implements IComponent {
     }
 
     //region IComponent
-    public Scene getScene() {
-        return scene;
-    }
+    public void deserializeState(ComponentDataModel data) {
+        String[] serializedNumbers = data.data.split("\\|");
+        float[] numbers = new float[16];
+        for (int i = 0; i < 16; i++)
+            numbers[i] = Float.parseFloat(serializedNumbers[i]);
 
-    public void deserializeState(ComponentDataModel... data) {
-        for (ComponentDataModel d : data) {
-            String[] serializedNumbers = d.value().split("\\|");
-            float[] numbers = new float[16];
-            for (int i = 0; i < 16; i++)
-                numbers[i] = Float.parseFloat(serializedNumbers[i]);
-
-            transforms.get(d.entity()).set(numbers);
-        }
+        transforms.get(data.entity).set(numbers);
     }
 
     public @Nullable String serializeState(int entityId) {

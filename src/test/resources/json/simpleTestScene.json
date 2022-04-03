@@ -1,0 +1,18 @@
+{
+  "formatVersion": "1.0",
+  "name": "TestScene",
+
+  "entityCount": 1,
+
+  "components": [
+    {
+      "type": "net.totodev.infoengine.ecs.Transform3d",
+      "values": [
+        {
+          "entity": 0,
+          "data": "1|0|0|0|0|1|0|0|0|0|1|0|1|2|3|1"
+        }
+      ]
+    }
+  ]
+}

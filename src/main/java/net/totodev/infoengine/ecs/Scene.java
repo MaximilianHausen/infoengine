@@ -16,7 +16,6 @@ import java.util.Arrays;
 
 public class Scene {
     public final EventManager events = new EventManager();
-    //TODO: Custom multi dimensional array
     private final MutableIntSet entities = IntSets.mutable.empty();
     private final IntArrayFIFOQueue freeIds = new IntArrayFIFOQueue();
     private final MutableMap<Class<?>, IComponent> components = Maps.mutable.empty();
@@ -57,7 +56,7 @@ public class Scene {
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends IComponent> @NotNull T getComponent(@NotNull Class<T> componentClass) {
+    public <T extends IComponent> T getComponent(@NotNull Class<T> componentClass) {
         IComponent temp = components.get(componentClass);
         if (temp == null)
             throw new IllegalArgumentException("The component of type " + componentClass.getName() + " has not been registered on this EntityManager.");

@@ -72,7 +72,7 @@ public class EventManager {
     @SuppressWarnings("unchecked")
     public void invokeEvent(int id, Object param) {
         Pair<Event1, Class<?>> eventPair = parameterEvents.get(id);
-        if (param.getClass().isAssignableFrom(eventPair.getTwo())) {
+        if (!param.getClass().isAssignableFrom(eventPair.getTwo())) {
             Logger.log(LogLevel.Error, "EventManager", "Error while invoking event " + id + ": Provided parameter of type " + param.getClass().getName() + " is not assignable to type " + eventPair.getTwo().getName() + ".");
             return;
         }
@@ -89,7 +89,7 @@ public class EventManager {
             Logger.log(LogLevel.Error, "EventManager", "Error while subscribing to event " + id + ": This event could not be found. Maybe you forgot to register it?");
             return;
         }
-        if (paramType.isAssignableFrom(eventPair.getTwo())) {
+        if (!paramType.isAssignableFrom(eventPair.getTwo())) {
             Logger.log(LogLevel.Error, "EventManager", "Error while subscribing to event " + id + ": Provided parameter of type " + paramType.getName() + " is not assignable to required type " + eventPair.getTwo().getName() + ".");
             return;
         }

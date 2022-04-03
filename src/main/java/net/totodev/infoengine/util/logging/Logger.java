@@ -9,7 +9,7 @@ import java.time.LocalTime;
  * A simple customizable logger. Set the logging target with {@link #setLogTarget(Action1)}.
  */
 public class Logger {
-    private static LogLevel logLevel = LogLevel.Info;
+    private static LogLevel minLogLevel = LogLevel.Info;
     private static Action1<String> logTarget = System.out::println;
     private static Action1<String> errLogTarget = System.err::println;
 
@@ -20,12 +20,12 @@ public class Logger {
      * @param message  The message
      */
     public static void log(@NotNull LogLevel logLevel, @NotNull String source, @NotNull String message) {
-        if (logLevel.getValue() < logLevel.getValue())
+        if (logLevel.getValue() < minLogLevel.getValue())
             return;
         if (logLevel.getValue() > 2)
-            errLogTarget.run(formatMessage(source, message));
+            errLogTarget.run(formatMessage(logLevel, source, message));
         else
-            logTarget.run(formatMessage(source, message));
+            logTarget.run(formatMessage(logLevel, source, message));
     }
 
     /**
@@ -33,8 +33,8 @@ public class Logger {
      * @param minLevel The new minimum log level
      */
     public static void setLogLevel(@NotNull LogLevel minLevel) {
-        logLevel = minLevel;
-        log(LogLevel.Info, "Logger", "LogLevel set to " + logLevel);
+        minLogLevel = minLevel;
+        log(LogLevel.Info, "Logger", "LogLevel set to " + minLogLevel);
     }
 
     /**
@@ -56,9 +56,9 @@ public class Logger {
         log(LogLevel.Info, "Logger", "Error log target changed");
     }
 
-    private static @NotNull String formatMessage(@NotNull String source, @NotNull String message) {
-        String spacing = "  ";
-        int sourceWidth = 10; // Width of the source part of the message. Sources longer than this get cut off
+    private static @NotNull String formatMessage(@NotNull LogLevel logLevel, @NotNull String source, @NotNull String message) {
+        String spacing = " ";
+        int sourceWidth = 12; // Width of the source part of the message. Sources longer than this get cut off
 
         String timestamp = LocalTime.now().toString().substring(0, 8);
 
@@ -71,6 +71,6 @@ public class Logger {
         if (paddedSource.length() > sourceWidth)
             paddedSource = paddedSource.substring(0, 10);
 
-        return timestamp + spacing + logLevel.toString() + spacing + paddedSource + spacing + message;
+        return timestamp + spacing + logLevel + spacing + paddedSource + spacing + message;
     }
 }
