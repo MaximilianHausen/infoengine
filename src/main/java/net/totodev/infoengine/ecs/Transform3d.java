@@ -9,9 +9,15 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
-//TODO: Add on new entities. Maybe in Scene3d?
 public class Transform3d implements IComponent {
     private final MutableIntObjectMap<Matrix4f> transforms = IntObjectMaps.mutable.empty();
+
+    void addOnEntity(int entityId) {
+        transforms.put(entityId, new Matrix4f());
+    }
+    void removeFromEntity(int entityId) {
+        transforms.remove(entityId);
+    }
 
     public Vector3f getPosition(int entityId, @NotNull Vector3f out) {
         if (!isPresentOn(entityId)) return null;

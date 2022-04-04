@@ -14,12 +14,16 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
+//TODO: Component/System lifetime events
 public class Scene {
     public final EventManager events = new EventManager();
+
     private final MutableIntSet entities = IntSets.mutable.empty();
     private final IntArrayFIFOQueue freeIds = new IntArrayFIFOQueue();
-    private final MutableMap<Class<?>, IComponent> components = Maps.mutable.empty();
     private int highestId = 0;
+
+    private final MutableMap<Class<? extends IComponent>, IComponent> components = Maps.mutable.empty();
+    private final MutableMap<Class<? extends ISystem>, ISystem> systems = Maps.mutable.empty();
 
     public Scene() {
         CoreEvents.registerAll(events);
@@ -27,48 +31,52 @@ public class Scene {
 
     public int createEntity() {
         int newId = freeIds.isEmpty() ? highestId++ : freeIds.dequeueInt();
+        events.invokeEvent(CoreEvents.CreateEntity.toString(), newId);
         entities.add(newId);
-        events.invokeEvent("EntityCreated", newId);
+        events.invokeEvent(CoreEvents.EntityCreated.toString(), newId);
         return newId;
     }
 
     public void destroyEntity(int entityId) {
+        events.invokeEvent(CoreEvents.DestroyEntity.toString(), entityId);
         entities.remove(entityId);
         freeIds.enqueue(entityId);
-        events.invokeEvent("EntityDestroyed", entityId);
+        events.invokeEvent(CoreEvents.EntityDestroyed.toString(), entityId);
     }
 
-    public <T extends IComponent> void registerComponent(@NotNull Class<T> componentClass, @NotNull T componentInstance) {
-        components.put(componentClass, componentInstance);
+    public void registerComponent(@NotNull IComponent component) {
+        components.put(component.getClass(), component);
     }
 
-    /**
-     * NEVER use this if you don't have to.
-     * Like {@link #registerComponent(Class, IComponent)}, but without the generic checks.
-     * If the class and the instance are mismatched, the program may crash when retrieving the component.
-     */
-    public void registerComponentUnsafe(@NotNull Class<?> componentClass, @NotNull IComponent componentInstance) {
-        components.put(componentClass, componentInstance);
-    }
-
-    public <T extends IComponent> void unregisterComponent(@NotNull Class<T> componentClass) {
-        components.remove(componentClass);
+    public void unregisterComponent(@NotNull Class<? extends IComponent> componentType) {
+        components.remove(componentType);
     }
 
     @SuppressWarnings("unchecked")
-    public <T extends IComponent> T getComponent(@NotNull Class<T> componentClass) {
-        IComponent temp = components.get(componentClass);
+    public <T extends IComponent> T getComponent(@NotNull Class<T> componentType) {
+        IComponent temp = components.get(componentType);
         if (temp == null)
-            throw new IllegalArgumentException("The component of type " + componentClass.getName() + " has not been registered on this EntityManager.");
+            throw new IllegalArgumentException("The component of type " + componentType.getName() + " has not been registered on this EntityManager.");
         return (T) temp;
+    }
+
+    public void addSystem(@NotNull ISystem system) {
+        systems.put(system.getClass(), system);
+
+        //TODO: Better system init
+        system.initialize(this);
+    }
+
+    public void removeSystem(@NotNull Class<? extends IComponent> componentType) {
+        systems.remove(componentType);
     }
 
     public ImmutableIntSet getAllEntities() {
         return entities.toImmutable();
     }
 
-    public @NotNull MutableIntList getEntitiesByComponents(@NotNull Class<IComponent>... componentClasses) {
-        ImmutableList<IComponent> requiredComponents = Lists.immutable.fromStream(Arrays.stream(componentClasses).map(this::getComponent));
+    public @NotNull MutableIntList getEntitiesByComponents(@NotNull Class<? extends IComponent>... componentTypes) {
+        ImmutableList<IComponent> requiredComponents = Lists.immutable.fromStream(Arrays.stream(componentTypes).map(this::getComponent));
         MutableIntList temp = IntLists.mutable.empty();
         for (int i : entities.toArray())
             for (IComponent c : requiredComponents)

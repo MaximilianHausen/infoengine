@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import net.totodev.infoengine.ecs.IComponent;
+import net.totodev.infoengine.ecs.ISystem;
 import net.totodev.infoengine.ecs.Scene;
 import net.totodev.infoengine.util.IO;
 import net.totodev.infoengine.util.logging.LogLevel;
@@ -21,7 +22,6 @@ public class SceneLoader {
         return loadScene(IO.getTextFromFile(new File(path.toUri())));
     }
 
-    @SuppressWarnings("unchecked")
     public @NotNull Scene loadScene(@NotNull String sceneJson) {
         SceneModel sceneModel;
         Scene scene = new Scene();
@@ -38,6 +38,8 @@ public class SceneLoader {
             return scene;
         }
 
+        //TODO: Think about order
+
         // Create entities
         for (int i = 0; i < sceneModel.entityCount; i++)
             scene.createEntity();
@@ -45,9 +47,8 @@ public class SceneLoader {
         // Register and initialize components
         for (ComponentModel componentModel : sceneModel.components) {
             try {
-                Class<? extends IComponent> type = (Class<? extends IComponent>) Class.forName(componentModel.type);
-                IComponent component = type.getDeclaredConstructor().newInstance();
-                scene.registerComponentUnsafe(type, component);
+                IComponent component = (IComponent) Class.forName(componentModel.type).getDeclaredConstructor().newInstance();
+                scene.registerComponent(component);
                 component.deserializeAllState(componentModel.values);
             } catch (ClassNotFoundException e) {
                 Logger.log(LogLevel.Error, "SceneLoader", "Class " + componentModel.type + " could not be found. This component will not be added.");
@@ -58,7 +59,19 @@ public class SceneLoader {
             }
         }
 
-        //TODO: Systems
+        // Add systems
+        for (String type : sceneModel.systems) {
+            try {
+                ISystem system = (ISystem) Class.forName(type).getDeclaredConstructor().newInstance();
+                scene.addSystem(system);
+            } catch (ClassNotFoundException e) {
+                Logger.log(LogLevel.Error, "SceneLoader", "Class " + type + " could not be found. This system will not be added.");
+            } catch (NoSuchMethodException e) {
+                Logger.log(LogLevel.Error, "SceneLoader", "Empty constructor could not found on class " + type + ". This system will not be added.");
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                Logger.log(LogLevel.Error, "SceneLoader", "Error while instantiating class " + type + ". This system will not be added.");
+            }
+        }
 
         Logger.log(LogLevel.Info, "SceneLoader", "Scene <" + sceneModel.name + "> loaded");
         return scene;

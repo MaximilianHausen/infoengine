@@ -14,5 +14,9 @@
         }
       ]
     }
+  ],
+
+  "systems": [
+    "net.totodev.infoengine.ecs.Transform3dInitSystem"
   ]
 }
