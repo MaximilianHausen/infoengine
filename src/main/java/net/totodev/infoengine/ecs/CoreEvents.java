@@ -1,8 +1,11 @@
 package net.totodev.infoengine.ecs;
 
+/**
+ * All default events used by the engine
+ */
 public enum CoreEvents {
     /**
-     * Called before an entity is added to the scene
+     * Called during the creation of an entity, before it is added to the scene
      */
     CreateEntity("CreateEntity", Integer.class, false),
     /**
@@ -11,7 +14,7 @@ public enum CoreEvents {
     EntityCreated("EntityCreated", Integer.class, false),
 
     /**
-     * Called before an entity is removed from the scene
+     * Called during the destruction of an entity, before it is removed from the scene
      */
     DestroyEntity("DestroyEntity", Integer.class, false),
     /**
@@ -49,6 +52,10 @@ public enum CoreEvents {
         this.logging = logging;
     }
 
+    /**
+     * Registers all core events.
+     * @param eventManager The event manager to register the events on
+     */
     public static void registerAll(EventManager eventManager) {
         for (CoreEvents event : CoreEvents.values()) {
             if (event.parameterType == null)
@@ -58,8 +65,7 @@ public enum CoreEvents {
         }
     }
 
-    @Override
-    public String toString() {
+    public String getName() {
         return name;
     }
 }

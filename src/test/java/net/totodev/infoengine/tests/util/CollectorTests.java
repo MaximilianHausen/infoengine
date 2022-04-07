@@ -22,6 +22,7 @@ public class CollectorTests {
         Logger.setLogTarget(s -> counter++);
         collector.run();
         Assertions.assertEquals(2, counter);
+        Logger.setLogTarget(System.out::println);
     }
 
     @Test

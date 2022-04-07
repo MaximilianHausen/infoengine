@@ -34,7 +34,7 @@ public class Logger {
      */
     public static void setLogLevel(@NotNull LogLevel minLevel) {
         minLogLevel = minLevel;
-        log(LogLevel.Info, "Logger", "LogLevel set to " + minLogLevel);
+        log(LogLevel.Info, "Logger", "LogLevel set to " + minLogLevel + ".");
     }
 
     /**
@@ -53,7 +53,7 @@ public class Logger {
      */
     public static void setErrLogTarget(@NotNull Action1<String> target) {
         errLogTarget = target;
-        log(LogLevel.Info, "Logger", "Error log target changed");
+        log(LogLevel.Info, "Logger", "Error log target changed.");
     }
 
     private static @NotNull String formatMessage(@NotNull LogLevel logLevel, @NotNull String source, @NotNull String message) {

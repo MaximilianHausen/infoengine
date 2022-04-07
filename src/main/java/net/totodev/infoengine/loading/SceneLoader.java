@@ -16,21 +16,33 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Path;
 
 public class SceneLoader {
-    private static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
+    private static final Gson gson = new GsonBuilder().create();
 
-    public @NotNull Scene loadSceneFromFile(@NotNull Path path) {
-        return loadScene(IO.getTextFromFile(new File(path.toUri())));
+    /**
+     * Loads a scene from a file
+     * @param path The path to the file
+     * @return The loaded scene
+     */
+    public static @NotNull Scene loadSceneFromFile(@NotNull Path path) {
+        String jsonText = IO.getTextFromFile(new File(path.toUri()));
+        if (jsonText.equals("")) {
+            Logger.log(LogLevel.Critical, "SceneLoader", "File " + path + " not found or is empty");
+            return new Scene();
+        }
+        return loadScene(jsonText);
     }
 
-    public @NotNull Scene loadScene(@NotNull String sceneJson) {
+    /**
+     * Loads a scene from json text
+     * @param sceneJson The json text
+     * @return The loaded scene
+     */
+    public static @NotNull Scene loadScene(@NotNull String sceneJson) {
         SceneModel sceneModel;
         Scene scene = new Scene();
+        int errors = 0;
 
-        if (sceneJson.equals("")) {
-            Logger.log(LogLevel.Critical, "SceneLoader", "File not found or is empty");
-            return scene;
-        }
-
+        // Deserialize json
         try {
             sceneModel = gson.fromJson(sceneJson, SceneModel.class);
         } catch (JsonSyntaxException e) {
@@ -50,10 +62,13 @@ public class SceneLoader {
                 component.deserializeAllState(componentModel.values);
             } catch (ClassNotFoundException e) {
                 Logger.log(LogLevel.Error, "SceneLoader", "Class " + componentModel.type + " could not be found. This component will not be added.");
+                errors++;
             } catch (NoSuchMethodException e) {
                 Logger.log(LogLevel.Error, "SceneLoader", "Empty constructor could not found on class " + componentModel.type + ". This component will not be added.");
+                errors++;
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 Logger.log(LogLevel.Error, "SceneLoader", "Error while instantiating class " + componentModel.type + ". This component will not be added.");
+                errors++;
             }
         }
 
@@ -64,14 +79,17 @@ public class SceneLoader {
                 scene.addSystem(system);
             } catch (ClassNotFoundException e) {
                 Logger.log(LogLevel.Error, "SceneLoader", "Class " + type + " could not be found. This system will not be added.");
+                errors++;
             } catch (NoSuchMethodException e) {
                 Logger.log(LogLevel.Error, "SceneLoader", "Empty constructor could not found on class " + type + ". This system will not be added.");
+                errors++;
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
                 Logger.log(LogLevel.Error, "SceneLoader", "Error while instantiating class " + type + ". This system will not be added.");
+                errors++;
             }
         }
 
-        Logger.log(LogLevel.Info, "SceneLoader", "Scene <" + sceneModel.name + "> loaded");
+        Logger.log(errors == 0 ? LogLevel.Info : LogLevel.Error, "SceneLoader", "Scene " + sceneModel.name + " loaded " + (errors == 0 ? "successfully." : "with " + errors + (errors == 1 ? " error." : " errors.")));
         return scene;
     }
 }

@@ -17,24 +17,22 @@ import java.io.File;
 public class SceneLoaderTests {
     @Test
     public void loadEmpty() {
-        SceneLoader sceneLoader = new SceneLoader();
         File testSceneFile = IO.getFileFromResource("json/emptyScene.json");
         if (testSceneFile == null)
             Assertions.fail("File not found in resources/json/emptyScene.json");
 
-        Scene scene = sceneLoader.loadSceneFromFile(testSceneFile.toPath());
+        Scene scene = SceneLoader.loadSceneFromFile(testSceneFile.toPath());
         Assertions.assertNotNull(scene);
         Assertions.assertTrue(scene.getAllEntities().isEmpty());
     }
 
     @Test
     public void load() {
-        SceneLoader sceneLoader = new SceneLoader();
         File testSceneFile = IO.getFileFromResource("json/simpleTestScene.json");
         if (testSceneFile == null)
             Assertions.fail("File not found in resources/json/simpleTestScene.json");
 
-        Scene scene = sceneLoader.loadSceneFromFile(testSceneFile.toPath());
+        Scene scene = SceneLoader.loadSceneFromFile(testSceneFile.toPath());
         Transform3d transform = scene.getComponent(Transform3d.class);
 
         Assertions.assertEquals(1, scene.getAllEntities().size());

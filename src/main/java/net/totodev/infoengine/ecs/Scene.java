@@ -3,6 +3,7 @@ package net.totodev.infoengine.ecs;
 import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.list.ImmutableList;
+import org.eclipse.collections.api.list.primitive.IntList;
 import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
@@ -13,6 +14,7 @@ import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
+import java.util.Objects;
 
 public class Scene {
     public final EventManager events = new EventManager();
@@ -28,69 +30,117 @@ public class Scene {
         CoreEvents.registerAll(events);
     }
 
+    /**
+     * Creates a new entity.
+     * @return The id of the new entity
+     */
     public int createEntity() {
         int newId = freeIds.isEmpty() ? highestId++ : freeIds.dequeueInt();
-        events.invokeEvent(CoreEvents.CreateEntity.toString(), newId);
+        events.invokeEvent(CoreEvents.CreateEntity.getName(), newId);
         entities.add(newId);
-        events.invokeEvent(CoreEvents.EntityCreated.toString(), newId);
+        events.invokeEvent(CoreEvents.EntityCreated.getName(), newId);
         return newId;
     }
 
+    /**
+     * Destroys an entity and removes it from all components.
+     * @param entityId The id of the entity to destroy
+     */
     public void destroyEntity(int entityId) {
-        components.forEach((c) -> c.removeFromEntity(entityId));
+        if (!isAlive(entityId)) return;
 
-        events.invokeEvent(CoreEvents.DestroyEntity.toString(), entityId);
+        components.forEach((c) -> c.removeFromEntity(entityId));
+        events.invokeEvent(CoreEvents.DestroyEntity.getName(), entityId);
+
         entities.remove(entityId);
         freeIds.enqueue(entityId);
-        events.invokeEvent(CoreEvents.EntityDestroyed.toString(), entityId);
+        events.invokeEvent(CoreEvents.EntityDestroyed.getName(), entityId);
     }
 
+    /**
+     * Adds a component to this scene. If a component of this type has already been added, it will be overwritten.
+     * @param component The component to add
+     */
     public void addComponent(@NotNull IComponent component) {
         Class<? extends IComponent> componentType = component.getClass();
         components.put(componentType, component);
-        events.invokeEvent(CoreEvents.ComponentAdded.toString(), component);
+        events.invokeEvent(CoreEvents.ComponentAdded.getName(), component);
     }
 
+    /**
+     * Removes a component from this scene.
+     * @param componentType The runtime type of the component to remove
+     */
     public void removeComponent(@NotNull Class<? extends IComponent> componentType) {
         IComponent component = components.remove(componentType);
-        events.invokeEvent(CoreEvents.ComponentRemoved.toString(), component);
+        events.invokeEvent(CoreEvents.ComponentRemoved.getName(), component);
     }
 
+    /**
+     * Retrieves a component from this scene
+     * @param componentType The runtime type of the component to retrieve
+     * @param <T>           The type of the component to retrieve. Only used to downcast the retrieved component.
+     * @return The retrieved component
+     */
     @SuppressWarnings("unchecked")
     public <T extends IComponent> T getComponent(@NotNull Class<T> componentType) {
         IComponent temp = components.get(componentType);
         if (temp == null)
             throw new IllegalArgumentException("The component of type " + componentType.getName() + " has not been registered on this EntityManager.");
+        componentType.cast(temp);
         return (T) temp;
     }
 
+    /**
+     * Adds a system to this scene. If a system of this type has already been added, it will be overwritten.
+     * @param system The system to add
+     */
     public void addSystem(@NotNull ISystem system) {
         systems.put(system.getClass(), system);
         system.initialize(this);
-        events.invokeEvent(CoreEvents.SystemAdded.toString(), system);
+        events.invokeEvent(CoreEvents.SystemAdded.getName(), system);
     }
 
+    /**
+     * Removes a system from this scene.
+     * @param systemType The runtime type of the system to remove
+     */
     public void removeSystem(@NotNull Class<? extends IComponent> systemType) {
         ISystem system = systems.remove(systemType);
         system.deinitialize(this);
-        events.invokeEvent(CoreEvents.SystemRemoved.toString(), system);
+        events.invokeEvent(CoreEvents.SystemRemoved.getName(), system);
     }
 
     public ImmutableIntSet getAllEntities() {
         return entities.toImmutable();
     }
 
-    public @NotNull MutableIntList getEntitiesByComponents(@NotNull Class<? extends IComponent>... componentTypes) {
-        ImmutableList<IComponent> requiredComponents = Lists.immutable.fromStream(Arrays.stream(componentTypes).map(this::getComponent));
+    /**
+     * Gets a list of all entities that have every specified component. Components not added to this scene will be ignored.
+     * @param componentTypes The components to check for
+     * @return A list of all entities that have all the specified components
+     */
+    public @NotNull IntList getEntitiesByComponents(@NotNull Class<? extends IComponent>... componentTypes) {
+        // Get and filter instances for component types
+        ImmutableList<IComponent> requiredComponents = Lists.immutable
+                .fromStream(Arrays.stream(componentTypes).map(this::getComponent).filter(Objects::nonNull));
+
         MutableIntList temp = IntLists.mutable.empty();
-        for (int i : entities.toArray())
+        for (int e : entities.toArray()) {
+            boolean hasAllComponents = true;
             for (IComponent c : requiredComponents)
-                if (c.isPresentOn(i))
-                    temp.add(i);
+                if (!c.isPresentOn(e)) hasAllComponents = false;
+            if (hasAllComponents) temp.add(e);
+        }
 
         return temp;
     }
 
+    /**
+     * Checks if an entity with this id currently exists in this scene
+     * @param entityId The entity id to check for
+     * @return Whether an entity with this id exists in this scene
+     */
     public boolean isAlive(int entityId) {
         return entities.contains(entityId);
     }

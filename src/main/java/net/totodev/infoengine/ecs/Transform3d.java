@@ -9,9 +9,16 @@ import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3f;
 
+//TODO: Parents, Local/Parent(World)/World(Recursive)
 public class Transform3d implements IComponent {
     private final MutableIntObjectMap<Matrix4f> transforms = IntObjectMaps.mutable.empty();
 
+    /**
+     * Gets the position of an entity and stores it in the out-vector.
+     * @param entityId The entity to get the position of
+     * @param out The vector to store the position in
+     * @return out, or null, if this component is not present on that entity
+     */
     public Vector3f getPosition(int entityId, @NotNull Vector3f out) {
         if (!isPresentOn(entityId)) return null;
         return transforms.get(entityId).getTranslation(out);
@@ -60,6 +67,12 @@ public class Transform3d implements IComponent {
         transforms.get(entityId).rotate(rotOffset);
     }
 
+    /**
+     * Gets the scale of an entity on all three axes and stores it in the out-vector.
+     * @param entityId The entity to get the scale of
+     * @param out The vector to store the rotation in
+     * @return out, or null, if this component is not present on that entity
+     */
     public Vector3f getScale(int entityId, @NotNull Vector3f out) {
         if (!isPresentOn(entityId)) return null;
         return transforms.get(entityId).getScale(out);
@@ -97,6 +110,7 @@ public class Transform3d implements IComponent {
     }
 
     public void deserializeState(@NotNull ComponentDataModel data) {
+        // Parse data
         String[] serializedNumbers = data.data.split("\\|");
         float[] numbers = new float[16];
         for (int i = 0; i < 16; i++)
@@ -111,6 +125,7 @@ public class Transform3d implements IComponent {
     public @Nullable String serializeState(int entityId) {
         if (!isPresentOn(entityId)) return null;
 
+        // Serialize data
         float[] numbers = transforms.get(entityId).get(new float[16]);
         String[] serializedNumbers = new String[16];
         for (int i = 0; i < 16; i++)
