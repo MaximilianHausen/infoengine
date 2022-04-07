@@ -14,7 +14,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
 
-//TODO: Component/System lifetime events
 public class Scene {
     public final EventManager events = new EventManager();
 
@@ -38,18 +37,23 @@ public class Scene {
     }
 
     public void destroyEntity(int entityId) {
+        components.forEach((c) -> c.removeFromEntity(entityId));
+
         events.invokeEvent(CoreEvents.DestroyEntity.toString(), entityId);
         entities.remove(entityId);
         freeIds.enqueue(entityId);
         events.invokeEvent(CoreEvents.EntityDestroyed.toString(), entityId);
     }
 
-    public void registerComponent(@NotNull IComponent component) {
-        components.put(component.getClass(), component);
+    public void addComponent(@NotNull IComponent component) {
+        Class<? extends IComponent> componentType = component.getClass();
+        components.put(componentType, component);
+        events.invokeEvent(CoreEvents.ComponentAdded.toString(), component);
     }
 
-    public void unregisterComponent(@NotNull Class<? extends IComponent> componentType) {
-        components.remove(componentType);
+    public void removeComponent(@NotNull Class<? extends IComponent> componentType) {
+        IComponent component = components.remove(componentType);
+        events.invokeEvent(CoreEvents.ComponentRemoved.toString(), component);
     }
 
     @SuppressWarnings("unchecked")
@@ -62,13 +66,14 @@ public class Scene {
 
     public void addSystem(@NotNull ISystem system) {
         systems.put(system.getClass(), system);
-
-        //TODO: Better system init
         system.initialize(this);
+        events.invokeEvent(CoreEvents.SystemAdded.toString(), system);
     }
 
-    public void removeSystem(@NotNull Class<? extends IComponent> componentType) {
-        systems.remove(componentType);
+    public void removeSystem(@NotNull Class<? extends IComponent> systemType) {
+        ISystem system = systems.remove(systemType);
+        system.deinitialize(this);
+        events.invokeEvent(CoreEvents.SystemRemoved.toString(), system);
     }
 
     public ImmutableIntSet getAllEntities() {

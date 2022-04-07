@@ -12,13 +12,6 @@ import org.joml.Vector3f;
 public class Transform3d implements IComponent {
     private final MutableIntObjectMap<Matrix4f> transforms = IntObjectMaps.mutable.empty();
 
-    void addOnEntity(int entityId) {
-        transforms.put(entityId, new Matrix4f());
-    }
-    void removeFromEntity(int entityId) {
-        transforms.remove(entityId);
-    }
-
     public Vector3f getPosition(int entityId, @NotNull Vector3f out) {
         if (!isPresentOn(entityId)) return null;
         return transforms.get(entityId).getTranslation(out);
@@ -96,11 +89,21 @@ public class Transform3d implements IComponent {
     }
 
     //region IComponent
-    public void deserializeState(ComponentDataModel data) {
+    public void addOnEntity(int entityId) {
+        transforms.put(entityId, new Matrix4f());
+    }
+    public void removeFromEntity(int entityId) {
+        transforms.remove(entityId);
+    }
+
+    public void deserializeState(@NotNull ComponentDataModel data) {
         String[] serializedNumbers = data.data.split("\\|");
         float[] numbers = new float[16];
         for (int i = 0; i < 16; i++)
             numbers[i] = Float.parseFloat(serializedNumbers[i]);
+
+        if (!isPresentOn(data.entity))
+            addOnEntity(data.entity);
 
         transforms.get(data.entity).set(numbers);
     }

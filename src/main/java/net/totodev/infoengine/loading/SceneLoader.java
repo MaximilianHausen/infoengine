@@ -38,8 +38,6 @@ public class SceneLoader {
             return scene;
         }
 
-        //TODO: Think about order
-
         // Create entities
         for (int i = 0; i < sceneModel.entityCount; i++)
             scene.createEntity();
@@ -48,7 +46,7 @@ public class SceneLoader {
         for (ComponentModel componentModel : sceneModel.components) {
             try {
                 IComponent component = (IComponent) Class.forName(componentModel.type).getDeclaredConstructor().newInstance();
-                scene.registerComponent(component);
+                scene.addComponent(component);
                 component.deserializeAllState(componentModel.values);
             } catch (ClassNotFoundException e) {
                 Logger.log(LogLevel.Error, "SceneLoader", "Class " + componentModel.type + " could not be found. This component will not be added.");
