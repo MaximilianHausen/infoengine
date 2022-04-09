@@ -20,6 +20,7 @@ public class EventTests {
         Logger.setLogTarget(s -> counter++);
         event.run();
         Assertions.assertEquals(2, counter);
+        Logger.setLogTarget(System.out::println);
     }
 
     @Test

@@ -108,27 +108,27 @@ public class Buffer implements IOglObject {
         glGetBufferSubData(bindStatus.get(this).getValue(), offset, target);
     }
     @RequiresBind
-    public void getPartialData(long offset, @NotNull short[] target) {
+    public void getPartialData(long offset, short @NotNull [] target) {
         if (isDisposed) throw new BufferDisposedException();
         glGetBufferSubData(bindStatus.get(this).getValue(), offset, target);
     }
     @RequiresBind
-    public void getPartialData(long offset, @NotNull int[] target) {
+    public void getPartialData(long offset, int @NotNull [] target) {
         if (isDisposed) throw new BufferDisposedException();
         glGetBufferSubData(bindStatus.get(this).getValue(), offset, target);
     }
     @RequiresBind
-    public void getPartialData(long offset, @NotNull long[] target) {
+    public void getPartialData(long offset, long @NotNull [] target) {
         if (isDisposed) throw new BufferDisposedException();
         glGetBufferSubData(bindStatus.get(this).getValue(), offset, target);
     }
     @RequiresBind
-    public void getPartialData(long offset, @NotNull float[] target) {
+    public void getPartialData(long offset, float @NotNull [] target) {
         if (isDisposed) throw new BufferDisposedException();
         glGetBufferSubData(bindStatus.get(this).getValue(), offset, target);
     }
     @RequiresBind
-    public void getPartialData(long offset, @NotNull double[] target) {
+    public void getPartialData(long offset, double @NotNull [] target) {
         if (isDisposed) throw new BufferDisposedException();
         glGetBufferSubData(bindStatus.get(this).getValue(), offset, target);
     }
@@ -172,31 +172,31 @@ public class Buffer implements IOglObject {
         Logger.log(LogLevel.Trace, "OpenGL", "Data set for buffer " + id);
     }
     @RequiresBind
-    public void setData(@NotNull short[] data, @NotNull BufferUsage optimisationMode) {
+    public void setData(short @NotNull [] data, @NotNull BufferUsage optimisationMode) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferData(bindStatus.get(this).getValue(), data, optimisationMode.getValue());
         Logger.log(LogLevel.Trace, "OpenGL", "Data set for buffer " + id);
     }
     @RequiresBind
-    public void setData(@NotNull int[] data, @NotNull BufferUsage optimisationMode) {
+    public void setData(int @NotNull [] data, @NotNull BufferUsage optimisationMode) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferData(bindStatus.get(this).getValue(), data, optimisationMode.getValue());
         Logger.log(LogLevel.Trace, "OpenGL", "Data set for buffer " + id);
     }
     @RequiresBind
-    public void setData(@NotNull long[] data, @NotNull BufferUsage optimisationMode) {
+    public void setData(long @NotNull [] data, @NotNull BufferUsage optimisationMode) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferData(bindStatus.get(this).getValue(), data, optimisationMode.getValue());
         Logger.log(LogLevel.Trace, "OpenGL", "Data set for buffer " + id);
     }
     @RequiresBind
-    public void setData(@NotNull float[] data, @NotNull BufferUsage optimisationMode) {
+    public void setData(float @NotNull [] data, @NotNull BufferUsage optimisationMode) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferData(bindStatus.get(this).getValue(), data, optimisationMode.getValue());
         Logger.log(LogLevel.Trace, "OpenGL", "Data set for buffer " + id);
     }
     @RequiresBind
-    public void setData(@NotNull double[] data, @NotNull BufferUsage optimisationMode) {
+    public void setData(double @NotNull [] data, @NotNull BufferUsage optimisationMode) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferData(bindStatus.get(this).getValue(), data, optimisationMode.getValue());
         Logger.log(LogLevel.Trace, "OpenGL", "Data set for buffer " + id);
@@ -236,25 +236,25 @@ public class Buffer implements IOglObject {
         Logger.log(LogLevel.Trace, "OpenGL", "Immutable data set for buffer " + id);
     }
     @RequiresBind
-    public void setImmutableData(@NotNull short[] data, @NotNull BufferAccessRestriction... flags) {
+    public void setImmutableData(short @NotNull [] data, @NotNull BufferAccessRestriction... flags) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferStorage(bindStatus.get(this).getValue(), data, BufferAccessRestriction.combineFlags(flags));
         Logger.log(LogLevel.Trace, "OpenGL", "Immutable data set for buffer " + id);
     }
     @RequiresBind
-    public void setImmutableData(@NotNull int[] data, @NotNull BufferAccessRestriction... flags) {
+    public void setImmutableData(int @NotNull [] data, @NotNull BufferAccessRestriction... flags) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferStorage(bindStatus.get(this).getValue(), data, BufferAccessRestriction.combineFlags(flags));
         Logger.log(LogLevel.Trace, "OpenGL", "Immutable data set for buffer " + id);
     }
     @RequiresBind
-    public void setImmutableData(@NotNull float[] data, @NotNull BufferAccessRestriction... flags) {
+    public void setImmutableData(float @NotNull [] data, @NotNull BufferAccessRestriction... flags) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferStorage(bindStatus.get(this).getValue(), data, BufferAccessRestriction.combineFlags(flags));
         Logger.log(LogLevel.Trace, "OpenGL", "Immutable data set for buffer " + id);
     }
     @RequiresBind
-    public void setImmutableData(@NotNull double[] data, @NotNull BufferAccessRestriction... flags) {
+    public void setImmutableData(double @NotNull [] data, @NotNull BufferAccessRestriction... flags) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferStorage(bindStatus.get(this).getValue(), data, BufferAccessRestriction.combineFlags(flags));
         Logger.log(LogLevel.Trace, "OpenGL", "Immutable data set for buffer " + id);
@@ -293,31 +293,31 @@ public class Buffer implements IOglObject {
         Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for buffer " + id + " with offset " + offset);
     }
     @RequiresBind
-    public void setPartialData(@Range(from = 0, to = Long.MAX_VALUE) long offset, @NotNull short[] data) {
+    public void setPartialData(@Range(from = 0, to = Long.MAX_VALUE) long offset, short @NotNull [] data) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferSubData(bindStatus.get(this).getValue(), offset, data);
         Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for buffer " + id + " with offset " + offset);
     }
     @RequiresBind
-    public void setPartialData(@Range(from = 0, to = Long.MAX_VALUE) long offset, @NotNull int[] data) {
+    public void setPartialData(@Range(from = 0, to = Long.MAX_VALUE) long offset, int @NotNull [] data) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferSubData(bindStatus.get(this).getValue(), offset, data);
         Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for buffer " + id + " with offset " + offset);
     }
     @RequiresBind
-    public void setPartialData(@Range(from = 0, to = Long.MAX_VALUE) long offset, @NotNull float[] data) {
+    public void setPartialData(@Range(from = 0, to = Long.MAX_VALUE) long offset, float @NotNull [] data) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferSubData(bindStatus.get(this).getValue(), offset, data);
         Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for buffer " + id + " with offset " + offset);
     }
     @RequiresBind
-    public void setPartialData(@Range(from = 0, to = Long.MAX_VALUE) long offset, @NotNull long[] data) {
+    public void setPartialData(@Range(from = 0, to = Long.MAX_VALUE) long offset, long @NotNull [] data) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferSubData(bindStatus.get(this).getValue(), offset, data);
         Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for buffer " + id + " with offset " + offset);
     }
     @RequiresBind
-    public void setPartialData(@Range(from = 0, to = Long.MAX_VALUE) long offset, @NotNull double[] data) {
+    public void setPartialData(@Range(from = 0, to = Long.MAX_VALUE) long offset, double @NotNull [] data) {
         if (isDisposed) throw new BufferDisposedException();
         glBufferSubData(bindStatus.get(this).getValue(), offset, data);
         Logger.log(LogLevel.Trace, "OpenGL", "Partial data set for buffer " + id + " with offset " + offset);
