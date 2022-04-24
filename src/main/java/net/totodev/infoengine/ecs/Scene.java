@@ -1,6 +1,5 @@
 package net.totodev.infoengine.ecs;
 
-import it.unimi.dsi.fastutil.ints.IntArrayFIFOQueue;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.primitive.IntList;
@@ -8,9 +7,11 @@ import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.primitive.ImmutableIntSet;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
+import org.eclipse.collections.api.stack.primitive.MutableIntStack;
 import org.eclipse.collections.impl.factory.Lists;
 import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
+import org.eclipse.collections.impl.factory.primitive.IntStacks;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.Arrays;
@@ -20,7 +21,7 @@ public class Scene {
     public final EventManager events = new EventManager();
 
     private final MutableIntSet entities = IntSets.mutable.empty();
-    private final IntArrayFIFOQueue freeIds = new IntArrayFIFOQueue();
+    private final MutableIntStack freeIds = IntStacks.mutable.empty(); //TODO: FIFO Queue
     private int highestId = 0;
 
     private final MutableMap<Class<? extends IComponent>, IComponent> components = Maps.mutable.empty();
@@ -35,7 +36,7 @@ public class Scene {
      * @return The id of the new entity
      */
     public int createEntity() {
-        int newId = freeIds.isEmpty() ? highestId++ : freeIds.dequeueInt();
+        int newId = freeIds.isEmpty() ? highestId++ : freeIds.pop();
         events.invokeEvent(CoreEvents.CreateEntity.getName(), newId);
         entities.add(newId);
         events.invokeEvent(CoreEvents.EntityCreated.getName(), newId);
@@ -53,7 +54,7 @@ public class Scene {
         events.invokeEvent(CoreEvents.DestroyEntity.getName(), entityId);
 
         entities.remove(entityId);
-        freeIds.enqueue(entityId);
+        freeIds.push(entityId);
         events.invokeEvent(CoreEvents.EntityDestroyed.getName(), entityId);
     }
 
