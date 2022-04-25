@@ -2,9 +2,6 @@ package net.totodev.infoengine.core;
 
 import net.totodev.infoengine.DisposedException;
 import net.totodev.infoengine.IDisposable;
-import net.totodev.infoengine.rendering.IRenderTarget;
-import net.totodev.infoengine.rendering.opengl.Framebuffer;
-import net.totodev.infoengine.rendering.opengl.enums.FramebufferBindTarget;
 import net.totodev.infoengine.util.logging.LogLevel;
 import net.totodev.infoengine.util.logging.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -19,7 +16,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
  * Represents a glfw window
  * @see <a href="https://www.glfw.org/docs/latest/window_guide.html">GLFW Docs: Windows</a>
  */
-public class Window implements IDisposable, IRenderTarget {
+public class Window implements IDisposable {
     private static Window activeWindow;
 
     static {
@@ -29,6 +26,7 @@ public class Window implements IDisposable, IRenderTarget {
             Logger.log(LogLevel.Critical, "GLFW", "GLFW could not be initialized");
 
         glfwDefaultWindowHints();
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     }
 
@@ -42,13 +40,11 @@ public class Window implements IDisposable, IRenderTarget {
      * Creates a new window
      */
     public Window(@NotNull String title, int width, int height, boolean transparentFramebuffer) {
-        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, transparentFramebuffer ? GLFW_TRUE : GLFW_FALSE);
-        id = glfwCreateWindow(width, height, title, NULL, activeWindow != null ? activeWindow.getId() : NULL);
+        id = glfwCreateWindow(width, height, title, NULL, NULL);
         if (id == NULL)
             Logger.log(LogLevel.Critical, "GLFW", "Window could not be created");
 
-        makeCurrent();
-        glfwSwapInterval(1); // Enable v-sync
+        //TODO: Setup Vulkan
         glfwShowWindow(id);
         activeWindow = this;
 
@@ -65,22 +61,6 @@ public class Window implements IDisposable, IRenderTarget {
      */
     public static void pollEvents() {
         glfwPollEvents();
-    }
-
-    /**
-     * Makes the OpenGL context not current on the calling thread.
-     */
-    public static void makeNotCurrent() {
-        glfwMakeContextCurrent(NULL);
-    }
-
-    /**
-     * Makes the OpenGL context of this window current on the calling thread.
-     */
-    public void makeCurrent() {
-        if (isDisposed) throw new WindowDisposedException();
-        glfwMakeContextCurrent(id);
-        org.lwjgl.opengl.GL.createCapabilities();
     }
 
     public void setActive() {
@@ -251,11 +231,6 @@ public class Window implements IDisposable, IRenderTarget {
         return new Vector2i(x[0], y[0]);
     }
 
-    public boolean isFramebufferTransparent() {
-        if (isDisposed) throw new WindowDisposedException();
-        return glfwGetWindowAttrib(id, GLFW_TRANSPARENT_FRAMEBUFFER) == GLFW_TRUE;
-    }
-
     public Vector2f getContentScale() {
         if (isDisposed) throw new WindowDisposedException();
         float[] x = new float[1], y = new float[1];
@@ -321,11 +296,6 @@ public class Window implements IDisposable, IRenderTarget {
     }
     //endregion
 
-    public void setVsync(boolean bool) {
-        if (isDisposed) throw new WindowDisposedException();
-        glfwSwapInterval(bool ? 1 : 0);
-    }
-
     public long getId() {
         if (isDisposed) throw new WindowDisposedException();
         return id;
@@ -338,15 +308,6 @@ public class Window implements IDisposable, IRenderTarget {
     }
     public boolean isDisposed() {
         return isDisposed;
-    }
-
-    public void activate() {
-        Framebuffer fbo = Framebuffer.getBoundFramebuffer(FramebufferBindTarget.FRAMEBUFFER);
-        if (fbo != null) fbo.unbind();
-    }
-
-    public void renderedFrame() {
-        glfwSwapBuffers(id);
     }
 
     /**
