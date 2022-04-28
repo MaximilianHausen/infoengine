@@ -1,17 +1,12 @@
 package net.totodev.infoengine.util;
 
 import net.totodev.infoengine.rendering.Image;
-import net.totodev.infoengine.util.logging.LogLevel;
-import net.totodev.infoengine.util.logging.Logger;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
-import org.jetbrains.annotations.Range;
+import net.totodev.infoengine.util.logging.*;
+import org.jetbrains.annotations.*;
 import org.lwjgl.stb.STBImage;
 
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.net.URL;
+import java.io.*;
+import java.net.*;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 

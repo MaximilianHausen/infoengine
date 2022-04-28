@@ -1,11 +1,9 @@
 package net.totodev.infoengine.util;
 
-import net.totodev.infoengine.util.logging.LogLevel;
-import net.totodev.infoengine.util.logging.Logger;
+import net.totodev.infoengine.util.logging.*;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 /**
  * You can add actions to this event and call them with {@link #run(Object)}.<br>

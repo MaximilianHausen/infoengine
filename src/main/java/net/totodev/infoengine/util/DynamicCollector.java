@@ -1,12 +1,10 @@
 package net.totodev.infoengine.util;
 
-import net.totodev.infoengine.util.logging.LogLevel;
-import net.totodev.infoengine.util.logging.Logger;
+import net.totodev.infoengine.util.logging.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class DynamicCollector {
     private final List<MethodHandle> subscribers = new LinkedList<>();

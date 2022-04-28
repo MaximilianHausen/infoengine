@@ -1,14 +1,9 @@
 package net.totodev.infoengine.loading;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-import net.totodev.infoengine.ecs.IComponent;
-import net.totodev.infoengine.ecs.ISystem;
-import net.totodev.infoengine.ecs.Scene;
+import com.google.gson.*;
+import net.totodev.infoengine.ecs.*;
 import net.totodev.infoengine.util.IO;
-import net.totodev.infoengine.util.logging.LogLevel;
-import net.totodev.infoengine.util.logging.Logger;
+import net.totodev.infoengine.util.logging.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;

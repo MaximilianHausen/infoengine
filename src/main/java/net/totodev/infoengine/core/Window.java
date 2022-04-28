@@ -1,12 +1,9 @@
 package net.totodev.infoengine.core;
 
-import net.totodev.infoengine.DisposedException;
-import net.totodev.infoengine.IDisposable;
-import net.totodev.infoengine.util.logging.LogLevel;
-import net.totodev.infoengine.util.logging.Logger;
+import net.totodev.infoengine.*;
+import net.totodev.infoengine.util.logging.*;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector2f;
-import org.joml.Vector2i;
+import org.joml.*;
 import org.lwjgl.glfw.GLFWErrorCallback;
 
 import static org.lwjgl.glfw.GLFW.*;

@@ -1,13 +1,9 @@
 package net.totodev.infoengine.tests.util;
 
 import net.totodev.infoengine.tests.CamelCaseGenerator;
-import net.totodev.infoengine.util.Collector;
-import net.totodev.infoengine.util.Func;
-import net.totodev.infoengine.util.logging.LogLevel;
-import net.totodev.infoengine.util.logging.Logger;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.Test;
+import net.totodev.infoengine.util.*;
+import net.totodev.infoengine.util.logging.*;
+import org.junit.jupiter.api.*;
 
 import java.util.List;
 
