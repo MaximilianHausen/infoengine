@@ -69,27 +69,9 @@ public class VkInstanceHelper {
         MemoryStack stack = stackGet();
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo = VkDebugUtilsMessengerCreateInfoEXT.calloc(stack);
-        debugCreateInfo.sType(VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT);
-        debugCreateInfo.messageSeverity(VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT);
-        debugCreateInfo.messageType(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT);
-        debugCreateInfo.pfnUserCallback(callback);
+        VkDebugUtilsHelper.populateDebugMessengerCreateInfo(debugCreateInfo, callback);
 
         instanceCreateInfo.pNext(debugCreateInfo.address());
-    }
-
-    private static int debugCallback(int messageSeverity, int messageType, long pCallbackData, long pUserData) {
-        VkDebugUtilsMessengerCallbackDataEXT callbackData = VkDebugUtilsMessengerCallbackDataEXT.create(pCallbackData);
-
-        LogLevel logLevel = switch (messageSeverity) {
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT -> LogLevel.Trace;
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT -> LogLevel.Debug;
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT -> LogLevel.Info;
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT -> LogLevel.Error;
-            default -> LogLevel.Debug;
-        };
-        Logger.log(logLevel, "VkLayer", callbackData.pMessageString());
-
-        return VK_FALSE;
     }
 
     private static PointerBuffer asPointerBuffer(RichIterable<String> values) {
