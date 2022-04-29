@@ -12,11 +12,11 @@ import static org.lwjgl.vulkan.EXTDebugUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class VkDebugUtilsHelper {
-    private static long createDebugMessenger(VkInstance instance) {
+    public static long createDebugMessenger(VkInstance instance) {
         return createDebugMessenger(instance, VkDebugUtilsHelper::loggingDebugCallback);
     }
 
-    private static long createDebugMessenger(VkInstance instance, VkDebugUtilsMessengerCallbackEXTI callback) {
+    public static long createDebugMessenger(VkInstance instance, VkDebugUtilsMessengerCallbackEXTI callback) {
         try (MemoryStack stack = stackPush()) {
             VkDebugUtilsMessengerCreateInfoEXT createInfo = VkDebugUtilsMessengerCreateInfoEXT.calloc(stack);
             populateDebugMessengerCreateInfo(createInfo, callback);

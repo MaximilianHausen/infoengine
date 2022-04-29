@@ -13,11 +13,13 @@ import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFWVulkan.glfwGetRequiredInstanceExtensions;
 import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.vulkan.EXTDebugUtils.*;
 import static org.lwjgl.vulkan.VK13.*;
 
 public class VkInstanceHelper {
-    public static VkInstance createInstance(SetIterable<String> validationLayers, String appName, SemVer appVersion) {
+    public static VkInstance createInstance(String appName, SemVer appVersion, SetIterable<String> validationLayers) {
+        return createInstance(appName, appVersion, validationLayers, VkDebugUtilsHelper::loggingDebugCallback);
+    }
+    public static VkInstance createInstance(String appName, SemVer appVersion, SetIterable<String> validationLayers, VkDebugUtilsMessengerCallbackEXTI debugCallback) {
         try (MemoryStack stack = stackPush()) {
             VkApplicationInfo appInfo = VkApplicationInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_APPLICATION_INFO)
@@ -34,6 +36,8 @@ public class VkInstanceHelper {
                     .ppEnabledLayerNames(null);
 
             addLayers(createInfo, validationLayers);
+            if (debugCallback != null)
+                addDebugMessenger(createInfo, debugCallback);
 
             PointerBuffer instancePtr = stack.mallocPointer(1);
             if (vkCreateInstance(createInfo, null, instancePtr) != VK_SUCCESS)
@@ -86,7 +90,8 @@ public class VkInstanceHelper {
     private static PointerBuffer getRequiredExtensions(boolean useDebugUtils) {
         PointerBuffer glfwExtensions = glfwGetRequiredInstanceExtensions();
         // This is a game engine, so I don't care about offscreen rendering
-        if (glfwExtensions == null) throw new UnsupportedOperationException("Vulkan extensions required for lwjgl not supported");
+        if (glfwExtensions == null)
+            throw new UnsupportedOperationException("Vulkan extensions required for lwjgl not supported");
 
         if (useDebugUtils) {
             MemoryStack stack = MemoryStack.stackGet();
