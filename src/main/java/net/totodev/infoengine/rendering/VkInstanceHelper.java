@@ -15,7 +15,7 @@ import static org.lwjgl.glfw.GLFWVulkan.glfwGetRequiredInstanceExtensions;
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.vulkan.VK13.*;
 
-public class VkInstanceHelper {
+public final class VkInstanceHelper {
     public static VkInstance createInstance(String appName, SemVer appVersion, SetIterable<String> validationLayers) {
         return createInstance(appName, appVersion, validationLayers, VkDebugUtilsHelper::loggingDebugCallback);
     }

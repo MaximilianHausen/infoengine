@@ -11,7 +11,7 @@ import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.vulkan.EXTDebugUtils.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class VkDebugUtilsHelper {
+public final class VkDebugUtilsHelper {
     public static long createDebugMessenger(VkInstance instance) {
         return createDebugMessenger(instance, VkDebugUtilsHelper::loggingDebugCallback);
     }
