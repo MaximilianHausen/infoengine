@@ -1,10 +1,10 @@
 package net.totodev.infoengine.core;
 
 import net.totodev.infoengine.*;
+import net.totodev.infoengine.util.Action1;
 import net.totodev.infoengine.util.logging.*;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
-import org.lwjgl.glfw.GLFWErrorCallback;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -14,19 +14,6 @@ import static org.lwjgl.system.MemoryUtil.NULL;
  * @see <a href="https://www.glfw.org/docs/latest/window_guide.html">GLFW Docs: Windows</a>
  */
 public class Window implements IDisposable {
-    private static Window activeWindow;
-
-    static {
-        GLFWErrorCallback.createPrint(System.err).set();
-
-        if (!glfwInit())
-            Logger.log(LogLevel.Critical, "GLFW", "GLFW could not be initialized");
-
-        glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-    }
-
     private final long id;
     private boolean isDisposed;
     private WindowModes currentMode = WindowModes.Windowed;
@@ -36,20 +23,15 @@ public class Window implements IDisposable {
     /**
      * Creates a new window
      */
-    public Window(@NotNull String title, int width, int height, boolean transparentFramebuffer) {
+    public Window(@NotNull String title, int width, int height, Action1<Long> setupCallback) {
         id = glfwCreateWindow(width, height, title, NULL, NULL);
         if (id == NULL)
             Logger.log(LogLevel.Critical, "GLFW", "Window could not be created");
 
-        //TODO: Setup Vulkan
+        setupCallback.run(id);
+
         glfwShowWindow(id);
-        activeWindow = this;
-
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " created and set as current");
-    }
-
-    public static Window getActiveWindow() {
-        return activeWindow;
     }
 
     //region Random stuff
@@ -58,11 +40,6 @@ public class Window implements IDisposable {
      */
     public static void pollEvents() {
         glfwPollEvents();
-    }
-
-    public void setActive() {
-        if (isDisposed) throw new WindowDisposedException();
-        activeWindow = this;
     }
 
     public void requestAttention() {
