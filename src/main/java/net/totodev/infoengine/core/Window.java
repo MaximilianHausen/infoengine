@@ -1,10 +1,12 @@
 package net.totodev.infoengine.core;
 
 import net.totodev.infoengine.*;
-import net.totodev.infoengine.util.Action1;
+import net.totodev.infoengine.rendering.vulkan.*;
 import net.totodev.infoengine.util.logging.*;
+import org.eclipse.collections.api.list.primitive.LongList;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
+import org.lwjgl.vulkan.VkExtent2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
@@ -20,18 +22,36 @@ public class Window implements IDisposable {
     // Used to configure the window when exiting fullscreen
     private int lastWindowPosX = 0, lastWindowPosY = 0, lastWindowSizeX = 0, lastWindowSizeY = 0;
 
+    //region Vulkan
+    private final long vkSurface;
+    private long vkSwapchain;
+    private LongList vkImages;
+    private int vkImageFormat;
+    private VkExtent2D vkExtent;
+    //endregion
+
     /**
      * Creates a new window
      */
-    public Window(@NotNull String title, int width, int height, Action1<Long> setupCallback) {
+    public Window(@NotNull String title, int width, int height, boolean startHidden) {
         id = glfwCreateWindow(width, height, title, NULL, NULL);
         if (id == NULL)
             Logger.log(LogLevel.Critical, "GLFW", "Window could not be created");
 
-        setupCallback.run(id);
+        // Seperated because the override in MainWindow needs a surface to exist and this is better than making everything protected
+        vkSurface = VkSurfaceHelper.createSurface(Engine.getVkInstance(), id);
+        initVulkan();
 
-        glfwShowWindow(id);
+        if (!startHidden) glfwShowWindow(id);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " created and set as current");
+    }
+
+    protected void initVulkan() {
+        VkSwapchainHelper.SwapchainCreationResult swapchainCreationResult = VkSwapchainHelper.createSwapChain(Engine.getLogicalDevice(), this);
+        vkSwapchain = swapchainCreationResult.swapchain();
+        vkImages = swapchainCreationResult.images();
+        vkImageFormat = swapchainCreationResult.imageFormat();
+        vkExtent = swapchainCreationResult.extent();
     }
 
     //region Random stuff
@@ -267,6 +287,24 @@ public class Window implements IDisposable {
         if (isDisposed) throw new WindowDisposedException();
         glfwSetWindowAttrib(id, GLFW_FLOATING, bool ? GLFW_TRUE : GLFW_FALSE);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "floating");
+    }
+    //endregion
+
+    //region Vulkan Get
+    public long getVkSurface() {
+        return vkSurface;
+    }
+    public long getVkSwapchain() {
+        return vkSwapchain;
+    }
+    public LongList getVkImages() {
+        return vkImages;
+    }
+    public int getVkImageFormat() {
+        return vkImageFormat;
+    }
+    public VkExtent2D getVkExtent() {
+        return vkExtent;
     }
     //endregion
 

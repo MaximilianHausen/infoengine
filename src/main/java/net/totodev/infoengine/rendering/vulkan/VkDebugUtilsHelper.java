@@ -1,4 +1,4 @@
-package net.totodev.infoengine.rendering;
+package net.totodev.infoengine.rendering.vulkan;
 
 import net.totodev.infoengine.util.logging.*;
 import org.lwjgl.system.MemoryStack;

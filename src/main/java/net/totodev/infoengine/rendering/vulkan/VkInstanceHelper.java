@@ -1,6 +1,6 @@
-package net.totodev.infoengine.rendering;
+package net.totodev.infoengine.rendering.vulkan;
 
-import net.totodev.infoengine.util.SemVer;
+import net.totodev.infoengine.util.*;
 import net.totodev.infoengine.util.logging.*;
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.set.*;
@@ -61,7 +61,7 @@ public final class VkInstanceHelper {
                 availableLayers.stream().map(VkLayerProperties::layerNameString));
 
         if (availableLayerNames.containsAllIterable(layers)) {
-            instanceCreateInfo.ppEnabledLayerNames(asPointerBuffer(layers));
+            instanceCreateInfo.ppEnabledLayerNames(BufferUtils.asPointerBuffer(layers));
         } else {
             Logger.log(LogLevel.Error, "Vulkan",
                     "The following layers were requested during instance creation but are not supported: "
@@ -76,15 +76,6 @@ public final class VkInstanceHelper {
         VkDebugUtilsHelper.populateDebugMessengerCreateInfo(debugCreateInfo, callback);
 
         instanceCreateInfo.pNext(debugCreateInfo.address());
-    }
-
-    private static PointerBuffer asPointerBuffer(RichIterable<String> values) {
-        MemoryStack stack = MemoryStack.stackGet();
-
-        PointerBuffer buffer = stack.mallocPointer(values.size());
-        values.forEach((x) -> buffer.put(stack.UTF8(x)));
-
-        return buffer.rewind();
     }
 
     private static PointerBuffer getRequiredExtensions(boolean useDebugUtils) {
