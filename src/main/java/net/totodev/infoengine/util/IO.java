@@ -4,6 +4,7 @@ import net.totodev.infoengine.rendering.Image;
 import net.totodev.infoengine.util.logging.*;
 import org.jetbrains.annotations.*;
 import org.lwjgl.stb.STBImage;
+import org.lwjgl.system.MemoryStack;
 
 import java.io.*;
 import java.net.*;
@@ -14,6 +15,23 @@ import java.nio.file.Files;
  * Temporary helper class for IO, used until proper resource handling is implemented
  */
 public class IO {
+    public static ByteBuffer readFromResource(String filePath) {
+        try (InputStream inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream(filePath)) {
+            return readAllBytes(inputStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e.getMessage());
+        }
+    }
+
+    public static ByteBuffer readAllBytes(InputStream inputStream) {
+        try {
+            MemoryStack stack = MemoryStack.stackGet();
+            return stack.bytes(inputStream.readAllBytes());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
     public static @NotNull String getTextFromFile(@NotNull File file) {
         try {
             return Files.readString(file.toPath());

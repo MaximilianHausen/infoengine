@@ -23,17 +23,16 @@ public final class VkDebugUtilsHelper {
 
             LongBuffer pDebugMessenger = stack.longs(VK_NULL_HANDLE);
 
-            if (createDebugUtilsMessengerEXT(instance, createInfo, null, pDebugMessenger) != VK_SUCCESS)
-                throw new RuntimeException("Failed to set up debug messenger");
+            if (vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT") != NULL)
+                vkCreateDebugUtilsMessengerEXT(instance, createInfo, null, pDebugMessenger);
+            else throw new RuntimeException("Failed to set up debug messenger");
 
             return pDebugMessenger.get(0);
         }
     }
-
-    private static int createDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerCreateInfoEXT createInfo, VkAllocationCallbacks allocationCallbacks, LongBuffer pDebugMessenger) {
-        if (vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT") != NULL)
-            return vkCreateDebugUtilsMessengerEXT(instance, createInfo, allocationCallbacks, pDebugMessenger);
-        return VK_ERROR_EXTENSION_NOT_PRESENT;
+    private static void destroyDebugUtilsMessengerEXT(VkInstance instance, long debugMessenger, VkAllocationCallbacks allocationCallbacks) {
+        if (vkGetInstanceProcAddr(instance, "vkDestroyDebugUtilsMessengerEXT") != NULL)
+            vkDestroyDebugUtilsMessengerEXT(instance, debugMessenger, allocationCallbacks);
     }
 
     public static void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo, VkDebugUtilsMessengerCallbackEXTI callback) {

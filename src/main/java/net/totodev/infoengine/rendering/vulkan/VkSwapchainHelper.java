@@ -48,7 +48,7 @@ public final class VkSwapchainHelper {
         return details;
     }
 
-    public static LongList createImageViews(LongList swapchainImages, int swapchainImageFormat) {
+    public static LongList createImageViews(VkDevice device, LongList swapchainImages, int swapchainImageFormat) {
         MutableLongList imageViews = LongLists.mutable.empty();
 
         try (MemoryStack stack = stackPush()) {
@@ -73,7 +73,7 @@ public final class VkSwapchainHelper {
                 createInfo.subresourceRange().baseArrayLayer(0);
                 createInfo.subresourceRange().layerCount(1);
 
-                if (vkCreateImageView(Engine.getLogicalDevice(), createInfo, null, pImageView) != VK_SUCCESS)
+                if (vkCreateImageView(device, createInfo, null, pImageView) != VK_SUCCESS)
                     throw new RuntimeException("Failed to create image views");
 
                 imageViews.add(pImageView.get(0));
@@ -83,9 +83,9 @@ public final class VkSwapchainHelper {
         return imageViews;
     }
 
-    public static SwapchainCreationResult createSwapChain(VkDevice logicalDevice, Window window) {
+    public static SwapchainCreationResult createSwapChain(VkDevice device, Window window) {
         try (MemoryStack stack = stackPush()) {
-            SwapchainSupportDetails swapChainSupport = querySwapChainSupport(logicalDevice.getPhysicalDevice(), window.getVkSurface());
+            SwapchainSupportDetails swapChainSupport = querySwapChainSupport(device.getPhysicalDevice(), window.getVkSurface());
 
             VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
             int presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
@@ -107,7 +107,7 @@ public final class VkSwapchainHelper {
             createInfo.imageArrayLayers(1);
             createInfo.imageUsage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
-            VkQueueHelper.QueueFamilyIndices indices = VkQueueHelper.findQueueFamilies(logicalDevice.getPhysicalDevice(), window.getVkSurface());
+            VkQueueHelper.QueueFamilyIndices indices = VkQueueHelper.findQueueFamilies(device.getPhysicalDevice(), window.getVkSurface());
 
             if (!indices.graphicsFamily.equals(indices.presentFamily)) {
                 createInfo.imageSharingMode(VK_SHARING_MODE_CONCURRENT);
@@ -124,13 +124,13 @@ public final class VkSwapchainHelper {
             createInfo.oldSwapchain(VK_NULL_HANDLE);
 
             LongBuffer pSwapChain = stack.longs(VK_NULL_HANDLE);
-            if (vkCreateSwapchainKHR(logicalDevice, createInfo, null, pSwapChain) != VK_SUCCESS)
+            if (vkCreateSwapchainKHR(device, createInfo, null, pSwapChain) != VK_SUCCESS)
                 throw new RuntimeException("Failed to create swap chain");
             long swapchain = pSwapChain.get(0);
 
-            vkGetSwapchainImagesKHR(logicalDevice, swapchain, imageCount, null);
+            vkGetSwapchainImagesKHR(device, swapchain, imageCount, null);
             LongBuffer pSwapchainImages = stack.mallocLong(imageCount.get(0));
-            vkGetSwapchainImagesKHR(logicalDevice, swapchain, imageCount, pSwapchainImages);
+            vkGetSwapchainImagesKHR(device, swapchain, imageCount, pSwapchainImages);
             MutableLongList swapchainImages = LongLists.mutable.of(imageCount.get(0));
 
             for (int i = 0; i < pSwapchainImages.capacity(); i++)

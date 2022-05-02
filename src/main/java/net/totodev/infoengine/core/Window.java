@@ -10,6 +10,8 @@ import org.lwjgl.vulkan.VkExtent2D;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.vulkan.KHRSwapchain.vkDestroySwapchainKHR;
+import static org.lwjgl.vulkan.VK10.*;
 
 /**
  * Represents a glfw window
@@ -24,9 +26,11 @@ public class Window implements IDisposable {
 
     //region Vulkan
     private final long vkSurface;
+
     private long vkSwapchain;
     private int vkImageFormat;
     private VkExtent2D vkExtent;
+
     private LongList vkImages;
     private LongList vkImageViews;
     //endregion
@@ -54,7 +58,7 @@ public class Window implements IDisposable {
         vkImageFormat = swapchainCreationResult.imageFormat();
         vkExtent = swapchainCreationResult.extent();
 
-        vkImageViews = VkSwapchainHelper.createImageViews(vkImages, vkImageFormat);
+        vkImageViews = VkSwapchainHelper.createImageViews(Engine.getLogicalDevice(), vkImages, vkImageFormat);
     }
 
     //region Random stuff
@@ -318,6 +322,8 @@ public class Window implements IDisposable {
 
     public void dispose() {
         if (isDisposed) throw new WindowDisposedException();
+        vkImageViews.forEach(imageView -> vkDestroyImageView(Engine.getLogicalDevice(), imageView, null));
+        vkDestroySwapchainKHR(Engine.getLogicalDevice(), vkSwapchain, null);
         glfwDestroyWindow(id);
         isDisposed = true;
     }

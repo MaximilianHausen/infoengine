@@ -10,10 +10,14 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.vulkan.*;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.vulkan.EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT;
 import static org.lwjgl.vulkan.KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME;
+import static org.lwjgl.vulkan.VK10.*;
 
 public class Engine {
     public static final ImmutableSet<String> VULKAN_EXTENSIONS = Sets.immutable.of(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
+    public static final ImmutableSet<String> VALIDATION_LAYERS = Sets.immutable.of("VK_LAYER_KHRONOS_validation");
 
     private static Window mainWindow;
     private static String appName;
@@ -29,8 +33,7 @@ public class Engine {
     public static void initialize(String appName, SemVer appVersion) {
         initGlfw();
 
-        ImmutableSet<String> validationLayers = Sets.immutable.of("VK_LAYER_KHRONOS_validation");
-        vkInstance = VkInstanceHelper.createInstance(appName, appVersion, validationLayers);
+        vkInstance = VkInstanceHelper.createInstance(appName, appVersion, VALIDATION_LAYERS);
         vkDebugManager = VkDebugUtilsHelper.createDebugMessenger(vkInstance);
         Engine.appName = appName;
     }
@@ -42,6 +45,13 @@ public class Engine {
         mainWindow = new MainWindow(appName, 800, 600, false);
 
         mainWindow.setVisible(true);
+    }
+
+    private static void cleanup() {
+        if (vkDebugManager != 0 && vkGetInstanceProcAddr(vkInstance, "vkDestroyDebugUtilsMessengerEXT") != NULL)
+            vkDestroyDebugUtilsMessengerEXT(vkInstance, vkDebugManager, null);
+        vkDestroyInstance(vkInstance, null);
+        glfwTerminate();
     }
 
     private static void initGlfw() {
