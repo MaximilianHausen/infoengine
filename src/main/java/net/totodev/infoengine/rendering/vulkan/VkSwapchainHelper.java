@@ -1,6 +1,6 @@
 package net.totodev.infoengine.rendering.vulkan;
 
-import net.totodev.infoengine.core.Window;
+import net.totodev.infoengine.core.*;
 import org.eclipse.collections.api.list.primitive.*;
 import org.eclipse.collections.impl.factory.primitive.*;
 import org.lwjgl.system.MemoryStack;
@@ -46,6 +46,41 @@ public final class VkSwapchainHelper {
         }
 
         return details;
+    }
+
+    public static LongList createImageViews(LongList swapchainImages, int swapchainImageFormat) {
+        MutableLongList imageViews = LongLists.mutable.empty();
+
+        try (MemoryStack stack = stackPush()) {
+            LongBuffer pImageView = stack.mallocLong(1);
+
+            swapchainImages.forEach(swapchainImage -> {
+                VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.calloc(stack);
+
+                createInfo.sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO);
+                createInfo.image(swapchainImage);
+                createInfo.viewType(VK_IMAGE_VIEW_TYPE_2D);
+                createInfo.format(swapchainImageFormat);
+
+                createInfo.components().r(VK_COMPONENT_SWIZZLE_IDENTITY);
+                createInfo.components().g(VK_COMPONENT_SWIZZLE_IDENTITY);
+                createInfo.components().b(VK_COMPONENT_SWIZZLE_IDENTITY);
+                createInfo.components().a(VK_COMPONENT_SWIZZLE_IDENTITY);
+
+                createInfo.subresourceRange().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT);
+                createInfo.subresourceRange().baseMipLevel(0);
+                createInfo.subresourceRange().levelCount(1);
+                createInfo.subresourceRange().baseArrayLayer(0);
+                createInfo.subresourceRange().layerCount(1);
+
+                if (vkCreateImageView(Engine.getLogicalDevice(), createInfo, null, pImageView) != VK_SUCCESS)
+                    throw new RuntimeException("Failed to create image views");
+
+                imageViews.add(pImageView.get(0));
+            });
+        }
+
+        return imageViews;
     }
 
     public static SwapchainCreationResult createSwapChain(VkDevice logicalDevice, Window window) {

@@ -25,9 +25,10 @@ public class Window implements IDisposable {
     //region Vulkan
     private final long vkSurface;
     private long vkSwapchain;
-    private LongList vkImages;
     private int vkImageFormat;
     private VkExtent2D vkExtent;
+    private LongList vkImages;
+    private LongList vkImageViews;
     //endregion
 
     /**
@@ -52,6 +53,8 @@ public class Window implements IDisposable {
         vkImages = swapchainCreationResult.images();
         vkImageFormat = swapchainCreationResult.imageFormat();
         vkExtent = swapchainCreationResult.extent();
+
+        vkImageViews = VkSwapchainHelper.createImageViews(vkImages, vkImageFormat);
     }
 
     //region Random stuff

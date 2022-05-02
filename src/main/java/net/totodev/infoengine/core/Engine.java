@@ -39,7 +39,7 @@ public class Engine {
      * Creates a new window and starts
      */
     public static void start(Scene startScene) {
-        mainWindow = new Window(appName, 800, 600, false);
+        mainWindow = new MainWindow(appName, 800, 600, false);
 
         mainWindow.setVisible(true);
     }
