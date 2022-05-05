@@ -68,6 +68,9 @@ public class Engine {
     public static VkInstance getVkInstance() {
         return vkInstance;
     }
+    public static Window getMainWindow() {
+        return mainWindow;
+    }
 
     public static VkPhysicalDevice getPhysicalDevice() {
         return vkPhysicalDevice;

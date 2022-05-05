@@ -12,17 +12,14 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkCommandBufferHelper {
-    public static long createCommandPool(VkDevice device, VkPhysicalDevice physicalDevice, long surface) {
+    public static long createCommandPool(VkDevice device, int queueFamily) {
         try (MemoryStack stack = stackPush()) {
-            VkQueueHelper.QueueFamilyIndices queueFamilyIndices = VkQueueHelper.findQueueFamilies(physicalDevice, surface);
-
             VkCommandPoolCreateInfo poolInfo = VkCommandPoolCreateInfo.calloc(stack);
             poolInfo.sType(VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO);
             poolInfo.flags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
-            poolInfo.queueFamilyIndex(queueFamilyIndices.graphicsFamily);
+            poolInfo.queueFamilyIndex(queueFamily);
 
             LongBuffer pCommandPool = stack.mallocLong(1);
-
             if (vkCreateCommandPool(device, poolInfo, null, pCommandPool) != VK_SUCCESS)
                 throw new RuntimeException("Failed to create command pool");
 
@@ -41,7 +38,6 @@ public final class VkCommandBufferHelper {
             allocInfo.commandBufferCount(number);
 
             PointerBuffer pCommandBuffers = stack.mallocPointer(number);
-
             if (vkAllocateCommandBuffers(device, allocInfo, pCommandBuffers) != VK_SUCCESS)
                 throw new RuntimeException("Failed to allocate command buffers");
 

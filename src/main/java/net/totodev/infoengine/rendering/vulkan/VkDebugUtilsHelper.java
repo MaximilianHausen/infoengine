@@ -22,7 +22,6 @@ public final class VkDebugUtilsHelper {
             populateDebugMessengerCreateInfo(createInfo, callback);
 
             LongBuffer pDebugMessenger = stack.longs(VK_NULL_HANDLE);
-
             if (vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT") != NULL)
                 vkCreateDebugUtilsMessengerEXT(instance, createInfo, null, pDebugMessenger);
             else throw new RuntimeException("Failed to set up debug messenger");

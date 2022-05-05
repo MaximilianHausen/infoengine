@@ -13,8 +13,6 @@ public class MainWindow extends Window {
 
     @Override
     protected void initVulkan() {
-        VkSurfaceHelper.createSurface(Engine.getVkInstance(), getId());
-
         Engine.setPhysicalDevice(VkPhysicalDeviceHelper.pickPhysicalDevice(Engine.getVkInstance(), getVkSurface(), null, Engine.VULKAN_EXTENSIONS));
 
         VkLogicalDeviceHelper.LogicalDeviceCreationResult deviceCreationResult = VkLogicalDeviceHelper.createLogicalDevice(Engine.getPhysicalDevice(), getVkSurface(), Engine.VULKAN_EXTENSIONS);

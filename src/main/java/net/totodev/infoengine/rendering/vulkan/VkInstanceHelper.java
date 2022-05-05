@@ -2,9 +2,9 @@ package net.totodev.infoengine.rendering.vulkan;
 
 import net.totodev.infoengine.util.*;
 import net.totodev.infoengine.util.logging.*;
-import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.api.set.*;
 import org.eclipse.collections.impl.factory.Sets;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -19,12 +19,12 @@ public final class VkInstanceHelper {
     public static VkInstance createInstance(String appName, SemVer appVersion, SetIterable<String> validationLayers) {
         return createInstance(appName, appVersion, validationLayers, VkDebugUtilsHelper::loggingDebugCallback);
     }
-    public static VkInstance createInstance(String appName, SemVer appVersion, SetIterable<String> validationLayers, VkDebugUtilsMessengerCallbackEXTI debugCallback) {
+    public static VkInstance createInstance(String appName, SemVer appVersion, @Nullable SetIterable<String> layers, @Nullable VkDebugUtilsMessengerCallbackEXTI debugCallback) {
         try (MemoryStack stack = stackPush()) {
             VkApplicationInfo appInfo = VkApplicationInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_APPLICATION_INFO)
                     .pApplicationName(stack.UTF8Safe(appName))
-                    .applicationVersion(VK_MAKE_API_VERSION(0, appVersion.major(), appVersion.minor(), appVersion.patch()))
+                    .applicationVersion(appVersion.asVkVersion())
                     .pEngineName(stack.UTF8Safe("InfoEngine"))
                     .engineVersion(VK_MAKE_VERSION(1, 0, 0))
                     .apiVersion(VK_API_VERSION_1_3);
@@ -32,10 +32,11 @@ public final class VkInstanceHelper {
             VkInstanceCreateInfo createInfo = VkInstanceCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO)
                     .pApplicationInfo(appInfo)
-                    .ppEnabledExtensionNames(getRequiredExtensions(!validationLayers.isEmpty()))
+                    .ppEnabledExtensionNames(getRequiredExtensions(debugCallback != null))
                     .ppEnabledLayerNames(null);
 
-            addLayers(createInfo, validationLayers);
+            if (layers != null)
+                addLayers(createInfo, layers);
             if (debugCallback != null)
                 addDebugMessenger(createInfo, debugCallback);
 
