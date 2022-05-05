@@ -131,7 +131,7 @@ public final class VkSwapchainHelper {
             vkGetSwapchainImagesKHR(device, swapchain, imageCount, null);
             LongBuffer pSwapchainImages = stack.mallocLong(imageCount.get(0));
             vkGetSwapchainImagesKHR(device, swapchain, imageCount, pSwapchainImages);
-            MutableLongList swapchainImages = LongLists.mutable.of(imageCount.get(0));
+            MutableLongList swapchainImages = LongLists.mutable.empty();
 
             for (int i = 0; i < pSwapchainImages.capacity(); i++)
                 swapchainImages.add(pSwapchainImages.get(i));
