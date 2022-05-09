@@ -25,16 +25,14 @@ public class Transform3d implements IComponent {
         transforms.get(entityId).setTranslation(xPos, yPos, zPos);
     }
     public void setPosition(int entityId, @NotNull Vector3f pos) {
-        if (!isPresentOn(entityId)) return;
-        transforms.get(entityId).setTranslation(pos);
+        setPosition(entityId, pos.x, pos.y, pos.z);
     }
     public void move(int entityId, float xOffset, float yOffset, float zOffset) {
         if (!isPresentOn(entityId)) return;
         transforms.get(entityId).translate(xOffset, yOffset, zOffset);
     }
     public void move(int entityId, @NotNull Vector3f posOffset) {
-        if (!isPresentOn(entityId)) return;
-        transforms.get(entityId).translate(posOffset);
+        move(entityId, posOffset.x, posOffset.y, posOffset.z);
     }
 
     public Quaternionf getRotation(int entityId, @NotNull Quaternionf out) {
@@ -42,11 +40,7 @@ public class Transform3d implements IComponent {
         return transforms.get(entityId).getUnnormalizedRotation(out);
     }
     public void setRotation(int entityId, float angleX, float angleY, float angleZ) {
-        if (!isPresentOn(entityId)) return;
-        transforms.get(entityId).translationRotateScale(
-                getPosition(entityId, new Vector3f()),
-                new Quaternionf().rotateXYZ(angleX, angleY, angleZ),
-                getScale(entityId, new Vector3f()));
+        setRotation(entityId, new Quaternionf().rotateXYZ(angleX, angleY, angleZ));
     }
     public void setRotation(int entityId, @NotNull Quaternionf rot) {
         if (!isPresentOn(entityId)) return;
