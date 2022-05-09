@@ -1,8 +1,8 @@
 package net.totodev.infoengine.rendering.vulkan;
 
-import net.totodev.infoengine.core.*;
+import net.totodev.infoengine.core.Window;
 import org.eclipse.collections.api.list.primitive.*;
-import org.eclipse.collections.impl.factory.primitive.*;
+import org.eclipse.collections.impl.factory.primitive.LongLists;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 

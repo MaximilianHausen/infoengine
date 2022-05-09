@@ -1,6 +1,7 @@
 package net.totodev.infoengine.ecs;
 
 import net.totodev.infoengine.loading.ComponentDataModel;
+import net.totodev.infoengine.util.SerializationUtils;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.jetbrains.annotations.*;
@@ -13,7 +14,7 @@ public class Transform3d implements IComponent {
     /**
      * Gets the position of an entity and stores it in the out-vector.
      * @param entityId The entity to get the position of
-     * @param out The vector to store the position in
+     * @param out      The vector to store the position in
      * @return out, or null, if this component is not present on that entity
      */
     public Vector3f getPosition(int entityId, @NotNull Vector3f out) {
@@ -61,7 +62,7 @@ public class Transform3d implements IComponent {
     /**
      * Gets the scale of an entity on all three axes and stores it in the out-vector.
      * @param entityId The entity to get the scale of
-     * @param out The vector to store the rotation in
+     * @param out      The vector to store the rotation in
      * @return out, or null, if this component is not present on that entity
      */
     public Vector3f getScale(int entityId, @NotNull Vector3f out) {
@@ -101,28 +102,14 @@ public class Transform3d implements IComponent {
     }
 
     public void deserializeState(@NotNull ComponentDataModel data) {
-        // Parse data
-        String[] serializedNumbers = data.data.split("\\|");
-        float[] numbers = new float[16];
-        for (int i = 0; i < 16; i++)
-            numbers[i] = Float.parseFloat(serializedNumbers[i]);
-
         if (!isPresentOn(data.entity))
             addOnEntity(data.entity);
 
-        transforms.get(data.entity).set(numbers);
+        transforms.get(data.entity).set(SerializationUtils.deserialize(data.data));
     }
-
     public @Nullable String serializeState(int entityId) {
         if (!isPresentOn(entityId)) return null;
-
-        // Serialize data
-        float[] numbers = transforms.get(entityId).get(new float[16]);
-        String[] serializedNumbers = new String[16];
-        for (int i = 0; i < 16; i++)
-            serializedNumbers[i] = Float.toString(numbers[i]);
-
-        return String.join("|", serializedNumbers);
+        return SerializationUtils.serialize(transforms.get(entityId).get(new float[16]));
     }
 
     public boolean isPresentOn(int entityId) {

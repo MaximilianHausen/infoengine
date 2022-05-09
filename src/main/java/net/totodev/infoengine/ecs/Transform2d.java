@@ -1,6 +1,7 @@
 package net.totodev.infoengine.ecs;
 
 import net.totodev.infoengine.loading.ComponentDataModel;
+import net.totodev.infoengine.util.SerializationUtils;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.jetbrains.annotations.*;
@@ -83,29 +84,18 @@ public class Transform2d implements IComponent {
     public void removeFromEntity(int entityId) {
         transforms.remove(entityId);
     }
-    public void deserializeState(@NotNull ComponentDataModel data) {
-        // Parse data
-        String[] serializedNumbers = data.data.split("\\|");
-        float[] numbers = new float[6];
-        for (int i = 0; i < 6; i++)
-            numbers[i] = Float.parseFloat(serializedNumbers[i]);
 
+    public void deserializeState(@NotNull ComponentDataModel data) {
         if (!isPresentOn(data.entity))
             addOnEntity(data.entity);
 
-        transforms.get(data.entity).set(numbers);
+        transforms.get(data.entity).set(SerializationUtils.deserialize(data.data));
     }
     public @Nullable String serializeState(int entityId) {
         if (!isPresentOn(entityId)) return null;
-
-        // Serialize data
-        float[] numbers = transforms.get(entityId).get(new float[6]);
-        String[] serializedNumbers = new String[6];
-        for (int i = 0; i < 6; i++)
-            serializedNumbers[i] = Float.toString(numbers[i]);
-
-        return String.join("|", serializedNumbers);
+        return SerializationUtils.serialize(transforms.get(entityId).get(new float[6]));
     }
+
     public boolean isPresentOn(int entityId) {
         return transforms.containsKey(entityId);
     }

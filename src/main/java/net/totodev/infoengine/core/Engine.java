@@ -4,7 +4,7 @@ import net.totodev.infoengine.ecs.Scene;
 import net.totodev.infoengine.rendering.vulkan.*;
 import net.totodev.infoengine.util.SemVer;
 import net.totodev.infoengine.util.logging.*;
-import org.eclipse.collections.api.factory.*;
+import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.vulkan.*;

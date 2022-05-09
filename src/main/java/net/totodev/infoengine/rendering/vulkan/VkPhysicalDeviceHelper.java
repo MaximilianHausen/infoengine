@@ -9,7 +9,7 @@ import org.lwjgl.vulkan.*;
 
 import java.nio.IntBuffer;
 
-import static org.lwjgl.system.MemoryStack.*;
+import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkPhysicalDeviceHelper {

@@ -11,7 +11,7 @@ import org.lwjgl.vulkan.VkExtent2D;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.vulkan.KHRSwapchain.vkDestroySwapchainKHR;
-import static org.lwjgl.vulkan.VK10.*;
+import static org.lwjgl.vulkan.VK10.vkDestroyImageView;
 
 /**
  * Represents a glfw window
