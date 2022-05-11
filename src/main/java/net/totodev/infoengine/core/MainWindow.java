@@ -4,7 +4,7 @@ import net.totodev.infoengine.rendering.vulkan.*;
 import org.jetbrains.annotations.NotNull;
 
 /**
- * A window with some additional first-time vulkan setup
+ * A window with all the first-time vulkan setup that depends on a surface
  */
 public class MainWindow extends Window {
     public MainWindow(@NotNull String title, int width, int height, boolean startHidden) {

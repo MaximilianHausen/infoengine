@@ -39,6 +39,8 @@ public class VkGraphicsPipelineHelper {
 
             VkPipelineVertexInputStateCreateInfo vertexInputInfo = VkPipelineVertexInputStateCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO);
+                    //.pVertexBindingDescriptions(Vertex.getBindingDescription())
+                    //.pVertexAttributeDescriptions(Vertex.getAttributeDescriptions());
 
             // ===> ASSEMBLY STAGE <===
 

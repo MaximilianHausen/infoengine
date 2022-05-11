@@ -1,6 +1,5 @@
 package net.totodev.infoengine.core;
 
-import net.totodev.infoengine.ecs.Scene;
 import net.totodev.infoengine.rendering.vulkan.*;
 import net.totodev.infoengine.util.SemVer;
 import net.totodev.infoengine.util.logging.*;
@@ -20,7 +19,6 @@ public class Engine {
     public static final ImmutableSet<String> VALIDATION_LAYERS = Sets.immutable.of("VK_LAYER_KHRONOS_validation");
 
     private static Window mainWindow;
-    private static String appName;
 
     private static VkInstance vkInstance;
     private static long vkDebugManager;
@@ -30,24 +28,29 @@ public class Engine {
     private static VkQueue graphicsQueue;
     private static VkQueue presentQueue;
 
-    public static void initialize(String appName, SemVer appVersion) {
+    /**
+     * Initializes glfw and vulkan and creates a hidden main window. This should be called as soon as possible.
+     * @param appName      The name of this application, used to init vulkan and name the
+     * @param appVersion   The version of this application, used to init vulkan
+     * @param windowWidth  The width of the main window in screen coordinates
+     * @param windowHeight The height of the main window in screen coordinates
+     */
+    public static void initialize(String appName, SemVer appVersion, int windowWidth, int windowHeight) {
         initGlfw();
 
         vkInstance = VkInstanceHelper.createInstance(appName, appVersion, VALIDATION_LAYERS);
         vkDebugManager = VkDebugUtilsHelper.createDebugMessenger(vkInstance);
-        Engine.appName = appName;
+        mainWindow = new MainWindow(appName, windowWidth, windowHeight, false);
+
     }
 
-    /**
-     * Creates a new window and starts
-     */
-    public static void start(Scene startScene) {
-        mainWindow = new MainWindow(appName, 800, 600, false);
-
+    public static void start() {
         mainWindow.setVisible(true);
     }
 
     private static void cleanup() {
+        mainWindow.dispose();
+        vkDestroyDevice(vkLogicalDevice, null);
         if (vkDebugManager != 0 && vkGetInstanceProcAddr(vkInstance, "vkDestroyDebugUtilsMessengerEXT") != NULL)
             vkDestroyDebugUtilsMessengerEXT(vkInstance, vkDebugManager, null);
         vkDestroyInstance(vkInstance, null);
