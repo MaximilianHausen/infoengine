@@ -1,4 +1,8 @@
-package net.totodev.infoengine.ecs;
+package net.totodev.infoengine.core.systems;
+
+import net.totodev.infoengine.core.CoreEvents;
+import net.totodev.infoengine.core.components.UpdateRate;
+import net.totodev.infoengine.ecs.*;
 
 public class Updater implements ISystem {
     private Scene scene;

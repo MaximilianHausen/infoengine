@@ -1,5 +1,6 @@
-package net.totodev.infoengine.ecs;
+package net.totodev.infoengine.core.components;
 
+import net.totodev.infoengine.ecs.IComponent;
 import net.totodev.infoengine.loading.ComponentDataModel;
 import net.totodev.infoengine.util.SerializationUtils;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;

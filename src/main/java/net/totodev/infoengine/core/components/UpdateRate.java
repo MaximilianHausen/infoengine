@@ -1,4 +1,6 @@
-package net.totodev.infoengine.ecs;
+package net.totodev.infoengine.core.components;
+
+import net.totodev.infoengine.ecs.IGlobalComponent;
 
 public class UpdateRate implements IGlobalComponent {
     public int updateRate = 60;

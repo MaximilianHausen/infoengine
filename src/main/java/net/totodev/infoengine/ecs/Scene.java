@@ -1,5 +1,6 @@
 package net.totodev.infoengine.ecs;
 
+import net.totodev.infoengine.core.CoreEvents;
 import net.totodev.infoengine.util.logging.*;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.list.ImmutableList;

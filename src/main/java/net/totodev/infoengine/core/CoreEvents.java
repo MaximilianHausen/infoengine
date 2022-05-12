@@ -1,4 +1,6 @@
-package net.totodev.infoengine.ecs;
+package net.totodev.infoengine.core;
+
+import net.totodev.infoengine.ecs.*;
 
 /**
  * All default events used by the engine
