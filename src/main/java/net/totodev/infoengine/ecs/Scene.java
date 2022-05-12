@@ -22,8 +22,17 @@ public class Scene {
     private final MutableMap<Class<? extends IComponent>, IComponent> components = Maps.mutable.empty();
     private final MutableMap<Class<? extends ISystem>, ISystem> systems = Maps.mutable.empty();
 
+    private boolean isStarted = false;
+
     public Scene() {
         CoreEvents.registerAll(events);
+    }
+
+    public void start() {
+        if (isStarted) return;
+        for (ISystem system : systems)
+            system.start();
+        isStarted = true;
     }
 
     /**
@@ -94,6 +103,7 @@ public class Scene {
     public void addSystem(@NotNull ISystem system) {
         systems.put(system.getClass(), system);
         system.initialize(this);
+        if (isStarted) system.start();
         events.invokeEvent(CoreEvents.SystemAdded.getName(), system);
     }
 

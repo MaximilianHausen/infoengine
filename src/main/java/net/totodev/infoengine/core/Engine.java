@@ -1,9 +1,10 @@
 package net.totodev.infoengine.core;
 
 import net.totodev.infoengine.rendering.vulkan.*;
-import net.totodev.infoengine.util.SemVer;
+import net.totodev.infoengine.util.*;
 import net.totodev.infoengine.util.logging.*;
-import org.eclipse.collections.api.factory.Sets;
+import org.eclipse.collections.api.factory.*;
+import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.vulkan.*;
@@ -17,6 +18,10 @@ import static org.lwjgl.vulkan.VK10.*;
 public class Engine {
     public static final ImmutableSet<String> VULKAN_EXTENSIONS = Sets.immutable.of(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     public static final ImmutableSet<String> VALIDATION_LAYERS = Sets.immutable.of("VK_LAYER_KHRONOS_validation");
+
+    private static final MutableList<Action> mainThreadQueue = Lists.mutable.empty();
+
+    private static boolean shouldClose = false;
 
     private static Window mainWindow;
 
@@ -46,6 +51,26 @@ public class Engine {
 
     public static void start() {
         mainWindow.setVisible(true);
+
+        while (!shouldClose) {
+            mainThreadQueue.removeIf(a -> {
+                a.run();
+                return true;
+            });
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                Logger.log(LogLevel.Debug, "MainThread", "What are you thinking, interrupting the main tread like that?");
+            }
+        }
+    }
+
+    public static void executeOnMainThread(Action action) {
+        mainThreadQueue.add(action);
+    }
+
+    public static void terminate() {
+        shouldClose = true;
     }
 
     private static void cleanup() {

@@ -85,6 +85,7 @@ public class SceneLoader {
         }
 
         Logger.log(errors == 0 ? LogLevel.Info : LogLevel.Error, "SceneLoader", "Scene " + sceneModel.name + " loaded " + (errors == 0 ? "successfully." : "with " + errors + (errors == 1 ? " error." : " errors.")));
+        scene.start();
         return scene;
     }
 }
