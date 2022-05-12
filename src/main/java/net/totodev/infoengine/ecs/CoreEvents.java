@@ -32,6 +32,15 @@ public enum CoreEvents {
     ComponentRemoved("ComponentRemoved", IComponent.class, false),
 
     /**
+     * Called after a global component was added to the scene
+     */
+    GlobalComponentAdded("GlobalComponentAdded", IGlobalComponent.class, false),
+    /**
+     * Called after a global component was removed from the scene
+     */
+    GlobalComponentRemoved("GlobalComponentRemoved", IGlobalComponent.class, false),
+
+    /**
      * Called after a system was added to the scene
      */
     SystemAdded("SystemAdded", ISystem.class, false),

@@ -67,6 +67,24 @@ public class SceneLoader {
             }
         }
 
+        // Register and initialize components
+        for (GlobalComponentModel componentModel : sceneModel.globalComponents) {
+            try {
+                IGlobalComponent component = (IGlobalComponent) Class.forName(componentModel.type).getDeclaredConstructor().newInstance();
+                scene.addGlobalComponent(component);
+                component.deserializeState(componentModel.value);
+            } catch (ClassNotFoundException e) {
+                Logger.log(LogLevel.Error, "SceneLoader", "Class " + componentModel.type + " could not be found. This global component will not be added.");
+                errors++;
+            } catch (NoSuchMethodException e) {
+                Logger.log(LogLevel.Error, "SceneLoader", "Empty constructor could not found on class " + componentModel.type + ". This global component will not be added.");
+                errors++;
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                Logger.log(LogLevel.Error, "SceneLoader", "Error while instantiating class " + componentModel.type + ". This global component will not be added.");
+                errors++;
+            }
+        }
+
         // Add systems
         for (String type : sceneModel.systems) {
             try {

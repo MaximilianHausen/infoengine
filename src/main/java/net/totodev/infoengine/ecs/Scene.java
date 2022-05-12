@@ -1,5 +1,6 @@
 package net.totodev.infoengine.ecs;
 
+import net.totodev.infoengine.util.logging.*;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.primitive.*;
@@ -20,6 +21,7 @@ public class Scene {
     private int highestId = 0;
 
     private final MutableMap<Class<? extends IComponent>, IComponent> components = Maps.mutable.empty();
+    private final MutableMap<Class<? extends IGlobalComponent>, IGlobalComponent> globalComponents = Maps.mutable.empty();
     private final MutableMap<Class<? extends ISystem>, ISystem> systems = Maps.mutable.empty();
 
     private boolean isStarted = false;
@@ -91,8 +93,40 @@ public class Scene {
     public <T extends IComponent> T getComponent(@NotNull Class<T> componentType) {
         IComponent temp = components.get(componentType);
         if (temp == null)
-            throw new IllegalArgumentException("The component of type " + componentType.getName() + " has not been registered on this EntityManager.");
-        componentType.cast(temp);
+            Logger.log(LogLevel.Error, "Scene", "Unable to find component of type " + componentType.getName() + " in this scene.");
+        return (T) temp;
+    }
+
+    /**
+     * Adds a global component to this scene. If a global component of this type has already been added, it will be overwritten.
+     * @param component The global component to add
+     */
+    public void addGlobalComponent(@NotNull IGlobalComponent component) {
+        Class<? extends IGlobalComponent> componentType = component.getClass();
+        globalComponents.put(componentType, component);
+        events.invokeEvent(CoreEvents.GlobalComponentAdded.getName(), component);
+    }
+
+    /**
+     * Removes a global component from this scene.
+     * @param componentType The runtime type of the global component to remove
+     */
+    public void removeGlobalComponent(@NotNull Class<? extends IGlobalComponent> componentType) {
+        IGlobalComponent component = globalComponents.remove(componentType);
+        events.invokeEvent(CoreEvents.GlobalComponentRemoved.getName(), component);
+    }
+
+    /**
+     * Retrieves a global component from this scene
+     * @param componentType The runtime type of the global component to retrieve
+     * @param <T>           The type of the global component to retrieve. Only used to downcast the retrieved component.
+     * @return The retrieved component
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends IGlobalComponent> T getGlobalComponent(@NotNull Class<T> componentType) {
+        IGlobalComponent temp = globalComponents.get(componentType);
+        if (temp == null)
+            Logger.log(LogLevel.Error, "Scene", "Unable to find global component of type " + componentType.getName() + " in this scene.");
         return (T) temp;
     }
 
@@ -111,7 +145,7 @@ public class Scene {
      * Removes a system from this scene.
      * @param systemType The runtime type of the system to remove
      */
-    public void removeSystem(@NotNull Class<? extends IComponent> systemType) {
+    public void removeSystem(@NotNull Class<? extends ISystem> systemType) {
         ISystem system = systems.remove(systemType);
         system.deinitialize(this);
         events.invokeEvent(CoreEvents.SystemRemoved.getName(), system);
