@@ -1,5 +1,6 @@
 package net.totodev.infoengine.rendering.vulkan;
 
+import net.totodev.infoengine.core.Engine;
 import org.eclipse.collections.api.LongIterable;
 import org.eclipse.collections.api.list.primitive.MutableLongList;
 import org.eclipse.collections.impl.factory.primitive.LongLists;
@@ -12,6 +13,9 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkFramebufferHelper {
+    public static MutableLongList createFramebuffers(LongIterable imageViews, int width, int height, long renderPass) {
+        return createFramebuffers(Engine.getLogicalDevice(), imageViews, width, height, renderPass);
+    }
     public static MutableLongList createFramebuffers(VkDevice device, LongIterable imageViews, int width, int height, long renderPass) {
         MutableLongList framebuffers = LongLists.mutable.empty();
 
@@ -42,6 +46,9 @@ public final class VkFramebufferHelper {
         }
     }
 
+    public static long createFramebuffer(long imageView, int width, int height, long renderPass) {
+        return createFramebuffer(Engine.getLogicalDevice(), imageView, width, height, renderPass);
+    }
     public static long createFramebuffer(VkDevice device, long imageView, int width, int height, long renderPass) {
         try (MemoryStack stack = stackPush()) {
             LongBuffer attachments = stack.mallocLong(1);

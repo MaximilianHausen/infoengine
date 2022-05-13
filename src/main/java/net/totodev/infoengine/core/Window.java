@@ -6,9 +6,13 @@ import net.totodev.infoengine.util.logging.*;
 import org.eclipse.collections.api.list.primitive.LongList;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkExtent2D;
 
+import java.nio.IntBuffer;
+
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.vulkan.KHRSwapchain.vkDestroySwapchainKHR;
 import static org.lwjgl.vulkan.VK10.vkDestroyImageView;
@@ -52,7 +56,7 @@ public class Window implements IDisposable {
     }
 
     protected void initVulkan() {
-        VkSwapchainHelper.SwapchainCreationResult swapchainCreationResult = VkSwapchainHelper.createSwapChain(Engine.getLogicalDevice(), this);
+        VkSwapchainHelper.SwapchainCreationResult swapchainCreationResult = VkSwapchainHelper.createSwapChain(this);
         vkSwapchain = swapchainCreationResult.swapchain();
         vkImages = swapchainCreationResult.images();
         vkImageFormat = swapchainCreationResult.imageFormat();
@@ -176,9 +180,11 @@ public class Window implements IDisposable {
     }
     public Vector2i getPos() {
         if (isDisposed) throw new WindowDisposedException();
-        int[] x = new int[1], y = new int[1];
-        glfwGetWindowPos(id, x, y);
-        return new Vector2i(x[0], y[0]);
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer x = stack.mallocInt(1), y = stack.mallocInt(1);
+            glfwGetWindowPos(id, x, y);
+            return new Vector2i(x.get(), y.get());
+        }
     }
     public void setSize(int x, int y) {
         if (isDisposed) throw new WindowDisposedException();
@@ -187,9 +193,27 @@ public class Window implements IDisposable {
     }
     public Vector2i getSize() {
         if (isDisposed) throw new WindowDisposedException();
-        int[] x = new int[1], y = new int[1];
-        glfwGetWindowSize(id, x, y);
-        return new Vector2i(x[0], y[0]);
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer x = stack.mallocInt(1), y = stack.mallocInt(1);
+            glfwGetWindowSize(id, x, y);
+            return new Vector2i(x.get(), y.get());
+        }
+    }
+    public int getWidth() {
+        if (isDisposed) throw new WindowDisposedException();
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer x = stack.mallocInt(1);
+            glfwGetWindowSize(id, x, null);
+            return x.get();
+        }
+    }
+    public int getHeight() {
+        if (isDisposed) throw new WindowDisposedException();
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer y = stack.mallocInt(1);
+            glfwGetWindowSize(id, null, y);
+            return y.get();
+        }
     }
     //endregion
 

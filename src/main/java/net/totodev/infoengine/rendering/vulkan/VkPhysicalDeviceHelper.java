@@ -1,5 +1,6 @@
 package net.totodev.infoengine.rendering.vulkan;
 
+import net.totodev.infoengine.core.Engine;
 import org.eclipse.collections.api.IntIterable;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.MutableSet;
@@ -13,6 +14,9 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkPhysicalDeviceHelper {
+    public static VkPhysicalDevice pickPhysicalDevice(long surface, IntIterable requiredQueueFamilies, Iterable<String> requiredExtensions) {
+        return pickPhysicalDevice(Engine.getVkInstance(), surface, requiredQueueFamilies, requiredExtensions);
+    }
     public static VkPhysicalDevice pickPhysicalDevice(VkInstance instance, long surface, IntIterable requiredQueueFamilies, Iterable<String> requiredExtensions) {
         try (MemoryStack stack = stackPush()) {
             IntBuffer deviceCount = stack.ints(0);

@@ -1,5 +1,6 @@
 package net.totodev.infoengine.rendering.vulkan;
 
+import net.totodev.infoengine.core.Engine;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkInstance;
 
@@ -10,6 +11,9 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkSurfaceHelper {
+    public static long createSurface(long glfwWindow) {
+        return createSurface(Engine.getVkInstance(), glfwWindow);
+    }
     public static long createSurface(VkInstance instance, long glfwWindow) {
         try (MemoryStack stack = stackPush()) {
             LongBuffer pSurface = stack.longs(VK_NULL_HANDLE);

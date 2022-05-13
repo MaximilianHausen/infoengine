@@ -32,7 +32,6 @@ public final class VkLogicalDeviceHelper {
             VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc(stack);
             createInfo.sType(VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO);
             createInfo.pQueueCreateInfos(queueCreateInfos);
-            // queueCreateInfoCount is automatically set
             createInfo.pEnabledFeatures(deviceFeatures);
             createInfo.ppEnabledExtensionNames(BufferUtils.asPointerBuffer(extensions));
 

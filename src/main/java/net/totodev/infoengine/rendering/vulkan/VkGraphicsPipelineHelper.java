@@ -1,5 +1,6 @@
 package net.totodev.infoengine.rendering.vulkan;
 
+import net.totodev.infoengine.core.Engine;
 import net.totodev.infoengine.util.IO;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -10,6 +11,9 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class VkGraphicsPipelineHelper {
+    public static long createGraphicsPipeline(VkExtent2D swapchainExtent, long renderPass) {
+        return createGraphicsPipeline(Engine.getLogicalDevice(), swapchainExtent, renderPass);
+    }
     public static long createGraphicsPipeline(VkDevice device, VkExtent2D swapchainExtent, long renderPass) {
         //TODO: Configurable pipeline creation, multiple render passes
         try (MemoryStack stack = stackPush()) {

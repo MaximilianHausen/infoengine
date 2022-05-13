@@ -1,5 +1,6 @@
 package net.totodev.infoengine.rendering.vulkan;
 
+import net.totodev.infoengine.core.Engine;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.lwjgl.PointerBuffer;
@@ -12,6 +13,9 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkCommandBufferHelper {
+    public static long createCommandPool(int queueFamily) {
+        return createCommandPool(Engine.getLogicalDevice(), queueFamily);
+    }
     public static long createCommandPool(VkDevice device, int queueFamily) {
         try (MemoryStack stack = stackPush()) {
             VkCommandPoolCreateInfo poolInfo = VkCommandPoolCreateInfo.calloc(stack);
@@ -27,7 +31,10 @@ public final class VkCommandBufferHelper {
         }
     }
 
-    public static MutableList<VkCommandBuffer> createCommandBuffers(VkDevice device, long commandPool, int number) {
+    public static MutableList<VkCommandBuffer> createCommandBuffers(long commandPool, int amount) {
+        return createCommandBuffers(Engine.getLogicalDevice(), commandPool, amount);
+    }
+    public static MutableList<VkCommandBuffer> createCommandBuffers(VkDevice device, long commandPool, int amount) {
         try (MemoryStack stack = stackPush()) {
             MutableList<VkCommandBuffer> commandBuffers = Lists.mutable.empty();
 
@@ -35,13 +42,13 @@ public final class VkCommandBufferHelper {
             allocInfo.sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO);
             allocInfo.commandPool(commandPool);
             allocInfo.level(VK_COMMAND_BUFFER_LEVEL_PRIMARY);
-            allocInfo.commandBufferCount(number);
+            allocInfo.commandBufferCount(amount);
 
-            PointerBuffer pCommandBuffers = stack.mallocPointer(number);
+            PointerBuffer pCommandBuffers = stack.mallocPointer(amount);
             if (vkAllocateCommandBuffers(device, allocInfo, pCommandBuffers) != VK_SUCCESS)
                 throw new RuntimeException("Failed to allocate command buffers");
 
-            for (int i = 0; i < number; i++)
+            for (int i = 0; i < amount; i++)
                 commandBuffers.add(new VkCommandBuffer(pCommandBuffers.get(i), device));
 
             return commandBuffers;

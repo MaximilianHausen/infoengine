@@ -51,18 +51,6 @@ public class Engine {
 
     public static void start() {
         mainWindow.setVisible(true);
-
-        while (!shouldClose) {
-            mainThreadQueue.removeIf(a -> {
-                a.run();
-                return true;
-            });
-            try {
-                Thread.sleep(10);
-            } catch (InterruptedException e) {
-                Logger.log(LogLevel.Debug, "MainThread", "What are you thinking, interrupting the main tread like that?");
-            }
-        }
     }
 
     public static void executeOnMainThread(Action action) {

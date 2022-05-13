@@ -1,6 +1,6 @@
 package net.totodev.infoengine.rendering.vulkan;
 
-import net.totodev.infoengine.core.Window;
+import net.totodev.infoengine.core.*;
 import org.eclipse.collections.api.list.primitive.*;
 import org.eclipse.collections.impl.factory.primitive.LongLists;
 import org.lwjgl.system.MemoryStack;
@@ -48,6 +48,9 @@ public final class VkSwapchainHelper {
         return details;
     }
 
+    public static LongList createImageViews(LongList swapchainImages, int swapchainImageFormat) {
+        return createImageViews(Engine.getLogicalDevice(), swapchainImages, swapchainImageFormat);
+    }
     public static LongList createImageViews(VkDevice device, LongList swapchainImages, int swapchainImageFormat) {
         MutableLongList imageViews = LongLists.mutable.empty();
 
@@ -83,13 +86,16 @@ public final class VkSwapchainHelper {
         return imageViews;
     }
 
-    public static SwapchainCreationResult createSwapChain(VkDevice device, Window window) {
+    public static SwapchainCreationResult createSwapChain(Window window) {
+        return createSwapChain(Engine.getLogicalDevice(), window.getVkSurface(), window.getSize().x, window.getSize().y);
+    }
+    public static SwapchainCreationResult createSwapChain(VkDevice device, long surface, int sizeX, int sizeY) {
         try (MemoryStack stack = stackPush()) {
-            SwapchainSupportDetails swapChainSupport = querySwapChainSupport(device.getPhysicalDevice(), window.getVkSurface());
+            SwapchainSupportDetails swapChainSupport = querySwapChainSupport(device.getPhysicalDevice(), surface);
 
             VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
             int presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-            VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities, window.getSize().x, window.getSize().y);
+            VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities, sizeX, sizeY);
 
             IntBuffer imageCount = stack.ints(swapChainSupport.capabilities.minImageCount() + 1);
 
@@ -98,7 +104,7 @@ public final class VkSwapchainHelper {
 
             VkSwapchainCreateInfoKHR createInfo = VkSwapchainCreateInfoKHR.calloc(stack);
             createInfo.sType(VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR);
-            createInfo.surface(window.getVkSurface());
+            createInfo.surface(surface);
             // Image settings
             createInfo.minImageCount(imageCount.get(0));
             createInfo.imageFormat(surfaceFormat.format());
@@ -107,7 +113,7 @@ public final class VkSwapchainHelper {
             createInfo.imageArrayLayers(1);
             createInfo.imageUsage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
-            VkQueueHelper.QueueFamilyIndices indices = VkQueueHelper.findQueueFamilies(device.getPhysicalDevice(), window.getVkSurface());
+            VkQueueHelper.QueueFamilyIndices indices = VkQueueHelper.findQueueFamilies(device.getPhysicalDevice(), surface);
 
             if (!indices.graphicsFamily.equals(indices.presentFamily)) {
                 createInfo.imageSharingMode(VK_SHARING_MODE_CONCURRENT);

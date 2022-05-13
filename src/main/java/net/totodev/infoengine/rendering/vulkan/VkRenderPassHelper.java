@@ -1,5 +1,6 @@
 package net.totodev.infoengine.rendering.vulkan;
 
+import net.totodev.infoengine.core.Engine;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -10,7 +11,11 @@ import static org.lwjgl.vulkan.KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkRenderPassHelper {
+    public static long createRenderPass(int imageFormat) {
+        return createRenderPass(Engine.getLogicalDevice(), imageFormat);
+    }
     public static long createRenderPass(VkDevice device, int imageFormat) {
+        //TODO: Configurable render pass creation
         try (MemoryStack stack = stackPush()) {
             VkAttachmentDescription.Buffer colorAttachment = VkAttachmentDescription.calloc(1, stack);
             colorAttachment.format(imageFormat);
