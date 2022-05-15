@@ -15,6 +15,10 @@ public class MainWindow extends Window {
     protected void initVulkan() {
         Engine.setPhysicalDevice(VkPhysicalDeviceHelper.pickPhysicalDevice(Engine.getVkInstance(), getVkSurface(), null, Engine.VULKAN_EXTENSIONS));
 
+        VkQueueHelper.QueueFamilyIndices queueFamilies = VkQueueHelper.findQueueFamilies(Engine.getPhysicalDevice(), getVkSurface());
+        Engine.setGraphicsQueueFamily(queueFamilies.graphicsFamily);
+        Engine.setPresentQueueFamily(queueFamilies.presentFamily);
+
         VkLogicalDeviceHelper.LogicalDeviceCreationResult deviceCreationResult = VkLogicalDeviceHelper.createLogicalDevice(Engine.getPhysicalDevice(), getVkSurface(), Engine.VULKAN_EXTENSIONS);
         Engine.setLogicalDevice(deviceCreationResult.device());
         Engine.setGraphicsQueue(deviceCreationResult.graphicsQueue());

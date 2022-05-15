@@ -331,6 +331,9 @@ public class Window implements IDisposable {
     public LongList getVkImages() {
         return vkImages;
     }
+    public LongList getVkImageViews() {
+        return vkImageViews;
+    }
     public int getVkImageFormat() {
         return vkImageFormat;
     }

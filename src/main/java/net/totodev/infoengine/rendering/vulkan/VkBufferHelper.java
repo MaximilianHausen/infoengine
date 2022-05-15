@@ -14,24 +14,24 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class VkBufferHelper {
-    public void createVertexBuffer(long commandPool, ByteBuffer vertexData, @Nullable IntList sharedQueues, @Out LongBuffer pBuffer, @Out LongBuffer pBufferMemory) {
+    public static void createVertexBuffer(long commandPool, ByteBuffer vertexData, @Nullable IntList sharedQueues, @Out LongBuffer pBuffer, @Out LongBuffer pBufferMemory) {
         createVertexBuffer(Engine.getLogicalDevice(), Engine.getPhysicalDevice(), Engine.getGraphicsQueue(), commandPool, vertexData, sharedQueues, pBuffer, pBufferMemory);
     }
-    public void createVertexBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue transferQueue, long commandPool, ByteBuffer vertexData, @Nullable IntList sharedQueues, @Out LongBuffer pBuffer, @Out LongBuffer pBufferMemory) {
+    public static void createVertexBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue transferQueue, long commandPool, ByteBuffer vertexData, @Nullable IntList sharedQueues, @Out LongBuffer pBuffer, @Out LongBuffer pBufferMemory) {
         createFilledBuffer(device, physicalDevice, transferQueue, commandPool, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, vertexData, sharedQueues, pBuffer, pBufferMemory);
     }
 
-    public void createIndexBuffer(long commandPool, ByteBuffer vertexData, @Nullable IntList sharedQueues, @Out LongBuffer pBuffer, @Out LongBuffer pBufferMemory) {
+    public static void createIndexBuffer(long commandPool, ByteBuffer vertexData, @Nullable IntList sharedQueues, @Out LongBuffer pBuffer, @Out LongBuffer pBufferMemory) {
         createIndexBuffer(Engine.getLogicalDevice(), Engine.getPhysicalDevice(), Engine.getGraphicsQueue(), commandPool, vertexData, sharedQueues, pBuffer, pBufferMemory);
     }
-    private void createIndexBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue transferQueue, long commandPool, ByteBuffer indices, @Nullable IntList sharedQueues, @Out LongBuffer pBuffer, @Out LongBuffer pBufferMemory) {
+    public static void createIndexBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue transferQueue, long commandPool, ByteBuffer indices, @Nullable IntList sharedQueues, @Out LongBuffer pBuffer, @Out LongBuffer pBufferMemory) {
         createFilledBuffer(device, physicalDevice, transferQueue, commandPool, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, indices, sharedQueues, pBuffer, pBufferMemory);
     }
 
-    public void createFilledBuffer(long commandPool, int bufferUsage, ByteBuffer bufferData, @Nullable IntList sharedQueues, @Out LongBuffer pBuffer, @Out LongBuffer pBufferMemory) {
+    public static void createFilledBuffer(long commandPool, int bufferUsage, ByteBuffer bufferData, @Nullable IntList sharedQueues, @Out LongBuffer pBuffer, @Out LongBuffer pBufferMemory) {
         createFilledBuffer(Engine.getLogicalDevice(), Engine.getPhysicalDevice(), Engine.getGraphicsQueue(), commandPool, bufferUsage, bufferData, sharedQueues, pBuffer, pBufferMemory);
     }
-    public void createFilledBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue transferQueue, long commandPool, int bufferUsage, ByteBuffer bufferData, @Nullable IntList sharedQueues, @Out LongBuffer pBuffer, @Out LongBuffer pBufferMemory) {
+    public static void createFilledBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue transferQueue, long commandPool, int bufferUsage, ByteBuffer bufferData, @Nullable IntList sharedQueues, @Out LongBuffer pBuffer, @Out LongBuffer pBufferMemory) {
         try (MemoryStack stack = stackPush()) {
             long bufferSize = bufferData.capacity();
 

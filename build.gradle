@@ -60,8 +60,8 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.9.0'
 
-    implementation 'org.eclipse.collections:eclipse-collections-api:11.0.0'
-    implementation 'org.eclipse.collections:eclipse-collections:11.0.0'
+    api 'org.eclipse.collections:eclipse-collections-api:11.0.0'
+    api 'org.eclipse.collections:eclipse-collections:11.0.0'
 
     api 'org.joml:joml:1.10.4'
     api 'org.jetbrains:annotations:23.0.0'

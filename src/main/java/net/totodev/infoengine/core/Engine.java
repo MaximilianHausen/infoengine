@@ -30,6 +30,9 @@ public class Engine {
     private static VkPhysicalDevice vkPhysicalDevice;
     private static VkDevice vkLogicalDevice;
 
+    private static int graphicsQueueFamily;
+    private static int presentQueueFamily;
+
     private static VkQueue graphicsQueue;
     private static VkQueue presentQueue;
 
@@ -99,6 +102,19 @@ public class Engine {
     }
     static void setLogicalDevice(VkDevice logicalDevice) {
         Engine.vkLogicalDevice = logicalDevice;
+    }
+
+    public static int getGraphicsQueueFamily() {
+        return graphicsQueueFamily;
+    }
+    static void setGraphicsQueueFamily(int graphicsQueueFamily) {
+        Engine.graphicsQueueFamily = graphicsQueueFamily;
+    }
+    public static int getPresentQueueFamily() {
+        return presentQueueFamily;
+    }
+    static void setPresentQueueFamily(int presentQueueFamily) {
+        Engine.presentQueueFamily = presentQueueFamily;
     }
 
     public static VkQueue getGraphicsQueue() {
