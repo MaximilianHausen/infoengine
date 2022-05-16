@@ -1,9 +1,11 @@
 package net.totodev.infoengine.util;
 
 import net.totodev.infoengine.util.logging.*;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.MutableList;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.*;
+import java.util.ArrayList;
 
 /**
  * Like an event, but with a return type.
@@ -12,7 +14,7 @@ import java.util.*;
  * @see Func
  */
 public class Collector1<TResult, TParam> implements Func1<ArrayList<TResult>, TParam> {
-    private final List<Func1<TResult, TParam>> subscribers = new LinkedList<>();
+    private final MutableList<Func1<TResult, TParam>> subscribers = Lists.mutable.empty();
     private String name;
     private boolean log;
 
