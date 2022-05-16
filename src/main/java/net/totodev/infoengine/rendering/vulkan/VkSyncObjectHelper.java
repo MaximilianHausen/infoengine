@@ -1,5 +1,6 @@
 package net.totodev.infoengine.rendering.vulkan;
 
+import net.totodev.infoengine.core.Engine;
 import org.eclipse.collections.api.list.primitive.MutableLongList;
 import org.eclipse.collections.impl.factory.primitive.LongLists;
 import org.lwjgl.system.MemoryStack;
@@ -11,7 +12,10 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkSyncObjectHelper {
-    public static MutableLongList createSemaphore(VkDevice device, int amount) {
+    public static MutableLongList createSemaphores(int amount) {
+        return createSemaphores(Engine.getLogicalDevice(), amount);
+    }
+    public static MutableLongList createSemaphores(VkDevice device, int amount) {
         try (MemoryStack stack = stackPush()) {
             MutableLongList semaphores = LongLists.mutable.empty();
 
@@ -31,6 +35,9 @@ public final class VkSyncObjectHelper {
         }
     }
 
+    public static MutableLongList createFences(int amount) {
+        return createFences(Engine.getLogicalDevice(), amount);
+    }
     public static MutableLongList createFences(VkDevice device, int amount) {
         try (MemoryStack stack = stackPush()) {
             MutableLongList fences = LongLists.mutable.empty();
@@ -43,7 +50,7 @@ public final class VkSyncObjectHelper {
 
             for (int i = 0; i < amount; i++) {
                 if (vkCreateFence(device, fenceInfo, null, fence) != VK_SUCCESS)
-                    throw new RuntimeException("Failed to create semaphores!");
+                    throw new RuntimeException("Failed to create fences!");
 
                 fences.add(fence.get(0));
             }

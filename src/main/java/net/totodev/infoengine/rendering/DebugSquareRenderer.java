@@ -46,6 +46,10 @@ public class DebugSquareRenderer implements ISystem {
         }
 
         rendererConfig.commandBuffers.addAll(VkCommandBufferHelper.createCommandBuffers(rendererConfig.commandPool, window.getVkImages().count(l -> true)));
+
+        rendererConfig.imageAvailableSemaphores.addAll(VkSyncObjectHelper.createSemaphores(2));
+        rendererConfig.renderFinishedSemaphores.addAll(VkSyncObjectHelper.createSemaphores(2));
+        rendererConfig.inFlightFences.addAll(VkSyncObjectHelper.createFences(2));
     }
     public void start() {
 
