@@ -278,7 +278,7 @@ public class Window implements IDisposable {
         if (isDisposed) throw new WindowDisposedException();
         if (bool) glfwShowWindow(id);
         else glfwHideWindow(id);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as  " + (bool ? "visible" : "hidden"));
+        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "visible" : "hidden"));
     }
 
     public float getOpacity() {

@@ -5,21 +5,17 @@ import net.totodev.infoengine.core.components.UpdateRate;
 import net.totodev.infoengine.ecs.*;
 
 public class Updater implements ISystem {
-    private Scene scene;
     private long lastFrameNanos;
 
     private Thread currentLoop;
 
-    public void initialize(Scene scene) {
-        this.scene = scene;
-    }
-    public void start() {
-        currentLoop = new Thread(this::updateLoop);
+    public void start(Scene scene) {
+        currentLoop = new Thread(() -> updateLoop(scene));
         currentLoop.start();
     }
 
-    private void updateLoop() {
-        //TODO: Proper update timings
+    private void updateLoop(Scene scene) {
+        //TODO: Proper update scheduling
         while (!Thread.interrupted()) {
             long currentNanos = System.nanoTime();
             UpdateRate rateComponent = scene.getGlobalComponent(UpdateRate.class);
@@ -30,7 +26,7 @@ public class Updater implements ISystem {
         }
     }
 
-    public void deinitialize(Scene scene) {
+    public void stop(Scene scene) {
         currentLoop.interrupt();
     }
 }

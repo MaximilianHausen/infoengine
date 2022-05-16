@@ -25,17 +25,24 @@ public class Scene {
     private final MutableMap<Class<? extends IGlobalComponent>, IGlobalComponent> globalComponents = Maps.mutable.empty();
     private final MutableMap<Class<? extends ISystem>, ISystem> systems = Maps.mutable.empty();
 
-    private boolean isStarted = false;
+    private boolean isRunning = false;
 
     public Scene() {
         CoreEvents.registerAll(events);
     }
 
     public void start() {
-        if (isStarted) return;
+        if (isRunning) return;
         for (ISystem system : systems)
-            system.start();
-        isStarted = true;
+            system.start(this);
+        isRunning = true;
+    }
+
+    public void stop() {
+        if (!isRunning) return;
+        for (ISystem system : systems)
+            system.stop(this);
+        isRunning = false;
     }
 
     /**
@@ -137,8 +144,8 @@ public class Scene {
      */
     public void addSystem(@NotNull ISystem system) {
         systems.put(system.getClass(), system);
-        system.initialize(this);
-        if (isStarted) system.start();
+        system.added(this);
+        if (isRunning) system.start(this);
         events.invokeEvent(CoreEvents.SystemAdded.getName(), system);
     }
 
@@ -148,7 +155,7 @@ public class Scene {
      */
     public void removeSystem(@NotNull Class<? extends ISystem> systemType) {
         ISystem system = systems.remove(systemType);
-        system.deinitialize(this);
+        system.removed(this);
         events.invokeEvent(CoreEvents.SystemRemoved.getName(), system);
     }
 

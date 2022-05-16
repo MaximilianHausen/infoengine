@@ -14,9 +14,9 @@ public class RendererConfig implements IGlobalComponent {
     public long commandPool;
     public final MutableList<VkCommandBuffer> commandBuffers = Lists.mutable.empty();
 
-    public MutableLongList imageAvailableSemaphores;
-    public MutableLongList renderFinishedSemaphores;
-    public MutableLongList inFlightFences;
+    public MutableLongList imageAvailableSemaphores = LongLists.mutable.empty();
+    public MutableLongList renderFinishedSemaphores = LongLists.mutable.empty();
+    public MutableLongList inFlightFences = LongLists.mutable.empty();
 
     public String serializeState() {
         return null;

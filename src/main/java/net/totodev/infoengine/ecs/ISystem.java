@@ -1,7 +1,8 @@
 package net.totodev.infoengine.ecs;
 
 public interface ISystem {
-    void initialize(Scene scene);
-    void start();
-    void deinitialize(Scene scene);
+    default void added(Scene scene) {}
+    void start(Scene scene);
+    void stop(Scene scene);
+    default void removed(Scene scene) {}
 }

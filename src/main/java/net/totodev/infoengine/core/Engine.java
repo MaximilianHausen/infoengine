@@ -3,8 +3,7 @@ package net.totodev.infoengine.core;
 import net.totodev.infoengine.rendering.vulkan.*;
 import net.totodev.infoengine.util.*;
 import net.totodev.infoengine.util.logging.*;
-import org.eclipse.collections.api.factory.*;
-import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.vulkan.*;
@@ -16,11 +15,16 @@ import static org.lwjgl.vulkan.KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class Engine {
+    public static class ThreadLock {
+    }
+
+    private static final Thread mainThread = Thread.currentThread();
+
     public static final ImmutableSet<String> VULKAN_EXTENSIONS = Sets.immutable.of(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     public static final ImmutableSet<String> VALIDATION_LAYERS = Sets.immutable.of("VK_LAYER_KHRONOS_validation");
 
-    private static final MutableList<Action> mainThreadQueue = Lists.mutable.empty();
-
+    private static final ThreadLock threadLock = new ThreadLock();
+    private static Action mainThreadAction;
     private static boolean shouldClose = false;
 
     private static Window mainWindow;
@@ -32,7 +36,6 @@ public class Engine {
 
     private static int graphicsQueueFamily;
     private static int presentQueueFamily;
-
     private static VkQueue graphicsQueue;
     private static VkQueue presentQueue;
 
@@ -49,19 +52,37 @@ public class Engine {
         vkInstance = VkInstanceHelper.createInstance(appName, appVersion, VALIDATION_LAYERS);
         vkDebugManager = VkDebugUtilsHelper.createDebugMessenger(vkInstance);
         mainWindow = new MainWindow(appName, windowWidth, windowHeight, false);
-
     }
 
     public static void start() {
         mainWindow.setVisible(true);
+
+        synchronized (threadLock) {
+            while (!shouldClose) {
+                try {
+                    threadLock.wait();
+                } catch (InterruptedException e) {
+                    break;
+                }
+                if (mainThreadAction == null) continue;
+                mainThreadAction.run();
+                mainThreadAction = null;
+            }
+        }
+
+        shouldClose = false;
     }
 
     public static void executeOnMainThread(Action action) {
-        mainThreadQueue.add(action);
+        mainThreadAction = action;
+        synchronized (threadLock) {
+            threadLock.notify();
+        }
     }
 
     public static void terminate() {
         shouldClose = true;
+        mainThread.interrupt();
     }
 
     private static void cleanup() {

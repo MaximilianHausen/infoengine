@@ -67,7 +67,8 @@ public class SceneLoader {
             }
         }
 
-        // Register and initialize components
+        // Register and initialize global components
+        //TODO: Reuse component objects as global components
         for (GlobalComponentModel componentModel : sceneModel.globalComponents) {
             try {
                 IGlobalComponent component = (IGlobalComponent) Class.forName(componentModel.type).getDeclaredConstructor().newInstance();
