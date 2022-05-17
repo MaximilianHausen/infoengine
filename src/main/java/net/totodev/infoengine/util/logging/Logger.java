@@ -1,6 +1,6 @@
 package net.totodev.infoengine.util.logging;
 
-import net.totodev.infoengine.util.Action1;
+import net.totodev.infoengine.util.lambda.Action1;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalTime;

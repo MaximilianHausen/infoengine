@@ -1,4 +1,4 @@
-package net.totodev.infoengine.util;
+package net.totodev.infoengine.util.lambda;
 
 /**
  * Represents a method with return type and 3 parameters

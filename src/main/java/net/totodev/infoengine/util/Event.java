@@ -1,5 +1,6 @@
 package net.totodev.infoengine.util;
 
+import net.totodev.infoengine.util.lambda.Action;
 import net.totodev.infoengine.util.logging.*;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;

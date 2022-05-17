@@ -1,6 +1,7 @@
 package net.totodev.infoengine.ecs;
 
 import net.totodev.infoengine.util.*;
+import net.totodev.infoengine.util.lambda.*;
 import net.totodev.infoengine.util.logging.*;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.tuple.Pair;
