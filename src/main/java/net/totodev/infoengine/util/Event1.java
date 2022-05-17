@@ -7,7 +7,9 @@ import org.jetbrains.annotations.NotNull;
 
 /**
  * You can add actions to this event and call them with {@link #run(Object)}.<br>
- * An event is itself an action, so it can be used to pass multiple methods as a single action.
+ * An event is itself an action, so it can be used to pass multiple methods as a single action. <br>
+ * To unsubscribe from an event, the exact same object that was subscribed has to be used,
+ * not just a reference to the same method.
  * @see Action1
  */
 public class Event1<T> implements Action1<T> {

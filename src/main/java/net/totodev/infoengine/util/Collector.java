@@ -9,7 +9,9 @@ import java.util.ArrayList;
 
 /**
  * Like an event, but with a return type.
- * You can add funcs to this collector and call them with {@link #run()}.
+ * You can add funcs to this collector and call them with {@link #run()}. <br>
+ * To unsubscribe from a collector, the exact same object that was subscribed has to be used,
+ * not just a reference to the same method.
  * @see Event
  * @see Func
  */
