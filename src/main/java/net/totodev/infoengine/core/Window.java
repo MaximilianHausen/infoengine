@@ -1,62 +1,68 @@
 package net.totodev.infoengine.core;
 
-import net.totodev.infoengine.DisposedException;
-import net.totodev.infoengine.IDisposable;
-import net.totodev.infoengine.rendering.IRenderTarget;
-import net.totodev.infoengine.rendering.opengl.Framebuffer;
-import net.totodev.infoengine.rendering.opengl.enums.FramebufferBindTarget;
-import net.totodev.infoengine.util.logging.LogLevel;
-import net.totodev.infoengine.util.logging.Logger;
+import net.totodev.infoengine.*;
+import net.totodev.infoengine.rendering.vulkan.*;
+import net.totodev.infoengine.util.logging.*;
+import org.eclipse.collections.api.list.primitive.LongList;
 import org.jetbrains.annotations.NotNull;
-import org.joml.Vector2f;
-import org.joml.Vector2i;
-import org.lwjgl.glfw.GLFWErrorCallback;
+import org.joml.*;
+import org.lwjgl.system.MemoryStack;
+import org.lwjgl.vulkan.VkExtent2D;
+
+import java.nio.IntBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
+import static org.lwjgl.vulkan.KHRSwapchain.vkDestroySwapchainKHR;
+import static org.lwjgl.vulkan.VK10.vkDestroyImageView;
 
 /**
  * Represents a glfw window
  * @see <a href="https://www.glfw.org/docs/latest/window_guide.html">GLFW Docs: Windows</a>
  */
-public class Window implements IDisposable, IRenderTarget {
-    private static Window activeWindow;
-
-    static {
-        GLFWErrorCallback.createPrint(System.err).set();
-
-        if (!glfwInit())
-            Logger.log(LogLevel.Critical, "GLFW", "GLFW could not be initialized");
-
-        glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-    }
-
+public class Window implements IDisposable {
     private final long id;
     private boolean isDisposed;
     private WindowModes currentMode = WindowModes.Windowed;
     // Used to configure the window when exiting fullscreen
     private int lastWindowPosX = 0, lastWindowPosY = 0, lastWindowSizeX = 0, lastWindowSizeY = 0;
 
+    //region Vulkan
+    private final long vkSurface;
+
+    private long vkSwapchain;
+    private int vkImageFormat;
+    private VkExtent2D vkExtent;
+
+    private LongList vkImages;
+    private LongList vkImageViews;
+    //endregion
+
     /**
      * Creates a new window
      */
-    public Window(@NotNull String title, int width, int height, boolean transparentFramebuffer) {
-        glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, transparentFramebuffer ? GLFW_TRUE : GLFW_FALSE);
-        id = glfwCreateWindow(width, height, title, NULL, activeWindow != null ? activeWindow.getId() : NULL);
+    public Window(@NotNull String title, int width, int height, boolean startHidden) {
+        id = glfwCreateWindow(width, height, title, NULL, NULL);
         if (id == NULL)
             Logger.log(LogLevel.Critical, "GLFW", "Window could not be created");
 
-        makeCurrent();
-        glfwSwapInterval(1); // Enable v-sync
-        glfwShowWindow(id);
-        activeWindow = this;
+        // Seperated because the override in MainWindow needs a surface to exist and this is better than making everything protected
+        vkSurface = VkSurfaceHelper.createSurface(Engine.getVkInstance(), id);
+        initVulkan();
 
+        if (!startHidden) glfwShowWindow(id);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " created and set as current");
     }
 
-    public static Window getActiveWindow() {
-        return activeWindow;
+    protected void initVulkan() {
+        VkSwapchainHelper.SwapchainCreationResult swapchainCreationResult = VkSwapchainHelper.createSwapChain(this);
+        vkSwapchain = swapchainCreationResult.swapchain();
+        vkImages = swapchainCreationResult.images();
+        vkImageFormat = swapchainCreationResult.imageFormat();
+        vkExtent = swapchainCreationResult.extent();
+
+        vkImageViews = VkSwapchainHelper.createImageViews(Engine.getLogicalDevice(), vkImages, vkImageFormat);
     }
 
     //region Random stuff
@@ -65,27 +71,6 @@ public class Window implements IDisposable, IRenderTarget {
      */
     public static void pollEvents() {
         glfwPollEvents();
-    }
-
-    /**
-     * Makes the OpenGL context not current on the calling thread.
-     */
-    public static void makeNotCurrent() {
-        glfwMakeContextCurrent(NULL);
-    }
-
-    /**
-     * Makes the OpenGL context of this window current on the calling thread.
-     */
-    public void makeCurrent() {
-        if (isDisposed) throw new WindowDisposedException();
-        glfwMakeContextCurrent(id);
-        org.lwjgl.opengl.GL.createCapabilities();
-    }
-
-    public void setActive() {
-        if (isDisposed) throw new WindowDisposedException();
-        activeWindow = this;
     }
 
     public void requestAttention() {
@@ -195,9 +180,11 @@ public class Window implements IDisposable, IRenderTarget {
     }
     public Vector2i getPos() {
         if (isDisposed) throw new WindowDisposedException();
-        int[] x = new int[1], y = new int[1];
-        glfwGetWindowPos(id, x, y);
-        return new Vector2i(x[0], y[0]);
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer x = stack.mallocInt(1), y = stack.mallocInt(1);
+            glfwGetWindowPos(id, x, y);
+            return new Vector2i(x.get(), y.get());
+        }
     }
     public void setSize(int x, int y) {
         if (isDisposed) throw new WindowDisposedException();
@@ -206,9 +193,27 @@ public class Window implements IDisposable, IRenderTarget {
     }
     public Vector2i getSize() {
         if (isDisposed) throw new WindowDisposedException();
-        int[] x = new int[1], y = new int[1];
-        glfwGetWindowSize(id, x, y);
-        return new Vector2i(x[0], y[0]);
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer x = stack.mallocInt(1), y = stack.mallocInt(1);
+            glfwGetWindowSize(id, x, y);
+            return new Vector2i(x.get(), y.get());
+        }
+    }
+    public int getWidth() {
+        if (isDisposed) throw new WindowDisposedException();
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer x = stack.mallocInt(1);
+            glfwGetWindowSize(id, x, null);
+            return x.get();
+        }
+    }
+    public int getHeight() {
+        if (isDisposed) throw new WindowDisposedException();
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer y = stack.mallocInt(1);
+            glfwGetWindowSize(id, null, y);
+            return y.get();
+        }
     }
     //endregion
 
@@ -251,11 +256,6 @@ public class Window implements IDisposable, IRenderTarget {
         return new Vector2i(x[0], y[0]);
     }
 
-    public boolean isFramebufferTransparent() {
-        if (isDisposed) throw new WindowDisposedException();
-        return glfwGetWindowAttrib(id, GLFW_TRANSPARENT_FRAMEBUFFER) == GLFW_TRUE;
-    }
-
     public Vector2f getContentScale() {
         if (isDisposed) throw new WindowDisposedException();
         float[] x = new float[1], y = new float[1];
@@ -278,7 +278,7 @@ public class Window implements IDisposable, IRenderTarget {
         if (isDisposed) throw new WindowDisposedException();
         if (bool) glfwShowWindow(id);
         else glfwHideWindow(id);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as  " + (bool ? "visible" : "hidden"));
+        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "visible" : "hidden"));
     }
 
     public float getOpacity() {
@@ -321,10 +321,26 @@ public class Window implements IDisposable, IRenderTarget {
     }
     //endregion
 
-    public void setVsync(boolean bool) {
-        if (isDisposed) throw new WindowDisposedException();
-        glfwSwapInterval(bool ? 1 : 0);
+    //region Vulkan Get
+    public long getVkSurface() {
+        return vkSurface;
     }
+    public long getVkSwapchain() {
+        return vkSwapchain;
+    }
+    public LongList getVkImages() {
+        return vkImages;
+    }
+    public LongList getVkImageViews() {
+        return vkImageViews;
+    }
+    public int getVkImageFormat() {
+        return vkImageFormat;
+    }
+    public VkExtent2D getVkExtent() {
+        return vkExtent;
+    }
+    //endregion
 
     public long getId() {
         if (isDisposed) throw new WindowDisposedException();
@@ -333,20 +349,13 @@ public class Window implements IDisposable, IRenderTarget {
 
     public void dispose() {
         if (isDisposed) throw new WindowDisposedException();
+        vkImageViews.forEach(imageView -> vkDestroyImageView(Engine.getLogicalDevice(), imageView, null));
+        vkDestroySwapchainKHR(Engine.getLogicalDevice(), vkSwapchain, null);
         glfwDestroyWindow(id);
         isDisposed = true;
     }
     public boolean isDisposed() {
         return isDisposed;
-    }
-
-    public void activate() {
-        Framebuffer fbo = Framebuffer.getBoundFramebuffer(FramebufferBindTarget.FRAMEBUFFER);
-        if (fbo != null) fbo.unbind();
-    }
-
-    public void renderedFrame() {
-        glfwSwapBuffers(id);
     }
 
     /**

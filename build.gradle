@@ -60,8 +60,8 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.9.0'
 
-    implementation 'org.eclipse.collections:eclipse-collections-api:11.0.0'
-    implementation 'org.eclipse.collections:eclipse-collections:11.0.0'
+    api 'org.eclipse.collections:eclipse-collections-api:11.0.0'
+    api 'org.eclipse.collections:eclipse-collections:11.0.0'
 
     api 'org.joml:joml:1.10.4'
     api 'org.jetbrains:annotations:23.0.0'
@@ -70,14 +70,13 @@ dependencies {
     implementation "org.lwjgl:lwjgl-assimp:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-openal:$lwjglVersion"
-    implementation "org.lwjgl:lwjgl-opengl:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-vulkan:$lwjglVersion"
 
     allPlatformNative "org.lwjgl:lwjgl:$lwjglVersion"
     allPlatformNative "org.lwjgl:lwjgl-assimp:$lwjglVersion"
     allPlatformNative "org.lwjgl:lwjgl-glfw:$lwjglVersion"
     allPlatformNative "org.lwjgl:lwjgl-openal:$lwjglVersion"
-    allPlatformNative "org.lwjgl:lwjgl-opengl:$lwjglVersion"
     allPlatformNative "org.lwjgl:lwjgl-stb:$lwjglVersion"
 }
 

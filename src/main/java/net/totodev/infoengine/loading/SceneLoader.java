@@ -1,14 +1,9 @@
 package net.totodev.infoengine.loading;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonSyntaxException;
-import net.totodev.infoengine.ecs.IComponent;
-import net.totodev.infoengine.ecs.ISystem;
-import net.totodev.infoengine.ecs.Scene;
+import com.google.gson.*;
+import net.totodev.infoengine.ecs.*;
 import net.totodev.infoengine.util.IO;
-import net.totodev.infoengine.util.logging.LogLevel;
-import net.totodev.infoengine.util.logging.Logger;
+import net.totodev.infoengine.util.logging.*;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
@@ -72,6 +67,25 @@ public class SceneLoader {
             }
         }
 
+        // Register and initialize global components
+        //TODO: Reuse component objects as global components
+        for (GlobalComponentModel componentModel : sceneModel.globalComponents) {
+            try {
+                IGlobalComponent component = (IGlobalComponent) Class.forName(componentModel.type).getDeclaredConstructor().newInstance();
+                scene.addGlobalComponent(component);
+                component.deserializeState(componentModel.value);
+            } catch (ClassNotFoundException e) {
+                Logger.log(LogLevel.Error, "SceneLoader", "Class " + componentModel.type + " could not be found. This global component will not be added.");
+                errors++;
+            } catch (NoSuchMethodException e) {
+                Logger.log(LogLevel.Error, "SceneLoader", "Empty constructor could not found on class " + componentModel.type + ". This global component will not be added.");
+                errors++;
+            } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
+                Logger.log(LogLevel.Error, "SceneLoader", "Error while instantiating class " + componentModel.type + ". This global component will not be added.");
+                errors++;
+            }
+        }
+
         // Add systems
         for (String type : sceneModel.systems) {
             try {
@@ -90,6 +104,7 @@ public class SceneLoader {
         }
 
         Logger.log(errors == 0 ? LogLevel.Info : LogLevel.Error, "SceneLoader", "Scene " + sceneModel.name + " loaded " + (errors == 0 ? "successfully." : "with " + errors + (errors == 1 ? " error." : " errors.")));
+        scene.start();
         return scene;
     }
 }

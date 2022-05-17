@@ -1,13 +1,9 @@
 package net.totodev.infoengine.tests.util;
 
 import net.totodev.infoengine.tests.CamelCaseGenerator;
-import net.totodev.infoengine.util.Action;
-import net.totodev.infoengine.util.Event;
-import net.totodev.infoengine.util.logging.LogLevel;
-import net.totodev.infoengine.util.logging.Logger;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.Test;
+import net.totodev.infoengine.util.*;
+import net.totodev.infoengine.util.logging.*;
+import org.junit.jupiter.api.*;
 
 @DisplayNameGeneration(CamelCaseGenerator.class)
 public class EventTests {

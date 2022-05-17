@@ -1,15 +1,14 @@
 package net.totodev.infoengine.util;
 
-import net.totodev.infoengine.util.logging.LogLevel;
-import net.totodev.infoengine.util.logging.Logger;
+import net.totodev.infoengine.util.logging.*;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.MutableList;
 import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
-import java.util.LinkedList;
-import java.util.List;
 
 public class DynamicCollector {
-    private final List<MethodHandle> subscribers = new LinkedList<>();
+    private final MutableList<MethodHandle> subscribers = Lists.mutable.empty();
     private String name;
     private boolean log;
 

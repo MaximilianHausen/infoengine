@@ -1,7 +1,6 @@
 package net.totodev.infoengine.loading;
 
-import java.util.Arrays;
-import java.util.Objects;
+import java.util.*;
 
 public class ComponentModel {
     public String type;

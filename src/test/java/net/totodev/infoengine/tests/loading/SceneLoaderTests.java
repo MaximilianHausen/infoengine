@@ -1,15 +1,12 @@
 package net.totodev.infoengine.tests.loading;
 
+import net.totodev.infoengine.core.components.Transform3d;
 import net.totodev.infoengine.ecs.Scene;
-import net.totodev.infoengine.ecs.Transform3d;
 import net.totodev.infoengine.loading.SceneLoader;
 import net.totodev.infoengine.tests.CamelCaseGenerator;
 import net.totodev.infoengine.util.IO;
-import org.joml.Quaternionf;
-import org.joml.Vector3f;
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.DisplayNameGeneration;
-import org.junit.jupiter.api.Test;
+import org.joml.*;
+import org.junit.jupiter.api.*;
 
 import java.io.File;
 

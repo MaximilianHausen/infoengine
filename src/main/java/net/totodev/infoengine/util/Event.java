@@ -1,11 +1,9 @@
 package net.totodev.infoengine.util;
 
-import net.totodev.infoengine.util.logging.LogLevel;
-import net.totodev.infoengine.util.logging.Logger;
+import net.totodev.infoengine.util.logging.*;
+import org.eclipse.collections.api.factory.Lists;
+import org.eclipse.collections.api.list.MutableList;
 import org.jetbrains.annotations.NotNull;
-
-import java.util.LinkedList;
-import java.util.List;
 
 /**
  * You can add actions to this event and call them with {@link #run()}.<br>
@@ -13,7 +11,7 @@ import java.util.List;
  * @see Action
  */
 public class Event implements Action {
-    private final List<Action> subscribers = new LinkedList<>();
+    private final MutableList<Action> subscribers = Lists.mutable.empty();
     private String name;
     private boolean log;
 

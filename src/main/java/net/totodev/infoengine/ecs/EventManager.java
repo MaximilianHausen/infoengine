@@ -1,11 +1,7 @@
 package net.totodev.infoengine.ecs;
 
-import net.totodev.infoengine.util.Action;
-import net.totodev.infoengine.util.Action1;
-import net.totodev.infoengine.util.Event;
-import net.totodev.infoengine.util.Event1;
-import net.totodev.infoengine.util.logging.LogLevel;
-import net.totodev.infoengine.util.logging.Logger;
+import net.totodev.infoengine.util.*;
+import net.totodev.infoengine.util.logging.*;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.tuple.Pair;
 import org.eclipse.collections.impl.factory.Maps;
