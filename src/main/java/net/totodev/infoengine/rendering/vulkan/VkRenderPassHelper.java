@@ -1,6 +1,8 @@
 package net.totodev.infoengine.rendering.vulkan;
 
 import net.totodev.infoengine.core.Engine;
+import net.totodev.infoengine.util.lambda.*;
+import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -12,30 +14,35 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkRenderPassHelper {
     public static long createRenderPass(int imageFormat) {
-        return createRenderPass(Engine.getLogicalDevice(), imageFormat);
+        return createRenderPass(Engine.getLogicalDevice(), imageFormat, 1, null, 1, null);
     }
-    public static long createRenderPass(VkDevice device, int imageFormat) {
-        //TODO: Configurable render pass creation
+    public static long createRenderPass(VkDevice device, int imageFormat, int attachmentCount, @Nullable Action2<VkAttachmentDescription.Buffer, VkAttachmentReference.Buffer> attachmentConfig, int subpassCount, @Nullable Action1<VkSubpassDescription.Buffer> subpassConfig) {
         try (MemoryStack stack = stackPush()) {
-            VkAttachmentDescription.Buffer colorAttachment = VkAttachmentDescription.calloc(1, stack);
-            colorAttachment.format(imageFormat);
-            colorAttachment.samples(VK_SAMPLE_COUNT_1_BIT);
-            colorAttachment.loadOp(VK_ATTACHMENT_LOAD_OP_CLEAR);
-            colorAttachment.storeOp(VK_ATTACHMENT_STORE_OP_STORE);
-            colorAttachment.stencilLoadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE);
-            colorAttachment.stencilStoreOp(VK_ATTACHMENT_STORE_OP_DONT_CARE);
-            colorAttachment.initialLayout(VK_IMAGE_LAYOUT_UNDEFINED);
-            colorAttachment.finalLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
+            VkAttachmentDescription.Buffer attachments = VkAttachmentDescription.calloc(attachmentCount, stack);
+            attachments.format(imageFormat);
+            attachments.samples(VK_SAMPLE_COUNT_1_BIT);
+            attachments.loadOp(VK_ATTACHMENT_LOAD_OP_CLEAR);
+            attachments.storeOp(VK_ATTACHMENT_STORE_OP_STORE);
+            attachments.stencilLoadOp(VK_ATTACHMENT_LOAD_OP_DONT_CARE);
+            attachments.stencilStoreOp(VK_ATTACHMENT_STORE_OP_DONT_CARE);
+            attachments.initialLayout(VK_IMAGE_LAYOUT_UNDEFINED);
+            attachments.finalLayout(VK_IMAGE_LAYOUT_PRESENT_SRC_KHR);
 
-            VkAttachmentReference.Buffer colorAttachmentRef = VkAttachmentReference.calloc(1, stack);
-            colorAttachmentRef.attachment(0);
-            colorAttachmentRef.layout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
+            VkAttachmentReference.Buffer attachmentRef = VkAttachmentReference.calloc(attachmentCount, stack);
+            attachmentRef.attachment(0);
+            attachmentRef.layout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-            VkSubpassDescription.Buffer subpass = VkSubpassDescription.calloc(1, stack);
-            subpass.pipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS);
-            subpass.colorAttachmentCount(1);
-            subpass.pColorAttachments(colorAttachmentRef);
+            if (attachmentConfig != null) attachmentConfig.run(attachments, attachmentRef);
 
+            //TODO: Non-Color attachments
+            VkSubpassDescription.Buffer subpasses = VkSubpassDescription.calloc(subpassCount, stack);
+            subpasses.pipelineBindPoint(VK_PIPELINE_BIND_POINT_GRAPHICS);
+            subpasses.colorAttachmentCount(attachmentCount);
+            subpasses.pColorAttachments(attachmentRef);
+
+            if (subpassConfig != null) subpassConfig.run(subpasses);
+
+            //TODO: Subpass dependency config
             VkSubpassDependency.Buffer dependency = VkSubpassDependency.calloc(1, stack);
             dependency.srcSubpass(VK_SUBPASS_EXTERNAL);
             dependency.dstSubpass(0);
@@ -46,12 +53,11 @@ public final class VkRenderPassHelper {
 
             VkRenderPassCreateInfo renderPassInfo = VkRenderPassCreateInfo.calloc(stack);
             renderPassInfo.sType(VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO);
-            renderPassInfo.pAttachments(colorAttachment);
-            renderPassInfo.pSubpasses(subpass);
+            renderPassInfo.pAttachments(attachments);
+            renderPassInfo.pSubpasses(subpasses);
             renderPassInfo.pDependencies(dependency);
 
             LongBuffer pRenderPass = stack.mallocLong(1);
-
             if (vkCreateRenderPass(device, renderPassInfo, null, pRenderPass) != VK_SUCCESS)
                 throw new RuntimeException("Failed to create render pass");
 
