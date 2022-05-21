@@ -116,7 +116,7 @@ publishing {
     repositories {
         maven {
             name = 'snapshot'
-            url = uri("http://maven.totodev.de/snapshots")
+            url = uri("https://maven.totodev.de/snapshots")
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
                 password = System.getenv("MAVEN_PASSWORD")
@@ -124,7 +124,7 @@ publishing {
         }
         maven {
             name = 'release'
-            url = uri("http://maven.totodev.de/releases")
+            url = uri("https://maven.totodev.de/releases")
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
                 password = System.getenv("MAVEN_PASSWORD")
