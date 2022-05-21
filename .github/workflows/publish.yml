@@ -12,6 +12,7 @@ jobs:
         with:
           distribution: zulu
           java-version: 17
+      - run: chmod +x ./gradlew
       - uses: gradle/gradle-build-action@v2
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
