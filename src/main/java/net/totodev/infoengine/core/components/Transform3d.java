@@ -1,5 +1,6 @@
 package net.totodev.infoengine.core.components;
 
+import net.totodev.infoengine.core.annotations.Out;
 import net.totodev.infoengine.ecs.IComponent;
 import net.totodev.infoengine.loading.ComponentDataModel;
 import net.totodev.infoengine.util.SerializationUtils;
@@ -18,7 +19,7 @@ public class Transform3d implements IComponent {
      * @param out      The vector to store the position in
      * @return out, or null, if this component is not present on that entity
      */
-    public Vector3f getPosition(int entityId, @NotNull Vector3f out) {
+    public Vector3f getPosition(int entityId, @NotNull @Out Vector3f out) {
         if (!isPresentOn(entityId)) return null;
         return transforms.get(entityId).getTranslation(out);
     }
@@ -37,7 +38,7 @@ public class Transform3d implements IComponent {
         move(entityId, posOffset.x, posOffset.y, posOffset.z);
     }
 
-    public Quaternionf getRotation(int entityId, @NotNull Quaternionf out) {
+    public Quaternionf getRotation(int entityId, @NotNull @Out Quaternionf out) {
         if (!isPresentOn(entityId)) return null;
         return transforms.get(entityId).getUnnormalizedRotation(out);
     }
@@ -66,7 +67,7 @@ public class Transform3d implements IComponent {
      * @param out      The vector to store the rotation in
      * @return out, or null, if this component is not present on that entity
      */
-    public Vector3f getScale(int entityId, @NotNull Vector3f out) {
+    public Vector3f getScale(int entityId, @NotNull @Out Vector3f out) {
         if (!isPresentOn(entityId)) return null;
         return transforms.get(entityId).getScale(out);
     }

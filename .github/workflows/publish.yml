@@ -1,6 +1,5 @@
 name: publish-snapshot
-on:
-  workflow_dispatch:
+on: push
 
 jobs:
   publish:

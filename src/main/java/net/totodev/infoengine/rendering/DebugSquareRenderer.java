@@ -39,16 +39,13 @@ public class DebugSquareRenderer implements ISystem {
             ByteBuffer indexData = stack.malloc(6 * 2);
             indexData.asShortBuffer().put(new short[]{0, 1, 2, 2, 3, 0});
 
-            LongBuffer pBuffer = stack.callocLong(1);
-            LongBuffer pBufferMemory = stack.callocLong(1);
+            VkBufferHelper.VkBuffer vertexBuffer = VkBufferHelper.createVertexBuffer(rendererConfig.commandPool, vertexData, null);
+            this.vertexBuffer = vertexBuffer.buffer();
+            vertexBufferMemory = vertexBuffer.bufferMemory();
 
-            VkBufferHelper.createVertexBuffer(rendererConfig.commandPool, vertexData, null, pBuffer, pBufferMemory);
-            vertexBuffer = pBuffer.get(0);
-            vertexBufferMemory = pBufferMemory.get(0);
-
-            VkBufferHelper.createIndexBuffer(rendererConfig.commandPool, indexData, null, pBuffer, pBufferMemory);
-            indexBuffer = pBuffer.get(0);
-            indexBufferMemory = pBufferMemory.get(0);
+            VkBufferHelper.VkBuffer indexBuffer = VkBufferHelper.createIndexBuffer(rendererConfig.commandPool, indexData, null);
+            this.indexBuffer = indexBuffer.buffer();
+            indexBufferMemory = indexBuffer.bufferMemory();
         }
 
         rendererConfig.commandBuffers.addAll(VkCommandBufferHelper.createCommandBuffers(rendererConfig.commandPool, window.getVkImages().count(l -> true)));
