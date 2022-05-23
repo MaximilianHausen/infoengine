@@ -1,6 +1,5 @@
 package net.totodev.infoengine.core.components;
 
-import net.totodev.infoengine.core.annotations.Out;
 import net.totodev.infoengine.ecs.IComponent;
 import net.totodev.infoengine.loading.ComponentDataModel;
 import net.totodev.infoengine.util.SerializationUtils;
@@ -12,7 +11,7 @@ import org.joml.*;
 public class Transform2d implements IComponent {
     private final MutableIntObjectMap<Matrix3x2f> transforms = IntObjectMaps.mutable.empty();
 
-    public Vector2f getPosition(int entityId, @NotNull @Out Vector2f out) {
+    public Vector2f getPosition(int entityId, @NotNull Vector2f out) {
         if (!isPresentOn(entityId)) return null;
         Matrix3x2f transform = transforms.get(entityId);
         return out.set(transform.m20, transform.m21);
@@ -53,7 +52,7 @@ public class Transform2d implements IComponent {
         transforms.get(entityId).rotate(angleOffset);
     }
 
-    public Vector2f getScale(int entityId, @NotNull @Out Vector2f out) {
+    public Vector2f getScale(int entityId, @NotNull Vector2f out) {
         if (!isPresentOn(entityId)) return null;
         Matrix3x2f transform = transforms.get(entityId);
         return out.set(transform.normalizedPositiveX(out).length(), transform.normalizedPositiveY(out).length());

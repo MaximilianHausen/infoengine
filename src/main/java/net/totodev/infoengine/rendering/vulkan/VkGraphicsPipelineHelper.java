@@ -10,7 +10,7 @@ import java.nio.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class VkGraphicsPipelineHelper {
+public final class VkGraphicsPipelineHelper {
     public static long createGraphicsPipeline(VkExtent2D swapchainExtent, long renderPass) {
         return createGraphicsPipeline(Engine.getLogicalDevice(), swapchainExtent, renderPass);
     }
