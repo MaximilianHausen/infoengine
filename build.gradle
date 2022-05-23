@@ -86,7 +86,7 @@ publishing {
             from components.java
             pom {
                 name = 'Infoengine'
-                version = 'nightly'
+                version = project.getVersion() + '-SNAPSHOT'
                 description = 'Java game engine with a focus on flexibility and correctness'
                 url = 'https://github.com/MaximilianHausen/infoengine'
                 licenses {
@@ -101,6 +101,7 @@ publishing {
             from components.java
             pom {
                 name = 'Infoengine'
+                version = project.getVersion()
                 description = 'Java game engine with a focus on flexibility and correctness'
                 url = 'https://github.com/MaximilianHausen/infoengine'
                 licenses {
