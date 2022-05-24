@@ -26,7 +26,6 @@ public class Engine {
 
     private static final ThreadLock threadLock = new ThreadLock();
     private static Action mainThreadAction;
-    private static boolean shouldClose = false;
 
     private static Window mainWindow;
 
@@ -56,10 +55,12 @@ public class Engine {
     }
 
     public static void start() {
+        glfwSetWindowCloseCallback(mainWindow.getId(), windowId -> terminate());
+
         mainWindow.setVisible(true);
 
         synchronized (threadLock) {
-            while (!shouldClose) {
+            while (!Thread.interrupted()) {
                 try {
                     threadLock.wait();
                 } catch (InterruptedException e) {
@@ -70,8 +71,6 @@ public class Engine {
                 mainThreadAction = null;
             }
         }
-
-        shouldClose = false;
     }
 
     public static void executeOnMainThread(Action action) {
@@ -82,7 +81,6 @@ public class Engine {
     }
 
     public static void terminate() {
-        shouldClose = true;
         mainThread.interrupt();
     }
 
