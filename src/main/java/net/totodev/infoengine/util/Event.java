@@ -15,8 +15,8 @@ import org.jetbrains.annotations.NotNull;
  */
 public class Event implements Action {
     private final MutableList<Action> subscribers = Lists.mutable.empty();
-    private String name;
-    private boolean log;
+    public String name;
+    public boolean log;
 
     /**
      * Constructs a new event with the name "UnnamedEvent" and logging disabled.
@@ -51,7 +51,7 @@ public class Event implements Action {
     }
 
     /**
-     * Invokes the event and calls all currently registered actions.
+     * Invokes this event and calls all currently registered actions.
      * Sends a log message if logging is enabled.
      */
     public void run() {
@@ -59,19 +59,5 @@ public class Event implements Action {
             Logger.log(LogLevel.Debug, "Event", "Invoked " + name);
         for (Action action : subscribers)
             action.run();
-    }
-
-    public @NotNull String getName() {
-        return name;
-    }
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public boolean isLogging() {
-        return log;
-    }
-    public void setLogging(boolean log) {
-        this.log = log;
     }
 }

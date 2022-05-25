@@ -7,6 +7,7 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
+import java.lang.invoke.*;
 import java.nio.*;
 
 import static org.lwjgl.system.MemoryStack.stackPush;
@@ -21,7 +22,11 @@ public class DebugSquareRenderer implements ISystem {
 
     private int currentFrame = 0;
 
+    private Scene scene;
+
     public void added(Scene scene) {
+        this.scene = scene;
+
         RendererConfig rendererConfig = scene.getGlobalComponent(RendererConfig.class);
         if (rendererConfig == null) scene.addGlobalComponent(new RendererConfig());
         rendererConfig = scene.getGlobalComponent(RendererConfig.class);
@@ -56,10 +61,13 @@ public class DebugSquareRenderer implements ISystem {
     }
 
     public void start(Scene scene) {
-        scene.events.subscribe(CoreEvents.Update.getName(), () -> drawFrame(scene));
+        try {
+            scene.events.subscribe(CoreEvents.Update.getName(),
+                    MethodHandles.lookup().findVirtual(DebugSquareRenderer.class, "drawFrame", MethodType.methodType(void.class)));
+        } catch (Exception ignored) {}
     }
 
-    private void drawFrame(Scene scene) {
+    private void drawFrame() {
         Engine.executeOnMainThread(GLFW::glfwPollEvents);
 
         try (MemoryStack stack = stackPush()) {
@@ -150,5 +158,6 @@ public class DebugSquareRenderer implements ISystem {
     }
 
     public void removed(Scene scene) {
+        this.scene = null;
     }
 }
