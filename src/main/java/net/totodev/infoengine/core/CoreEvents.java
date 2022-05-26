@@ -1,76 +1,53 @@
 package net.totodev.infoengine.core;
 
-import net.totodev.infoengine.ecs.EventManager;
-
 /**
  * All default events used by the engine
  */
-public enum CoreEvents {
+public final class CoreEvents {
     /**
      * Called during the creation of an entity, before it is added to the scene
      */
-    CreateEntity("CreateEntity", false),
+    public static final String CreateEntity = "CreateEntity";
     /**
      * Called after an entity was added to the scene
      */
-    EntityCreated("EntityCreated", false),
+    public static final String EntityCreated = "EntityCreated";
 
     /**
      * Called during the destruction of an entity, before it is removed from the scene
      */
-    DestroyEntity("DestroyEntity", false),
+    public static final String DestroyEntity = "DestroyEntity";
     /**
      * Called after an entity was removed from the scene
      */
-    EntityDestroyed("EntityDestroyed", false),
+    public static final String EntityDestroyed = "EntityDestroyed";
 
     /**
      * Called after a component was added to the scene
      */
-    ComponentAdded("ComponentAdded", false),
+    public static final String ComponentAdded = "ComponentAdded";
     /**
      * Called after a component was removed from the scene
      */
-    ComponentRemoved("ComponentRemoved", false),
+    public static final String ComponentRemoved = "ComponentRemoved";
 
     /**
      * Called after a global component was added to the scene
      */
-    GlobalComponentAdded("GlobalComponentAdded", false),
+    public static final String GlobalComponentAdded = "GlobalComponentAdded";
     /**
      * Called after a global component was removed from the scene
      */
-    GlobalComponentRemoved("GlobalComponentRemoved", false),
+    public static final String GlobalComponentRemoved = "GlobalComponentRemoved";
 
     /**
      * Called after a system was added to the scene
      */
-    SystemAdded("SystemAdded", false),
+    public static final String SystemAdded = "SystemAdded";
     /**
      * Called after a component was removed from the scene
      */
-    SystemRemoved("SystemRemoved", false),
+    public static final String SystemRemoved = "SystemRemoved";
 
-    Update("Update", false);
-
-    private final String name;
-    private final boolean logging;
-
-    CoreEvents(String name, boolean logging) {
-        this.name = name;
-        this.logging = logging;
-    }
-
-    /**
-     * Registers all core events.
-     * @param eventManager The event manager to register the events on
-     */
-    public static void registerAll(EventManager eventManager) {
-        for (CoreEvents event : CoreEvents.values())
-            eventManager.registerEvent(event.name, event.logging);
-    }
-
-    public String getName() {
-        return name;
-    }
+    public static final String Update = "Update";
 }

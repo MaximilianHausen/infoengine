@@ -15,7 +15,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.*;
 
 public class Scene {
-    public final EventManager events = new EventManager();
+    public final SceneEvents events = new SceneEvents();
 
     private final MutableIntSet entities = IntSets.mutable.empty();
     private final MutableIntStack freeIds = IntStacks.mutable.empty(); //TODO: FIFO Queue
@@ -23,24 +23,20 @@ public class Scene {
 
     private final MutableMap<Class<? extends IComponent>, IComponent> components = Maps.mutable.empty();
     private final MutableMap<Class<? extends IGlobalComponent>, IGlobalComponent> globalComponents = Maps.mutable.empty();
-    private final MutableMap<Class<? extends ISystem>, ISystem> systems = Maps.mutable.empty();
+    private final MutableMap<Class<? extends BaseSystem>, BaseSystem> systems = Maps.mutable.empty();
 
     private boolean isRunning = false;
 
-    public Scene() {
-        CoreEvents.registerAll(events);
-    }
-
     public void start() {
         if (isRunning) return;
-        for (ISystem system : systems)
+        for (BaseSystem system : systems)
             system.start(this);
         isRunning = true;
     }
 
     public void stop() {
         if (!isRunning) return;
-        for (ISystem system : systems)
+        for (BaseSystem system : systems)
             system.stop(this);
         isRunning = false;
     }
@@ -51,9 +47,9 @@ public class Scene {
      */
     public int createEntity() {
         int newId = freeIds.isEmpty() ? highestId++ : freeIds.pop();
-        events.invokeEvent(CoreEvents.CreateEntity.getName(), newId);
+        events.invokeEvent(CoreEvents.CreateEntity, newId);
         entities.add(newId);
-        events.invokeEvent(CoreEvents.EntityCreated.getName(), newId);
+        events.invokeEvent(CoreEvents.EntityCreated, newId);
         return newId;
     }
 
@@ -65,11 +61,11 @@ public class Scene {
         if (!isAlive(entityId)) return;
 
         components.forEach((c) -> c.removeFromEntity(entityId));
-        events.invokeEvent(CoreEvents.DestroyEntity.getName(), entityId);
+        events.invokeEvent(CoreEvents.DestroyEntity, entityId);
 
         entities.remove(entityId);
         freeIds.push(entityId);
-        events.invokeEvent(CoreEvents.EntityDestroyed.getName(), entityId);
+        events.invokeEvent(CoreEvents.EntityDestroyed, entityId);
     }
 
     /**
@@ -79,7 +75,7 @@ public class Scene {
     public void addComponent(@NotNull IComponent component) {
         Class<? extends IComponent> componentType = component.getClass();
         components.put(componentType, component);
-        events.invokeEvent(CoreEvents.ComponentAdded.getName(), component);
+        events.invokeEvent(CoreEvents.ComponentAdded, component);
     }
 
     /**
@@ -88,7 +84,7 @@ public class Scene {
      */
     public void removeComponent(@NotNull Class<? extends IComponent> componentType) {
         IComponent component = components.remove(componentType);
-        events.invokeEvent(CoreEvents.ComponentRemoved.getName(), component);
+        events.invokeEvent(CoreEvents.ComponentRemoved, component);
     }
 
     /**
@@ -112,7 +108,7 @@ public class Scene {
     public void addGlobalComponent(@NotNull IGlobalComponent component) {
         Class<? extends IGlobalComponent> componentType = component.getClass();
         globalComponents.put(componentType, component);
-        events.invokeEvent(CoreEvents.GlobalComponentAdded.getName(), component);
+        events.invokeEvent(CoreEvents.GlobalComponentAdded, component);
     }
 
     /**
@@ -121,7 +117,7 @@ public class Scene {
      */
     public void removeGlobalComponent(@NotNull Class<? extends IGlobalComponent> componentType) {
         IGlobalComponent component = globalComponents.remove(componentType);
-        events.invokeEvent(CoreEvents.GlobalComponentRemoved.getName(), component);
+        events.invokeEvent(CoreEvents.GlobalComponentRemoved, component);
     }
 
     /**
@@ -142,21 +138,22 @@ public class Scene {
      * Adds a system to this scene. If a system of this type has already been added, it will be overwritten.
      * @param system The system to add
      */
-    public void addSystem(@NotNull ISystem system) {
+    public void addSystem(@NotNull BaseSystem system) {
         systems.put(system.getClass(), system);
         system.added(this);
         if (isRunning) system.start(this);
-        events.invokeEvent(CoreEvents.SystemAdded.getName(), system);
+        events.invokeEvent(CoreEvents.SystemAdded, system);
     }
 
     /**
      * Removes a system from this scene.
      * @param systemType The runtime type of the system to remove
      */
-    public void removeSystem(@NotNull Class<? extends ISystem> systemType) {
-        ISystem system = systems.remove(systemType);
+    public void removeSystem(@NotNull Class<? extends BaseSystem> systemType) {
+        BaseSystem system = systems.remove(systemType);
+        if (isRunning) system.stop(this);
         system.removed(this);
-        events.invokeEvent(CoreEvents.SystemRemoved.getName(), system);
+        events.invokeEvent(CoreEvents.SystemRemoved, system);
     }
 
     public ImmutableIntSet getAllEntities() {

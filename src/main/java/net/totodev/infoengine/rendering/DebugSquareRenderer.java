@@ -7,14 +7,13 @@ import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
-import java.lang.invoke.*;
 import java.nio.*;
 
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class DebugSquareRenderer implements ISystem {
+public class DebugSquareRenderer extends BaseSystem {
     private long vertexBuffer;
     private long vertexBufferMemory;
     private long indexBuffer;
@@ -22,11 +21,8 @@ public class DebugSquareRenderer implements ISystem {
 
     private int currentFrame = 0;
 
-    private Scene scene;
-
     public void added(Scene scene) {
-        this.scene = scene;
-
+        super.added(scene);
         RendererConfig rendererConfig = scene.getGlobalComponent(RendererConfig.class);
         if (rendererConfig == null) scene.addGlobalComponent(new RendererConfig());
         rendererConfig = scene.getGlobalComponent(RendererConfig.class);
@@ -60,18 +56,12 @@ public class DebugSquareRenderer implements ISystem {
         rendererConfig.inFlightFences.addAll(VkSyncObjectHelper.createFences(2));
     }
 
-    public void start(Scene scene) {
-        try {
-            scene.events.subscribe(CoreEvents.Update.getName(),
-                    MethodHandles.lookup().findVirtual(DebugSquareRenderer.class, "drawFrame", MethodType.methodType(void.class)));
-        } catch (Exception ignored) {}
-    }
-
+    @EventSubscriber(CoreEvents.Update)
     private void drawFrame() {
         Engine.executeOnMainThread(GLFW::glfwPollEvents);
 
         try (MemoryStack stack = stackPush()) {
-            RendererConfig rendererConfig = scene.getGlobalComponent(RendererConfig.class);
+            RendererConfig rendererConfig = getScene().getGlobalComponent(RendererConfig.class);
 
             LongBuffer inFlightFence = stack.longs(rendererConfig.inFlightFences.get(currentFrame));
             vkWaitForFences(Engine.getLogicalDevice(), inFlightFence, true, Integer.MAX_VALUE);
@@ -82,7 +72,7 @@ public class DebugSquareRenderer implements ISystem {
 
             VkCommandBuffer commandBuffer = rendererConfig.commandBuffers.get(currentFrame);
             vkResetCommandBuffer(commandBuffer, 0);
-            recordCommandBuffer(commandBuffer, imageIndex.get(0), scene);
+            recordCommandBuffer(commandBuffer, imageIndex.get(0), getScene());
 
             VkSubmitInfo submitInfo = VkSubmitInfo.calloc(stack);
             submitInfo.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO);
@@ -152,12 +142,5 @@ public class DebugSquareRenderer implements ISystem {
             if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
                 throw new RuntimeException("Failed to record command buffer");
         }
-    }
-
-    public void stop(Scene scene) {
-    }
-
-    public void removed(Scene scene) {
-        this.scene = null;
     }
 }

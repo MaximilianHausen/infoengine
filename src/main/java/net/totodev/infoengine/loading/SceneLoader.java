@@ -89,7 +89,7 @@ public class SceneLoader {
         // Add systems
         for (String type : sceneModel.systems) {
             try {
-                ISystem system = (ISystem) Class.forName(type).getDeclaredConstructor().newInstance();
+                BaseSystem system = (BaseSystem) Class.forName(type).getDeclaredConstructor().newInstance();
                 scene.addSystem(system);
             } catch (ClassNotFoundException e) {
                 Logger.log(LogLevel.Error, "SceneLoader", "Class " + type + " could not be found. This system will not be added.");

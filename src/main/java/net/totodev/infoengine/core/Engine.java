@@ -66,9 +66,10 @@ public class Engine {
                 } catch (InterruptedException e) {
                     break;
                 }
-                if (mainThreadAction == null) continue;
-                mainThreadAction.run();
-                mainThreadAction = null;
+                if (mainThreadAction != null) {
+                    mainThreadAction.run();
+                    mainThreadAction = null;
+                }
             }
         }
     }
