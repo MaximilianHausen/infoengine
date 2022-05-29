@@ -1,10 +1,12 @@
 package net.totodev.infoengine.rendering;
 
 import net.totodev.infoengine.core.*;
+import net.totodev.infoengine.core.components.Transform2d;
 import net.totodev.infoengine.ecs.*;
 import net.totodev.infoengine.rendering.vulkan.*;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
+import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -75,6 +77,13 @@ public class DebugSquareRenderer extends BaseSystem {
 
         try (MemoryStack stack = stackPush()) {
             RendererConfig rendererConfig = getScene().getGlobalComponent(RendererConfig.class);
+
+            Transform2d transform = getScene().getComponent(Transform2d.class);
+            Vector2f position = transform.getPosition(getScene().getEntitiesByComponents(Transform2d.class).getFirst(), new Vector2f());
+
+            MatrixUbo ubo = new MatrixUbo();
+            ubo.model.translation(position.x, -position.y, 0);
+            VkBufferHelper.writeBuffer(uniformBuffers.get(currentFrame).bufferMemory(), 0, ubo);
 
             LongBuffer inFlightFence = stack.longs(rendererConfig.inFlightFences.get(currentFrame));
             vkWaitForFences(Engine.getLogicalDevice(), inFlightFence, true, Integer.MAX_VALUE);
