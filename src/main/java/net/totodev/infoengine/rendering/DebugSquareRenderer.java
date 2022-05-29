@@ -70,21 +70,21 @@ public class DebugSquareRenderer extends BaseSystem {
             IntBuffer imageIndex = stack.mallocInt(1);
             vkAcquireNextImageKHR(Engine.getLogicalDevice(), Engine.getMainWindow().getVkSwapchain(), Integer.MAX_VALUE, rendererConfig.imageAvailableSemaphores.get(currentFrame), VK_NULL_HANDLE, imageIndex);
 
+            LongBuffer waitSemaphores = stack.longs(rendererConfig.imageAvailableSemaphores.get(currentFrame));
+            IntBuffer waitStages = stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+
+            LongBuffer signalSemaphores = stack.longs(rendererConfig.renderFinishedSemaphores.get(currentFrame));
+
             VkCommandBuffer commandBuffer = rendererConfig.commandBuffers.get(currentFrame);
             vkResetCommandBuffer(commandBuffer, 0);
             recordCommandBuffer(commandBuffer, imageIndex.get(0), getScene());
 
             VkSubmitInfo submitInfo = VkSubmitInfo.calloc(stack);
             submitInfo.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO);
-
-            LongBuffer waitSemaphores = stack.longs(rendererConfig.imageAvailableSemaphores.get(currentFrame));
-            IntBuffer waitStages = stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
             submitInfo.waitSemaphoreCount(1);
             submitInfo.pWaitSemaphores(waitSemaphores);
             submitInfo.pWaitDstStageMask(waitStages);
             submitInfo.pCommandBuffers(stack.pointers(commandBuffer));
-
-            LongBuffer signalSemaphores = stack.longs(rendererConfig.renderFinishedSemaphores.get(currentFrame));
             submitInfo.pSignalSemaphores(signalSemaphores);
 
             if (vkQueueSubmit(Engine.getGraphicsQueue(), submitInfo, inFlightFence.get(0)) != VK_SUCCESS)
@@ -113,32 +113,36 @@ public class DebugSquareRenderer extends BaseSystem {
 
             if (vkBeginCommandBuffer(commandBuffer, beginInfo) != VK_SUCCESS)
                 throw new RuntimeException("Failed to begin recording command buffer");
-
-            VkRenderPassBeginInfo renderPassInfo = VkRenderPassBeginInfo.calloc(stack);
-            renderPassInfo.sType(VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO);
-            renderPassInfo.renderPass(rendererConfig.renderPass);
-            renderPassInfo.framebuffer(rendererConfig.framebuffers.get(imageIndex));
-            VkRect2D renderArea = VkRect2D.calloc(stack);
-            renderArea.offset(VkOffset2D.calloc(stack).set(0, 0));
-            renderArea.extent(Engine.getMainWindow().getVkExtent());
-            renderPassInfo.renderArea(renderArea);
-            VkClearValue.Buffer clearValues = VkClearValue.calloc(1, stack);
-            clearValues.color().float32(stack.floats(0.0f, 0.0f, 0.0f, 1.0f));
-            renderPassInfo.pClearValues(clearValues);
-
-            vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
             {
-                vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, rendererConfig.graphicsPipeline);
+                VkRect2D renderArea = VkRect2D.calloc(stack);
+                renderArea.offset(VkOffset2D.calloc(stack).set(0, 0));
+                renderArea.extent(Engine.getMainWindow().getVkExtent());
 
-                LongBuffer vertexBuffers = stack.longs(vertexBuffer);
-                LongBuffer offsets = stack.longs(0);
-                vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers, offsets);
-                vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+                VkClearValue.Buffer clearValues = VkClearValue.calloc(1, stack);
+                clearValues.color().float32(stack.floats(0.0f, 0.0f, 0.0f, 1.0f));
 
-                vkCmdDrawIndexed(commandBuffer, 6, 1, 0, 0, 0);
+                VkRenderPassBeginInfo renderPassInfo = VkRenderPassBeginInfo.calloc(stack);
+                renderPassInfo.sType(VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO);
+                renderPassInfo.renderPass(rendererConfig.renderPass);
+                renderPassInfo.framebuffer(rendererConfig.framebuffers.get(imageIndex));
+                renderPassInfo.renderArea(renderArea);
+                renderPassInfo.pClearValues(clearValues);
+
+                vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+                {
+                    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, rendererConfig.graphicsPipeline);
+
+                    LongBuffer vertexBuffers = stack.longs(vertexBuffer);
+                    LongBuffer offsets = stack.longs(0);
+                    vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers, offsets);
+                    vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+
+                    // vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, stack.longs(descriptorSets.get(i)), null);
+
+                    vkCmdDrawIndexed(commandBuffer, 6, 1, 0, 0, 0);
+                }
+                vkCmdEndRenderPass(commandBuffer);
             }
-            vkCmdEndRenderPass(commandBuffer);
-
             if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
                 throw new RuntimeException("Failed to record command buffer");
         }

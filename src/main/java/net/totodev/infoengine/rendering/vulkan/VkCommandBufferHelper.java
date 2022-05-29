@@ -13,6 +13,35 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkCommandBufferHelper {
+    public static VkCommandBuffer beginSingleTimeCommands(VkDevice device, long commandPool) {
+        try (MemoryStack stack = stackPush()) {
+            VkCommandBuffer commandBuffer = createCommandBuffers(device, commandPool, 1).get(0);
+
+            VkCommandBufferBeginInfo beginInfo = VkCommandBufferBeginInfo.calloc(stack);
+            beginInfo.sType(VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO);
+            beginInfo.flags(VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT);
+
+            vkBeginCommandBuffer(commandBuffer, beginInfo);
+
+            return commandBuffer;
+        }
+    }
+
+    public static void endSingleTimeCommands(VkDevice device, long commandPool, VkCommandBuffer commandBuffer, VkQueue queue) {
+        try (MemoryStack stack = stackPush()) {
+            vkEndCommandBuffer(commandBuffer);
+
+            VkSubmitInfo.Buffer submitInfo = VkSubmitInfo.calloc(1, stack);
+            submitInfo.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO);
+            submitInfo.pCommandBuffers(stack.pointers(commandBuffer));
+
+            vkQueueSubmit(queue, submitInfo, VK_NULL_HANDLE);
+            vkQueueWaitIdle(queue);
+
+            vkFreeCommandBuffers(device, commandPool, commandBuffer);
+        }
+    }
+
     public static long createCommandPool(int queueFamily) {
         return createCommandPool(Engine.getLogicalDevice(), queueFamily);
     }
