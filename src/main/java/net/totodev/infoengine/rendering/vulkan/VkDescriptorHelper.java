@@ -12,7 +12,7 @@ public final class VkDescriptorHelper {
     /**
      * @param binding         The binding number set in the shader
      * @param descriptorType  The type of this descriptor. See: {@link VK10#VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}
-     * @param descriptorCount The amount of descriptors in this binding if this binding is an array, otherwise 1
+     * @param descriptorCount The amount of descriptors in this binding, usually 1
      * @param shaderStages    Bitmask of the shader stages this binding should be accessible in. See: {@link VK10#VK_SHADER_STAGE_ALL}
      */
     public record DescriptorBindingInfo(int binding, int descriptorType, int descriptorCount, int shaderStages) {

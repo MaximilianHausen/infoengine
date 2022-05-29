@@ -1,6 +1,7 @@
 package net.totodev.infoengine.rendering.vulkan;
 
 import net.totodev.infoengine.core.Engine;
+import net.totodev.infoengine.util.IBufferWritable;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.list.primitive.IntList;
@@ -95,7 +96,7 @@ public final class VkBufferHelper {
                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
                 sharedQueues);
 
-        fillBuffer(device, buffer.bufferMemory, 0, bufferData);
+        writeBuffer(device, buffer.bufferMemory, 0, bufferData);
 
         return buffer;
     }
@@ -143,10 +144,24 @@ public final class VkBufferHelper {
         }
     }
 
-    public static void fillBuffer(long bufferMemory, long offset, ByteBuffer data) {
-        fillBuffer(Engine.getLogicalDevice(), bufferMemory, offset, data);
+    public static void writeBuffer(long bufferMemory, long offset, IBufferWritable data) {
+        writeBuffer(Engine.getLogicalDevice(), bufferMemory, offset, data);
     }
-    public static void fillBuffer(VkDevice device, long bufferMemory, long offset, ByteBuffer data) {
+    public static void writeBuffer(VkDevice device, long bufferMemory, long offset, IBufferWritable data) {
+        try (MemoryStack stack = stackPush()) {
+            PointerBuffer mappedRegion = stack.mallocPointer(1);
+            vkMapMemory(device, bufferMemory, offset, data.bytes(), 0, mappedRegion);
+            {
+                data.writeToBuffer(mappedRegion.getByteBuffer(0, data.bytes()));
+            }
+            vkUnmapMemory(device, bufferMemory);
+        }
+    }
+
+    public static void writeBuffer(long bufferMemory, long offset, ByteBuffer data) {
+        writeBuffer(Engine.getLogicalDevice(), bufferMemory, offset, data);
+    }
+    public static void writeBuffer(VkDevice device, long bufferMemory, long offset, ByteBuffer data) {
         try (MemoryStack stack = stackPush()) {
             PointerBuffer mappedRegion = stack.mallocPointer(1);
             vkMapMemory(device, bufferMemory, offset, data.capacity(), 0, mappedRegion);

@@ -1,6 +1,5 @@
 package net.totodev.infoengine.rendering.vulkan;
 
-import net.totodev.infoengine.core.Engine;
 import net.totodev.infoengine.util.IO;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -10,11 +9,10 @@ import java.nio.*;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
-public final class VkGraphicsPipelineHelper {
-    public static long createGraphicsPipeline(VkExtent2D swapchainExtent, long renderPass) {
-        return createGraphicsPipeline(Engine.getLogicalDevice(), swapchainExtent, renderPass);
+public final class VkPipelineHelper {
+    public record VkPipeline(long pipeline, long pipelineLayout) {
     }
-    public static long createGraphicsPipeline(VkDevice device, VkExtent2D swapchainExtent, long renderPass) {
+    public static VkPipeline createGraphicsPipeline(VkDevice device, VkExtent2D swapchainExtent, long renderPass, long descriptorSetLayout) {
         //TODO: Configurable pipeline creation, multiple render passes
         try (MemoryStack stack = stackPush()) {
             ByteBuffer vertShaderSPIRV = IO.readFromResource("shaders/vert.spv");
@@ -41,10 +39,27 @@ public final class VkGraphicsPipelineHelper {
 
             // ===> VERTEX STAGE <===
 
+            // Binding Description
+            VkVertexInputBindingDescription.Buffer bindingDescription =
+                    VkVertexInputBindingDescription.calloc(1, stack);
+
+            bindingDescription.binding(0);
+            bindingDescription.stride(2 * Float.BYTES);
+            bindingDescription.inputRate(VK_VERTEX_INPUT_RATE_VERTEX);
+
+            // Attribute Descriptions
+            VkVertexInputAttributeDescription.Buffer attributeDescriptions =
+                    VkVertexInputAttributeDescription.calloc(1, stack);
+
+            attributeDescriptions.binding(0);
+            attributeDescriptions.location(0);
+            attributeDescriptions.format(VK_FORMAT_R32G32_SFLOAT);
+            attributeDescriptions.offset(0);
+
             VkPipelineVertexInputStateCreateInfo vertexInputInfo = VkPipelineVertexInputStateCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO);
-                    //.pVertexBindingDescriptions(Vertex.getBindingDescription())
-                    //.pVertexAttributeDescriptions(Vertex.getAttributeDescriptions());
+                    .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
+                    .pVertexBindingDescriptions(bindingDescription)
+                    .pVertexAttributeDescriptions(attributeDescriptions);
 
             // ===> ASSEMBLY STAGE <===
 
@@ -108,7 +123,8 @@ public final class VkGraphicsPipelineHelper {
             // ===> PIPELINE LAYOUT CREATION <===
 
             VkPipelineLayoutCreateInfo pipelineLayoutInfo = VkPipelineLayoutCreateInfo.calloc(stack)
-                    .sType(VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO);
+                    .sType(VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO)
+                    .pSetLayouts(stack.longs(descriptorSetLayout));
 
             LongBuffer pPipelineLayout = stack.longs(VK_NULL_HANDLE);
             if (vkCreatePipelineLayout(device, pipelineLayoutInfo, null, pPipelineLayout) != VK_SUCCESS)
@@ -142,7 +158,7 @@ public final class VkGraphicsPipelineHelper {
             vkDestroyShaderModule(device, vertShaderModule, null);
             vkDestroyShaderModule(device, fragShaderModule, null);
 
-            return pGraphicsPipeline.get(0);
+            return new VkPipeline(pGraphicsPipeline.get(0), pipelineLayout);
         }
     }
 

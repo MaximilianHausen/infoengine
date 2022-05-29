@@ -3,6 +3,8 @@ package net.totodev.infoengine.rendering;
 import net.totodev.infoengine.core.*;
 import net.totodev.infoengine.ecs.*;
 import net.totodev.infoengine.rendering.vulkan.*;
+import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.impl.factory.Lists;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -14,10 +16,9 @@ import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class DebugSquareRenderer extends BaseSystem {
-    private long vertexBuffer;
-    private long vertexBufferMemory;
-    private long indexBuffer;
-    private long indexBufferMemory;
+    private VkBufferHelper.VkBuffer vertexBuffer;
+    private VkBufferHelper.VkBuffer indexBuffer;
+    private final MutableList<VkBufferHelper.VkBuffer> uniformBuffers = Lists.mutable.empty();
 
     private int currentFrame = 0;
 
@@ -29,10 +30,19 @@ public class DebugSquareRenderer extends BaseSystem {
 
         Window window = Engine.getMainWindow();
 
+        rendererConfig.descriptorSetLayout = VkDescriptorHelper.createDescriptorSetLayout(Engine.getLogicalDevice(),
+                new VkDescriptorHelper.DescriptorBindingInfo(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT));
+
         rendererConfig.renderPass = VkRenderPassHelper.createRenderPass(window.getVkImageFormat());
-        rendererConfig.graphicsPipeline = VkGraphicsPipelineHelper.createGraphicsPipeline(window.getVkExtent(), rendererConfig.renderPass);
+        rendererConfig.graphicsPipeline = VkPipelineHelper.createGraphicsPipeline(Engine.getLogicalDevice(), window.getVkExtent(), rendererConfig.renderPass, rendererConfig.descriptorSetLayout);
         rendererConfig.framebuffers.addAll(VkFramebufferHelper.createFramebuffers(window.getVkImageViews(), window.getVkExtent().width(), window.getVkExtent().height(), rendererConfig.renderPass));
+
         rendererConfig.commandPool = VkCommandBufferHelper.createCommandPool(Engine.getGraphicsQueueFamily());
+        rendererConfig.commandBuffers.addAll(VkCommandBufferHelper.createCommandBuffers(rendererConfig.commandPool, window.getVkImages().count(l -> true)));
+
+        rendererConfig.imageAvailableSemaphores.addAll(VkSyncObjectHelper.createSemaphores(2));
+        rendererConfig.renderFinishedSemaphores.addAll(VkSyncObjectHelper.createSemaphores(2));
+        rendererConfig.inFlightFences.addAll(VkSyncObjectHelper.createFences(2));
 
         try (MemoryStack stack = stackPush()) {
             ByteBuffer vertexData = stack.malloc(8 * 4);
@@ -40,20 +50,23 @@ public class DebugSquareRenderer extends BaseSystem {
             ByteBuffer indexData = stack.malloc(6 * 2);
             indexData.asShortBuffer().put(new short[]{0, 1, 2, 2, 3, 0});
 
-            VkBufferHelper.VkBuffer vertexBuffer = VkBufferHelper.createVertexBuffer(rendererConfig.commandPool, vertexData, null);
-            this.vertexBuffer = vertexBuffer.buffer();
-            vertexBufferMemory = vertexBuffer.bufferMemory();
+            vertexBuffer = VkBufferHelper.createVertexBuffer(rendererConfig.commandPool, vertexData, null);
+            indexBuffer = VkBufferHelper.createIndexBuffer(rendererConfig.commandPool, indexData, null);
 
-            VkBufferHelper.VkBuffer indexBuffer = VkBufferHelper.createIndexBuffer(rendererConfig.commandPool, indexData, null);
-            this.indexBuffer = indexBuffer.buffer();
-            indexBufferMemory = indexBuffer.bufferMemory();
+            uniformBuffers.addAllIterable(VkBufferHelper.createUniformBuffers(3 * 16 * Float.BYTES, 2).select(b -> {
+                MatrixUbo data = new MatrixUbo();
+                VkBufferHelper.writeBuffer(b.bufferMemory(), 0, data);
+                return true;
+            }));
         }
 
-        rendererConfig.commandBuffers.addAll(VkCommandBufferHelper.createCommandBuffers(rendererConfig.commandPool, window.getVkImages().count(l -> true)));
-
-        rendererConfig.imageAvailableSemaphores.addAll(VkSyncObjectHelper.createSemaphores(2));
-        rendererConfig.renderFinishedSemaphores.addAll(VkSyncObjectHelper.createSemaphores(2));
-        rendererConfig.inFlightFences.addAll(VkSyncObjectHelper.createFences(2));
+        rendererConfig.descriptorPool = VkDescriptorHelper.createDescriptorPool(Engine.getLogicalDevice(), 2,
+                new VkDescriptorHelper.DescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2));
+        for (int i = 0; i < 2; i++) {
+            rendererConfig.descriptorSets.add(VkDescriptorHelper.createDescriptorSet(Engine.getLogicalDevice(), rendererConfig.descriptorPool, rendererConfig.descriptorSetLayout,
+                    new VkDescriptorHelper.DescriptorBufferBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0,
+                            new VkDescriptorHelper.BufferRegion(uniformBuffers.get(i).buffer(), 0, 3 * 16 * Float.BYTES))));
+        }
     }
 
     @EventSubscriber(CoreEvents.Update)
@@ -72,7 +85,6 @@ public class DebugSquareRenderer extends BaseSystem {
 
             LongBuffer waitSemaphores = stack.longs(rendererConfig.imageAvailableSemaphores.get(currentFrame));
             IntBuffer waitStages = stack.ints(VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
-
             LongBuffer signalSemaphores = stack.longs(rendererConfig.renderFinishedSemaphores.get(currentFrame));
 
             VkCommandBuffer commandBuffer = rendererConfig.commandBuffers.get(currentFrame);
@@ -81,10 +93,10 @@ public class DebugSquareRenderer extends BaseSystem {
 
             VkSubmitInfo submitInfo = VkSubmitInfo.calloc(stack);
             submitInfo.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO);
+            submitInfo.pCommandBuffers(stack.pointers(commandBuffer));
             submitInfo.waitSemaphoreCount(1);
             submitInfo.pWaitSemaphores(waitSemaphores);
             submitInfo.pWaitDstStageMask(waitStages);
-            submitInfo.pCommandBuffers(stack.pointers(commandBuffer));
             submitInfo.pSignalSemaphores(signalSemaphores);
 
             if (vkQueueSubmit(Engine.getGraphicsQueue(), submitInfo, inFlightFence.get(0)) != VK_SUCCESS)
@@ -130,14 +142,14 @@ public class DebugSquareRenderer extends BaseSystem {
 
                 vkCmdBeginRenderPass(commandBuffer, renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
                 {
-                    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, rendererConfig.graphicsPipeline);
+                    vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, rendererConfig.graphicsPipeline.pipeline());
 
-                    LongBuffer vertexBuffers = stack.longs(vertexBuffer);
+                    LongBuffer vertexBuffers = stack.longs(vertexBuffer.buffer());
                     LongBuffer offsets = stack.longs(0);
                     vkCmdBindVertexBuffers(commandBuffer, 0, vertexBuffers, offsets);
-                    vkCmdBindIndexBuffer(commandBuffer, indexBuffer, 0, VK_INDEX_TYPE_UINT16);
+                    vkCmdBindIndexBuffer(commandBuffer, indexBuffer.buffer(), 0, VK_INDEX_TYPE_UINT16);
 
-                    // vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, stack.longs(descriptorSets.get(i)), null);
+                    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, rendererConfig.graphicsPipeline.pipelineLayout(), 0, stack.longs(rendererConfig.descriptorSets.get(imageIndex)), null);
 
                     vkCmdDrawIndexed(commandBuffer, 6, 1, 0, 0, 0);
                 }
