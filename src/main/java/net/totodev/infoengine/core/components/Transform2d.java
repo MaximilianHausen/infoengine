@@ -25,7 +25,7 @@ public class Transform2d implements IComponent {
     }
     public void move(int entityId, float xOffset, float yOffset) {
         if (!isPresentOn(entityId)) return;
-        transforms.get(entityId).translate(xOffset, yOffset);
+        transforms.put(entityId, transforms.get(entityId).translate(xOffset, yOffset));
     }
     public void move(int entityId, @NotNull Vector2f posOffset) {
         move(entityId, posOffset.x, posOffset.y);
@@ -90,7 +90,7 @@ public class Transform2d implements IComponent {
         if (!isPresentOn(data.entity))
             addOnEntity(data.entity);
 
-        transforms.get(data.entity).set(SerializationUtils.deserialize(data.data));
+        transforms.get(data.entity).set(SerializationUtils.deserialize(data.value));
     }
     public @Nullable String serializeState(int entityId) {
         if (!isPresentOn(entityId)) return null;

@@ -54,7 +54,7 @@ public class SceneLoader {
             try {
                 IComponent component = (IComponent) Class.forName(componentModel.type).getDeclaredConstructor().newInstance();
                 scene.addComponent(component);
-                component.deserializeAllState(componentModel.values);
+                component.deserializeAllState(componentModel.data);
             } catch (ClassNotFoundException e) {
                 Logger.log(LogLevel.Error, "SceneLoader", "Class " + componentModel.type + " could not be found. This component will not be added.");
                 errors++;
@@ -73,7 +73,7 @@ public class SceneLoader {
             try {
                 IGlobalComponent component = (IGlobalComponent) Class.forName(componentModel.type).getDeclaredConstructor().newInstance();
                 scene.addGlobalComponent(component);
-                component.deserializeState(componentModel.value);
+                component.deserializeState(componentModel.data);
             } catch (ClassNotFoundException e) {
                 Logger.log(LogLevel.Error, "SceneLoader", "Class " + componentModel.type + " could not be found. This global component will not be added.");
                 errors++;

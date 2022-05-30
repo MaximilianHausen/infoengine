@@ -49,7 +49,7 @@ public class Camera2d implements IComponent {
         if (!isPresentOn(data.entity))
             addOnEntity(data.entity);
 
-        float[] deserializedData = SerializationUtils.deserialize(data.data);
+        float[] deserializedData = SerializationUtils.deserialize(data.value);
         sizes.get(data.entity).set(deserializedData[0], deserializedData[1]);
         offsets.get(data.entity).set(deserializedData[2], deserializedData[3]);
     }

@@ -4,11 +4,11 @@ import java.util.*;
 
 public class ComponentModel {
     public String type;
-    public ComponentDataModel[] values;
+    public ComponentDataModel[] data;
 
-    public ComponentModel(String type, ComponentDataModel... values) {
+    public ComponentModel(String type, ComponentDataModel... data) {
         this.type = type;
-        this.values = values;
+        this.data = data;
     }
 
     @Override
@@ -16,12 +16,12 @@ public class ComponentModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ComponentModel that = (ComponentModel) o;
-        return Objects.equals(type, that.type) && Arrays.equals(values, that.values);
+        return Objects.equals(type, that.type) && Arrays.equals(data, that.data);
     }
     @Override
     public int hashCode() {
         int result = Objects.hash(type);
-        result = 31 * result + Arrays.hashCode(values);
+        result = 31 * result + Arrays.hashCode(data);
         return result;
     }
 }

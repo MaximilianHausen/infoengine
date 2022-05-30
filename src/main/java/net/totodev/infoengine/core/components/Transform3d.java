@@ -106,7 +106,7 @@ public class Transform3d implements IComponent {
         if (!isPresentOn(data.entity))
             addOnEntity(data.entity);
 
-        transforms.get(data.entity).set(SerializationUtils.deserialize(data.data));
+        transforms.get(data.entity).set(SerializationUtils.deserialize(data.value));
     }
     public @Nullable String serializeState(int entityId) {
         if (!isPresentOn(entityId)) return null;

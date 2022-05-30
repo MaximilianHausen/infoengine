@@ -4,11 +4,11 @@ import java.util.Objects;
 
 public class GlobalComponentModel {
     public String type;
-    public String value;
+    public String data;
 
-    public GlobalComponentModel(String type, String value) {
+    public GlobalComponentModel(String type, String data) {
         this.type = type;
-        this.value = value;
+        this.data = data;
     }
 
     @Override
@@ -16,10 +16,10 @@ public class GlobalComponentModel {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         GlobalComponentModel that = (GlobalComponentModel) o;
-        return Objects.equals(type, that.type) && Objects.equals(value, that.value);
+        return Objects.equals(type, that.type) && Objects.equals(data, that.data);
     }
     @Override
     public int hashCode() {
-        return Objects.hash(type, value);
+        return Objects.hash(type, data);
     }
 }
