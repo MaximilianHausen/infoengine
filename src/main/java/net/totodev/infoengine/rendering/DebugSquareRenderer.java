@@ -26,9 +26,8 @@ public class DebugSquareRenderer extends BaseSystem {
 
     public void added(Scene scene) {
         super.added(scene);
+        if (!getScene().hasGlobalComponent(RendererConfig.class)) getScene().addGlobalComponent(new RendererConfig());
         RendererConfig rendererConfig = scene.getGlobalComponent(RendererConfig.class);
-        if (rendererConfig == null) scene.addGlobalComponent(new RendererConfig());
-        rendererConfig = scene.getGlobalComponent(RendererConfig.class);
 
         Window window = Engine.getMainWindow();
 

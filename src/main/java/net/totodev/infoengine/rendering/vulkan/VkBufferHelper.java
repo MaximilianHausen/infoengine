@@ -46,6 +46,19 @@ public final class VkBufferHelper {
     }
 
     //region Specific
+    public record CombinedBuffer(VkBuffer buffer, int indexOffset) {
+    }
+    public static CombinedBuffer createCombinedBuffer(long commandPool, ByteBuffer vertexData, ByteBuffer indexData, @Nullable IntList sharedQueues) {
+        return createCombinedBuffer(Engine.getLogicalDevice(), Engine.getPhysicalDevice(), Engine.getGraphicsQueue(), commandPool, vertexData, indexData, sharedQueues);
+    }
+    public static CombinedBuffer createCombinedBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue transferQueue, long commandPool, ByteBuffer vertexData, ByteBuffer indexData, @Nullable IntList sharedQueues) {
+        try (MemoryStack stack = stackPush()) {
+            ByteBuffer combinedData = stack.malloc(vertexData.capacity() + indexData.capacity());
+            combinedData.put(vertexData).put(indexData);
+            return new CombinedBuffer(createFilledBufferStaged(device, physicalDevice, transferQueue, commandPool, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT, combinedData, sharedQueues), vertexData.capacity());
+        }
+    }
+
     public static VkBuffer createVertexBuffer(long commandPool, ByteBuffer vertexData, @Nullable IntList sharedQueues) {
         return createVertexBuffer(Engine.getLogicalDevice(), Engine.getPhysicalDevice(), Engine.getGraphicsQueue(), commandPool, vertexData, sharedQueues);
     }
@@ -60,14 +73,14 @@ public final class VkBufferHelper {
         return createFilledBufferStaged(device, physicalDevice, transferQueue, commandPool, VK_BUFFER_USAGE_INDEX_BUFFER_BIT, indices, sharedQueues);
     }
 
-    public static VkBuffer createUniformBuffer(int size) {
-        return createUniformBuffer(Engine.getLogicalDevice(), Engine.getPhysicalDevice(), size);
+    public static VkBuffer createUniformBuffer(int size, @Nullable IntList sharedQueues) {
+        return createUniformBuffer(Engine.getLogicalDevice(), Engine.getPhysicalDevice(), size, sharedQueues);
     }
-    public static VkBuffer createUniformBuffer(VkDevice device, VkPhysicalDevice physicalDevice, int size) {
+    public static VkBuffer createUniformBuffer(VkDevice device, VkPhysicalDevice physicalDevice, int size, @Nullable IntList sharedQueues) {
         return createBuffer(device, physicalDevice, size,
                 VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                null);
+                VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                sharedQueues);
     }
 
     public static MutableList<VkBuffer> createUniformBuffers(int size, int amount) {

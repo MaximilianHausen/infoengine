@@ -87,6 +87,10 @@ public class Scene {
         events.invokeEvent(CoreEvents.ComponentRemoved, component);
     }
 
+    public boolean hasComponent(Class<? extends IComponent> componentType) {
+        return components.containsKey(componentType);
+    }
+
     /**
      * Retrieves a component from this scene
      * @param componentType The runtime type of the component to retrieve
@@ -118,6 +122,10 @@ public class Scene {
     public void removeGlobalComponent(@NotNull Class<? extends IGlobalComponent> componentType) {
         IGlobalComponent component = globalComponents.remove(componentType);
         events.invokeEvent(CoreEvents.GlobalComponentRemoved, component);
+    }
+
+    public boolean hasGlobalComponent(Class<? extends IGlobalComponent> componentType) {
+        return globalComponents.containsKey(componentType);
     }
 
     /**
@@ -154,6 +162,10 @@ public class Scene {
         if (isRunning) system.stop(this);
         system.removed(this);
         events.invokeEvent(CoreEvents.SystemRemoved, system);
+    }
+
+    public boolean hasSystem(@NotNull Class<? extends BaseSystem> systemType) {
+        return systems.containsKey(systemType);
     }
 
     public ImmutableIntSet getAllEntities() {
