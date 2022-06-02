@@ -40,18 +40,22 @@ public final class VkPhysicalDeviceHelper {
     }
 
     private static boolean isDeviceSuitable(VkPhysicalDevice device, long surface, Iterable<String> requiredExtensions) {
-        VkQueueHelper.QueueFamilyIndices indices = VkQueueHelper.findQueueFamilies(device, surface);
-        boolean extensionsSupported = checkDeviceExtensionSupport(device, Sets.mutable.ofAll(requiredExtensions));
-        boolean swapChainAdequate = false;
+        try (MemoryStack stack = stackPush()) {
+            VkQueueHelper.QueueFamilyIndices indices = VkQueueHelper.findQueueFamilies(device, surface);
+            boolean extensionsSupported = checkDeviceExtensionSupport(device, Sets.mutable.ofAll(requiredExtensions));
+            boolean swapChainAdequate = false;
 
-        if (extensionsSupported) {
-            try (MemoryStack stack = stackPush()) {
+            VkPhysicalDeviceFeatures supportedFeatures = VkPhysicalDeviceFeatures.calloc(stack);
+            vkGetPhysicalDeviceFeatures(device, supportedFeatures);
+
+            if (extensionsSupported) {
                 VkSwapchainHelper.SwapchainSupportDetails swapChainSupport = VkSwapchainHelper.querySwapChainSupport(device, surface);
-                swapChainAdequate = swapChainSupport.formats.hasRemaining() && swapChainSupport.presentModes.hasRemaining();
+                swapChainAdequate = swapChainSupport.formats().hasRemaining() && swapChainSupport.presentModes().hasRemaining();
             }
-        }
 
-        return indices.isComplete() && extensionsSupported && swapChainAdequate;
+            return indices.isComplete() && extensionsSupported && swapChainAdequate &&
+                    supportedFeatures.samplerAnisotropy();
+        }
     }
 
     // requiredExtensions will contain all extensions that are not supported

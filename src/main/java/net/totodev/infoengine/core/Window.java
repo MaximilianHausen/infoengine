@@ -62,7 +62,7 @@ public class Window implements IDisposable {
         vkImageFormat = swapchainCreationResult.imageFormat();
         vkExtent = swapchainCreationResult.extent();
 
-        vkImageViews = VkSwapchainHelper.createImageViews(Engine.getLogicalDevice(), vkImages, vkImageFormat);
+        vkImageViews = VkImageHelper.createImageViews(Engine.getLogicalDevice(), vkImages, vkImageFormat);
     }
 
     //region Random stuff

@@ -1,6 +1,8 @@
 package net.totodev.infoengine.rendering.vulkan;
 
 import net.totodev.infoengine.rendering.Image;
+import org.eclipse.collections.api.list.primitive.*;
+import org.eclipse.collections.impl.factory.primitive.LongLists;
 import org.joml.Vector3i;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -11,6 +13,18 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkImageHelper {
+    public static VkImage createTextureImage(VkDevice device, long commandPool, VkQueue queue, VkPhysicalDevice physicalDevice, Image image) {
+        VkBufferHelper.VkBuffer stagingBuffer = VkBufferHelper.createFilledBuffer(device, physicalDevice, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, image.pixels(), null);
+        VkImage vkImage = createImage(device, physicalDevice, image.width(), image.height(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+        transitionImageLayout(device, commandPool, queue, vkImage.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+        copyBufferToImage(device, queue, commandPool, stagingBuffer.buffer(), vkImage.image, new BufferImageCopyRegion(0, 1, 0, 1, new Vector3i(), new Vector3i(image.width(), image.height(), 1)));
+
+        transitionImageLayout(device, commandPool, queue, vkImage.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+
+        return vkImage;
+    }
+
     public record VkImage(long image, long imageMemory) {
     }
     public static VkImage createImage(VkDevice device, VkPhysicalDevice physicalDevice, int width, int height, int format, int tiling, int usage, int memProperties) {
@@ -45,16 +59,89 @@ public final class VkImageHelper {
         }
     }
 
-    public static VkImage createTextureImage(VkDevice device, long commandPool, VkQueue queue, VkPhysicalDevice physicalDevice, Image image) {
-        VkBufferHelper.VkBuffer stagingBuffer = VkBufferHelper.createFilledBuffer(device, physicalDevice, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, image.pixels(), null);
-        VkImage vkImage = createImage(device, physicalDevice, image.width(), image.height(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+    public static long createImageView(VkDevice device, long image, int imageFormats) {
+        try (MemoryStack stack = stackPush()) {
+            VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.calloc(stack);
+            createInfo.sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO);
+            createInfo.image(image);
+            createInfo.viewType(VK_IMAGE_VIEW_TYPE_2D);
+            createInfo.format(imageFormats);
 
-        transitionImageLayout(device, commandPool, queue, vkImage.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-        copyBufferToImage(device, queue, commandPool, stagingBuffer.buffer(), vkImage.image, new BufferImageCopyRegion(0, 1, 0, 1, new Vector3i(), new Vector3i(image.width(), image.height(), 1)));
+            // createInfo.components().r(VK_COMPONENT_SWIZZLE_IDENTITY);
+            // createInfo.components().g(VK_COMPONENT_SWIZZLE_IDENTITY);
+            // createInfo.components().b(VK_COMPONENT_SWIZZLE_IDENTITY);
+            // createInfo.components().a(VK_COMPONENT_SWIZZLE_IDENTITY);
 
-        transitionImageLayout(device, commandPool, queue, vkImage.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+            createInfo.subresourceRange().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT);
+            createInfo.subresourceRange().baseMipLevel(0);
+            createInfo.subresourceRange().levelCount(1);
+            createInfo.subresourceRange().baseArrayLayer(0);
+            createInfo.subresourceRange().layerCount(1);
 
-        return vkImage;
+            LongBuffer pImageView = stack.mallocLong(1);
+            if (vkCreateImageView(device, createInfo, null, pImageView) != VK_SUCCESS)
+                throw new RuntimeException("Failed to create image view");
+
+            return pImageView.get(0);
+        }
+    }
+    public static LongList createImageViews(VkDevice device, LongList images, int imageFormats) {
+        try (MemoryStack stack = stackPush()) {
+            VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.calloc(stack);
+            createInfo.sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO);
+            createInfo.viewType(VK_IMAGE_VIEW_TYPE_2D);
+            createInfo.format(imageFormats);
+
+            // createInfo.components().r(VK_COMPONENT_SWIZZLE_IDENTITY);
+            // createInfo.components().g(VK_COMPONENT_SWIZZLE_IDENTITY);
+            // createInfo.components().b(VK_COMPONENT_SWIZZLE_IDENTITY);
+            // createInfo.components().a(VK_COMPONENT_SWIZZLE_IDENTITY);
+
+            createInfo.subresourceRange().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT);
+            createInfo.subresourceRange().baseMipLevel(0);
+            createInfo.subresourceRange().levelCount(1);
+            createInfo.subresourceRange().baseArrayLayer(0);
+            createInfo.subresourceRange().layerCount(1);
+
+            MutableLongList imageViews = LongLists.mutable.empty();
+
+            images.forEach(image -> {
+                createInfo.image(image);
+
+                LongBuffer pImageView = stack.mallocLong(1);
+                if (vkCreateImageView(device, createInfo, null, pImageView) != VK_SUCCESS)
+                    throw new RuntimeException("Failed to create image views");
+
+                imageViews.add(pImageView.get(0));
+            });
+
+            return imageViews;
+        }
+    }
+
+    public static long createTextureSampler(VkDevice device, int magFilter, int minFilter, int addressMode, float anisotropy) {
+        try (MemoryStack stack = stackPush()) {
+            VkSamplerCreateInfo samplerInfo = VkSamplerCreateInfo.calloc(stack);
+            samplerInfo.sType(VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO);
+            samplerInfo.magFilter(magFilter);
+            samplerInfo.minFilter(minFilter);
+            samplerInfo.addressModeU(addressMode);
+            samplerInfo.addressModeV(addressMode);
+            samplerInfo.addressModeW(addressMode);
+            samplerInfo.anisotropyEnable(anisotropy != 0f);
+            samplerInfo.maxAnisotropy(anisotropy);
+            samplerInfo.borderColor(VK_BORDER_COLOR_INT_OPAQUE_BLACK);
+            samplerInfo.unnormalizedCoordinates(false);
+            samplerInfo.compareEnable(false);
+            samplerInfo.compareOp(VK_COMPARE_OP_ALWAYS);
+            samplerInfo.mipmapMode(VK_SAMPLER_MIPMAP_MODE_LINEAR);
+
+            LongBuffer pTextureSampler = stack.mallocLong(1);
+            if (vkCreateSampler(device, samplerInfo, null, pTextureSampler) != VK_SUCCESS)
+                throw new RuntimeException("Failed to create texture sampler");
+
+            return pTextureSampler.get(0);
+        }
     }
 
     public static void transitionImageLayout(VkDevice device, long commandPool, VkQueue queue, long image, int format, int oldLayout, int newLayout) {
@@ -103,8 +190,7 @@ public final class VkImageHelper {
         }
     }
 
-    public record BufferImageCopyRegion(long srcBufferOffset, int dstMipLevel, int dstArrayLayer,
-                                        int dstArrayLayerCount, Vector3i dstImageOffset, Vector3i dstImageSize) {
+    public record BufferImageCopyRegion(long srcBufferOffset, int dstMipLevel, int dstArrayLayer, int dstArrayLayerCount, Vector3i dstImageOffset, Vector3i dstImageSize) {
     }
     public static void copyBufferToImage(VkDevice device, VkQueue transferQueue, long commandPool, long srcBuffer, long dstImage, BufferImageCopyRegion... regions) {
         try (MemoryStack stack = stackPush()) {
@@ -132,6 +218,4 @@ public final class VkImageHelper {
             VkCommandBufferHelper.endSingleTimeCommands(device, commandPool, commandBuffer, transferQueue);
         }
     }
-
-
 }

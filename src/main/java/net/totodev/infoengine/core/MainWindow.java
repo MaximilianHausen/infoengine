@@ -19,7 +19,10 @@ public class MainWindow extends Window {
         Engine.setGraphicsQueueFamily(queueFamilies.graphicsFamily);
         Engine.setPresentQueueFamily(queueFamilies.presentFamily);
 
-        VkLogicalDeviceHelper.LogicalDeviceCreationResult deviceCreationResult = VkLogicalDeviceHelper.createLogicalDevice(Engine.getPhysicalDevice(), getVkSurface(), Engine.VULKAN_EXTENSIONS);
+        VkLogicalDeviceHelper.LogicalDeviceCreationResult deviceCreationResult = VkLogicalDeviceHelper.createLogicalDevice(Engine.getPhysicalDevice(), getVkSurface(), Engine.VULKAN_EXTENSIONS,
+                deviceFeatures -> {
+                    deviceFeatures.samplerAnisotropy(true);
+                });
         Engine.setLogicalDevice(deviceCreationResult.device());
         Engine.setGraphicsQueue(deviceCreationResult.graphicsQueue());
         Engine.setPresentQueue(deviceCreationResult.presentQueue());

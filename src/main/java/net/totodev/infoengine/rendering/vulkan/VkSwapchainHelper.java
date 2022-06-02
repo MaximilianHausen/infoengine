@@ -14,78 +14,36 @@ import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkSwapchainHelper {
-    public static class SwapchainSupportDetails {
-        public VkSurfaceCapabilitiesKHR capabilities;
-        public VkSurfaceFormatKHR.Buffer formats;
-        public IntBuffer presentModes;
+    public record SwapchainSupportDetails(VkSurfaceCapabilitiesKHR capabilities, VkSurfaceFormatKHR.Buffer formats, IntBuffer presentModes) {
     }
-
-    public record SwapchainCreationResult(long swapchain, LongList images, int imageFormat, VkExtent2D extent) {
-    }
-
     public static SwapchainSupportDetails querySwapChainSupport(VkPhysicalDevice device, long surface) {
         MemoryStack stack = stackGet();
-        SwapchainSupportDetails details = new SwapchainSupportDetails();
 
-        details.capabilities = VkSurfaceCapabilitiesKHR.malloc(stack);
-        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, details.capabilities);
+        VkSurfaceCapabilitiesKHR capabilities = VkSurfaceCapabilitiesKHR.malloc(stack);
+        vkGetPhysicalDeviceSurfaceCapabilitiesKHR(device, surface, capabilities);
 
         IntBuffer count = stack.ints(0);
         vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, count, null);
 
+        VkSurfaceFormatKHR.Buffer formats = null;
         if (count.get(0) != 0) {
-            details.formats = VkSurfaceFormatKHR.malloc(count.get(0), stack);
-            vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, count, details.formats);
+            formats = VkSurfaceFormatKHR.malloc(count.get(0), stack);
+            vkGetPhysicalDeviceSurfaceFormatsKHR(device, surface, count, formats);
         }
 
         vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, count, null);
 
+        IntBuffer presentModes = null;
         if (count.get(0) != 0) {
-            details.presentModes = stack.mallocInt(count.get(0));
-            vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, count, details.presentModes);
+            presentModes = stack.mallocInt(count.get(0));
+            vkGetPhysicalDeviceSurfacePresentModesKHR(device, surface, count, presentModes);
         }
 
-        return details;
+        return new SwapchainSupportDetails(capabilities, formats, presentModes);
     }
 
-    public static LongList createImageViews(LongList swapchainImages, int swapchainImageFormat) {
-        return createImageViews(Engine.getLogicalDevice(), swapchainImages, swapchainImageFormat);
+    public record SwapchainCreationResult(long swapchain, LongList images, int imageFormat, VkExtent2D extent) {
     }
-    public static LongList createImageViews(VkDevice device, LongList swapchainImages, int swapchainImageFormat) {
-        MutableLongList imageViews = LongLists.mutable.empty();
-
-        try (MemoryStack stack = stackPush()) {
-            LongBuffer pImageView = stack.mallocLong(1);
-
-            swapchainImages.forEach(swapchainImage -> {
-                VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.calloc(stack);
-
-                createInfo.sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO);
-                createInfo.image(swapchainImage);
-                createInfo.viewType(VK_IMAGE_VIEW_TYPE_2D);
-                createInfo.format(swapchainImageFormat);
-
-                createInfo.components().r(VK_COMPONENT_SWIZZLE_IDENTITY);
-                createInfo.components().g(VK_COMPONENT_SWIZZLE_IDENTITY);
-                createInfo.components().b(VK_COMPONENT_SWIZZLE_IDENTITY);
-                createInfo.components().a(VK_COMPONENT_SWIZZLE_IDENTITY);
-
-                createInfo.subresourceRange().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT);
-                createInfo.subresourceRange().baseMipLevel(0);
-                createInfo.subresourceRange().levelCount(1);
-                createInfo.subresourceRange().baseArrayLayer(0);
-                createInfo.subresourceRange().layerCount(1);
-
-                if (vkCreateImageView(device, createInfo, null, pImageView) != VK_SUCCESS)
-                    throw new RuntimeException("Failed to create image views");
-
-                imageViews.add(pImageView.get(0));
-            });
-        }
-
-        return imageViews;
-    }
-
     public static SwapchainCreationResult createSwapChain(Window window) {
         return createSwapChain(Engine.getLogicalDevice(), window.getVkSurface(), window.getSize().x, window.getSize().y);
     }
