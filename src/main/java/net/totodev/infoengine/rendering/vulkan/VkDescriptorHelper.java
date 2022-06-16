@@ -5,7 +5,7 @@ import org.lwjgl.vulkan.*;
 
 import java.nio.LongBuffer;
 
-import static org.lwjgl.system.MemoryStack.stackPush;
+import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkDescriptorHelper {
@@ -70,11 +70,39 @@ public final class VkDescriptorHelper {
         }
     }
 
+
+    public abstract static class DescriptorBinding {
+        public int binding;
+        public int descriptorType;
+        public int arrayOffset;
+
+        public BufferRegion[] buffers;
+        public Image[] images;
+    }
+
     public record BufferRegion(long buffer, long offset, long size) {
     }
-    public record DescriptorBufferBinding(int binding, int descriptorType, int arrayOffset, BufferRegion... buffers) {
+    public static class DescriptorBufferBinding extends DescriptorBinding {
+        public DescriptorBufferBinding(int binding, int descriptorType, int arrayOffset, BufferRegion... buffers) {
+            super.binding = binding;
+            super.descriptorType = descriptorType;
+            super.arrayOffset = arrayOffset;
+            super.buffers = buffers;
+        }
     }
-    public static long createDescriptorSet(VkDevice device, long descriptorPool, long descriptorSetLayout, DescriptorBufferBinding... bindings) {
+
+    public record Image(long imageView, long sampler, int imageLayout) {
+    }
+    public static class DescriptorImageBinding extends DescriptorBinding {
+        public DescriptorImageBinding(int binding, int descriptorType, int arrayOffset, Image... images) {
+            super.binding = binding;
+            super.descriptorType = descriptorType;
+            super.arrayOffset = arrayOffset;
+            super.images = images;
+        }
+    }
+
+    public static long createDescriptorSet(VkDevice device, long descriptorPool, long descriptorSetLayout, DescriptorBinding... bindings) {
         try (MemoryStack stack = stackPush()) {
             VkDescriptorSetAllocateInfo allocInfo = VkDescriptorSetAllocateInfo.calloc(stack);
             allocInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO);
@@ -88,31 +116,61 @@ public final class VkDescriptorHelper {
 
             VkWriteDescriptorSet.Buffer descriptorWrites = VkWriteDescriptorSet.calloc(bindings.length, stack);
             for (int i = 0; i < bindings.length; i++) {
-                DescriptorBufferBinding binding = bindings[i];
-
-                VkDescriptorBufferInfo.Buffer bufferInfos = VkDescriptorBufferInfo.calloc(binding.buffers().length, stack);
-                for (int j = 0; j < binding.buffers().length; j++) {
-                    BufferRegion bufferRegion = binding.buffers()[j];
-                    VkDescriptorBufferInfo bufferInfo = bufferInfos.get(j);
-                    bufferInfo.buffer(bufferRegion.buffer());
-                    bufferInfo.offset(bufferRegion.offset());
-                    bufferInfo.range(bufferRegion.size());
+                switch (bindings[i].descriptorType) {
+                    case VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER ->
+                            fillBufferDescriptorWrite(descriptorWrites.get(i), descriptorSet, bindings[i]);
+                    case VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER ->
+                            fillImageDescriptorWrite(descriptorWrites.get(i), descriptorSet, bindings[i]);
                 }
-
-                VkWriteDescriptorSet descriptorWrite = descriptorWrites.get(i);
-                descriptorWrite.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET);
-                descriptorWrite.dstSet(descriptorSet);
-                descriptorWrite.pBufferInfo(bufferInfos);
-
-                descriptorWrite.dstBinding(binding.binding());
-                descriptorWrite.dstArrayElement(binding.arrayOffset());
-                descriptorWrite.descriptorType(binding.descriptorType());
-                descriptorWrite.descriptorCount(binding.buffers().length);
             }
 
             vkUpdateDescriptorSets(device, descriptorWrites, null);
 
             return descriptorSet;
         }
+    }
+
+    private static void fillBufferDescriptorWrite(VkWriteDescriptorSet descriptorWrite, long descriptorSet, DescriptorBinding binding) {
+        MemoryStack stack = stackGet();
+
+        VkDescriptorBufferInfo.Buffer bufferInfos = VkDescriptorBufferInfo.calloc(binding.buffers.length, stack);
+        for (int i = 0; i < binding.buffers.length; i++) {
+            BufferRegion bufferRegion = binding.buffers[i];
+            VkDescriptorBufferInfo bufferInfo = bufferInfos.get(i);
+            bufferInfo.buffer(bufferRegion.buffer());
+            bufferInfo.offset(bufferRegion.offset());
+            bufferInfo.range(bufferRegion.size());
+        }
+
+        descriptorWrite.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET);
+        descriptorWrite.dstSet(descriptorSet);
+        descriptorWrite.pBufferInfo(bufferInfos);
+
+        descriptorWrite.dstBinding(binding.binding);
+        descriptorWrite.dstArrayElement(binding.arrayOffset);
+        descriptorWrite.descriptorType(binding.descriptorType);
+        descriptorWrite.descriptorCount(binding.buffers.length);
+    }
+
+    private static void fillImageDescriptorWrite(VkWriteDescriptorSet descriptorWrite, long descriptorSet, DescriptorBinding binding) {
+        MemoryStack stack = stackGet();
+
+        VkDescriptorImageInfo.Buffer imageInfos = VkDescriptorImageInfo.calloc(binding.images.length, stack);
+        for (int i = 0; i < binding.images.length; i++) {
+            Image image = binding.images[i];
+            VkDescriptorImageInfo imageInfo = imageInfos.get(i);
+            imageInfo.imageView(image.imageView());
+            imageInfo.sampler(image.sampler());
+            imageInfo.imageLayout(image.imageLayout());
+        }
+
+        descriptorWrite.sType(VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET);
+        descriptorWrite.dstSet(descriptorSet);
+        descriptorWrite.pImageInfo(imageInfos);
+
+        descriptorWrite.dstBinding(binding.binding);
+        descriptorWrite.dstArrayElement(binding.arrayOffset);
+        descriptorWrite.descriptorType(binding.descriptorType);
+        descriptorWrite.descriptorCount(binding.images.length);
     }
 }

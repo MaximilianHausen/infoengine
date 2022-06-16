@@ -1,5 +1,6 @@
 package net.totodev.infoengine.rendering.vulkan;
 
+import net.totodev.infoengine.rendering.VertexAttributeLayout;
 import net.totodev.infoengine.util.IO;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -25,13 +26,13 @@ public final class VkPipelineHelper {
 
             VkPipelineShaderStageCreateInfo.Buffer shaderStages = VkPipelineShaderStageCreateInfo.calloc(2, stack);
 
-            VkPipelineShaderStageCreateInfo vertShaderStageInfo = shaderStages.get(0)
+            shaderStages.get(0)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO)
                     .stage(VK_SHADER_STAGE_VERTEX_BIT)
                     .module(vertShaderModule)
                     .pName(entryPoint);
 
-            VkPipelineShaderStageCreateInfo fragShaderStageInfo = shaderStages.get(1)
+            shaderStages.get(1)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO)
                     .stage(VK_SHADER_STAGE_FRAGMENT_BIT)
                     .module(fragShaderModule)
@@ -39,27 +40,14 @@ public final class VkPipelineHelper {
 
             // ===> VERTEX STAGE <===
 
-            // Binding Description
-            VkVertexInputBindingDescription.Buffer bindingDescription =
-                    VkVertexInputBindingDescription.calloc(1, stack);
-
-            bindingDescription.binding(0);
-            bindingDescription.stride(2 * Float.BYTES);
-            bindingDescription.inputRate(VK_VERTEX_INPUT_RATE_VERTEX);
-
-            // Attribute Descriptions
-            VkVertexInputAttributeDescription.Buffer attributeDescriptions =
-                    VkVertexInputAttributeDescription.calloc(1, stack);
-
-            attributeDescriptions.binding(0);
-            attributeDescriptions.location(0);
-            attributeDescriptions.format(VK_FORMAT_R32G32_SFLOAT);
-            attributeDescriptions.offset(0);
+            VertexAttributeLayout vertexAttributeLayout = new VertexAttributeLayout();
+            vertexAttributeLayout.addAttribute(VK_FORMAT_R32G32_SFLOAT, 2 * Float.BYTES);
+            vertexAttributeLayout.addAttribute(VK_FORMAT_R32G32_SFLOAT, 2 * Float.BYTES);
 
             VkPipelineVertexInputStateCreateInfo vertexInputInfo = VkPipelineVertexInputStateCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
-                    .pVertexBindingDescriptions(bindingDescription)
-                    .pVertexAttributeDescriptions(attributeDescriptions);
+                    .pVertexBindingDescriptions(vertexAttributeLayout.buildBindingDescription())
+                    .pVertexAttributeDescriptions(vertexAttributeLayout.buildAttributeDescriptions());
 
             // ===> ASSEMBLY STAGE <===
 

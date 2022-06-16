@@ -1,5 +1,6 @@
 package net.totodev.infoengine.rendering.vulkan;
 
+import net.totodev.infoengine.core.Engine;
 import net.totodev.infoengine.rendering.Image;
 import org.eclipse.collections.api.list.primitive.*;
 import org.eclipse.collections.impl.factory.primitive.LongLists;
@@ -13,12 +14,15 @@ import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
 public final class VkImageHelper {
-    public static VkImage createTextureImage(VkDevice device, long commandPool, VkQueue queue, VkPhysicalDevice physicalDevice, Image image) {
+    public static VkImage createTextureImage(long commandPool, Image image) {
+        return createTextureImage(Engine.getLogicalDevice(), Engine.getPhysicalDevice(), Engine.getGraphicsQueue(), commandPool, image);
+    }
+    public static VkImage createTextureImage(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue queue, long commandPool, Image image) {
         VkBufferHelper.VkBuffer stagingBuffer = VkBufferHelper.createFilledBuffer(device, physicalDevice, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, image.pixels(), null);
         VkImage vkImage = createImage(device, physicalDevice, image.width(), image.height(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
         transitionImageLayout(device, commandPool, queue, vkImage.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-        copyBufferToImage(device, queue, commandPool, stagingBuffer.buffer(), vkImage.image, new BufferImageCopyRegion(0, 1, 0, 1, new Vector3i(), new Vector3i(image.width(), image.height(), 1)));
+        copyBufferToImage(device, queue, commandPool, stagingBuffer.buffer(), vkImage.image, new BufferImageCopyRegion(0, 0, 0, 1, new Vector3i(), new Vector3i(image.width(), image.height(), 1)));
 
         transitionImageLayout(device, commandPool, queue, vkImage.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
@@ -26,6 +30,9 @@ public final class VkImageHelper {
     }
 
     public record VkImage(long image, long imageMemory) {
+    }
+    public static VkImage createImage(int width, int height, int format, int tiling, int usage, int memProperties) {
+        return createImage(Engine.getLogicalDevice(), Engine.getPhysicalDevice(), width, height, format, tiling, usage, memProperties);
     }
     public static VkImage createImage(VkDevice device, VkPhysicalDevice physicalDevice, int width, int height, int format, int tiling, int usage, int memProperties) {
         try (MemoryStack stack = stackPush()) {
@@ -59,13 +66,16 @@ public final class VkImageHelper {
         }
     }
 
-    public static long createImageView(VkDevice device, long image, int imageFormats) {
+    public static long createImageView(long image, int imageFormat) {
+        return createImageView(Engine.getLogicalDevice(), image, imageFormat);
+    }
+    public static long createImageView(VkDevice device, long image, int imageFormat) {
         try (MemoryStack stack = stackPush()) {
             VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.calloc(stack);
             createInfo.sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO);
             createInfo.image(image);
             createInfo.viewType(VK_IMAGE_VIEW_TYPE_2D);
-            createInfo.format(imageFormats);
+            createInfo.format(imageFormat);
 
             // createInfo.components().r(VK_COMPONENT_SWIZZLE_IDENTITY);
             // createInfo.components().g(VK_COMPONENT_SWIZZLE_IDENTITY);
@@ -85,12 +95,15 @@ public final class VkImageHelper {
             return pImageView.get(0);
         }
     }
-    public static LongList createImageViews(VkDevice device, LongList images, int imageFormats) {
+    public static LongList createImageViews(LongList images, int imageFormat) {
+        return createImageViews(Engine.getLogicalDevice(), images, imageFormat);
+    }
+    public static LongList createImageViews(VkDevice device, LongList images, int imageFormat) {
         try (MemoryStack stack = stackPush()) {
             VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.calloc(stack);
             createInfo.sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO);
             createInfo.viewType(VK_IMAGE_VIEW_TYPE_2D);
-            createInfo.format(imageFormats);
+            createInfo.format(imageFormat);
 
             // createInfo.components().r(VK_COMPONENT_SWIZZLE_IDENTITY);
             // createInfo.components().g(VK_COMPONENT_SWIZZLE_IDENTITY);
@@ -119,6 +132,9 @@ public final class VkImageHelper {
         }
     }
 
+    public static long createTextureSampler(int magFilter, int minFilter, int addressMode, float anisotropy) {
+        return createTextureSampler(Engine.getLogicalDevice(), magFilter, minFilter, addressMode, anisotropy);
+    }
     public static long createTextureSampler(VkDevice device, int magFilter, int minFilter, int addressMode, float anisotropy) {
         try (MemoryStack stack = stackPush()) {
             VkSamplerCreateInfo samplerInfo = VkSamplerCreateInfo.calloc(stack);

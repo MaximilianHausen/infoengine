@@ -4,6 +4,7 @@ import net.totodev.infoengine.core.*;
 import net.totodev.infoengine.core.components.Transform2d;
 import net.totodev.infoengine.ecs.*;
 import net.totodev.infoengine.rendering.vulkan.*;
+import net.totodev.infoengine.util.IO;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
 import org.joml.Vector2f;
@@ -32,7 +33,8 @@ public class DebugSquareRenderer extends BaseSystem {
         Window window = Engine.getMainWindow();
 
         rendererConfig.descriptorSetLayout = VkDescriptorHelper.createDescriptorSetLayout(Engine.getLogicalDevice(),
-                new VkDescriptorHelper.DescriptorBindingInfo(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT));
+                new VkDescriptorHelper.DescriptorBindingInfo(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 1, VK_SHADER_STAGE_VERTEX_BIT),
+                new VkDescriptorHelper.DescriptorBindingInfo(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1, VK_SHADER_STAGE_FRAGMENT_BIT));
 
         rendererConfig.renderPass = VkRenderPassHelper.createRenderPass(window.getVkImageFormat());
         rendererConfig.graphicsPipeline = VkPipelineHelper.createGraphicsPipeline(Engine.getLogicalDevice(), window.getVkExtent(), rendererConfig.renderPass, rendererConfig.descriptorSetLayout);
@@ -46,9 +48,13 @@ public class DebugSquareRenderer extends BaseSystem {
         rendererConfig.inFlightFences.addAll(VkSyncObjectHelper.createFences(2));
 
         try (MemoryStack stack = stackPush()) {
-            ByteBuffer vertexData = stack.malloc(8 * 4);
-            vertexData.asFloatBuffer().put(new float[]{-0.1f, -0.1f, 0.1f, -0.1f, 0.1f, 0.1f, -0.1f, 0.1f});
-            ByteBuffer indexData = stack.malloc(6 * 2);
+            ByteBuffer vertexData = stack.malloc(16 * Float.BYTES);
+            vertexData.asFloatBuffer().put(new float[]{
+                    -0.1f, -0.1f, 0, 0,
+                    0.1f, -0.1f, 1, 0,
+                    0.1f, 0.1f, 1, 1,
+                    -0.1f, 0.1f, 0, 1});
+            ByteBuffer indexData = stack.malloc(6 * Short.BYTES);
             indexData.asShortBuffer().put(new short[]{0, 1, 2, 2, 3, 0});
 
             vertexBuffer = VkBufferHelper.createVertexBuffer(rendererConfig.commandPool, vertexData, null);
@@ -61,12 +67,19 @@ public class DebugSquareRenderer extends BaseSystem {
             }));
         }
 
+        VkImageHelper.VkImage image = VkImageHelper.createTextureImage(rendererConfig.commandPool, IO.loadImageFromFile(IO.getFileFromResource("image.png")));
+        long imageView = VkImageHelper.createImageView(image.image(), VK_FORMAT_R8G8B8A8_SRGB);
+        long sampler = VkImageHelper.createTextureSampler(VK_FILTER_NEAREST, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT, 0);
+
         rendererConfig.descriptorPool = VkDescriptorHelper.createDescriptorPool(Engine.getLogicalDevice(), 2,
-                new VkDescriptorHelper.DescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2));
+                new VkDescriptorHelper.DescriptorPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 2),
+                new VkDescriptorHelper.DescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 2));
         for (int i = 0; i < 2; i++) {
             rendererConfig.descriptorSets.add(VkDescriptorHelper.createDescriptorSet(Engine.getLogicalDevice(), rendererConfig.descriptorPool, rendererConfig.descriptorSetLayout,
                     new VkDescriptorHelper.DescriptorBufferBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 0,
-                            new VkDescriptorHelper.BufferRegion(uniformBuffers.get(i).buffer(), 0, 3 * 16 * Float.BYTES))));
+                            new VkDescriptorHelper.BufferRegion(uniformBuffers.get(i).buffer(), 0, 3 * 16 * Float.BYTES)),
+                    new VkDescriptorHelper.DescriptorImageBinding(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
+                            new VkDescriptorHelper.Image(imageView, sampler, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL))));
         }
     }
 
