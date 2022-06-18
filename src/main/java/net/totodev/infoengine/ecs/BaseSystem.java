@@ -1,5 +1,6 @@
 package net.totodev.infoengine.ecs;
 
+import net.totodev.infoengine.core.CoreEvents;
 import net.totodev.infoengine.util.logging.*;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
@@ -10,8 +11,8 @@ import org.jetbrains.annotations.MustBeInvokedByOverriders;
 import java.lang.invoke.*;
 import java.lang.reflect.InaccessibleObjectException;
 import java.util.Arrays;
+import java.util.stream.Stream;
 
-//TODO: Caching for components added or removed while the scene is running
 public abstract class BaseSystem {
     private Scene scene;
     private MutableList<Pair<String, MethodHandle>> eventSubscribers;
@@ -28,8 +29,6 @@ public abstract class BaseSystem {
     @MustBeInvokedByOverriders
     @SuppressWarnings("unchecked")
     public void start(Scene scene) {
-        getEventSubscribers().forEach(p -> scene.events.subscribe(p.getOne(), p.getTwo()));
-
         getCachedComponentSetters().forEach(t -> {
             try {
                 if (t.getOne())
@@ -37,9 +36,11 @@ public abstract class BaseSystem {
                 else
                     t.getThree().invoke(this, scene.getComponent((Class<? extends IComponent>) t.getTwo()));
             } catch (Throwable e) {
-                Logger.log(LogLevel.Error, "System", "Exception when setting cached components in class " + this.getClass().getName() + ".");
+                throw new RuntimeException(e);
             }
         });
+
+        getEventSubscribers().forEach(p -> scene.events.subscribe(p.getOne(), p.getTwo()));
     }
 
     @MustBeInvokedByOverriders
@@ -50,7 +51,7 @@ public abstract class BaseSystem {
             try {
                 t.getThree().invoke(this, null);
             } catch (Throwable e) {
-                Logger.log(LogLevel.Error, "System", "Exception when clearing cached components in class " + this.getClass().getName() + ".");
+                throw new RuntimeException(e);
             }
         });
     }
@@ -64,7 +65,7 @@ public abstract class BaseSystem {
 
         eventSubscribers = Lists.mutable.empty();
 
-        Arrays.stream(this.getClass().getDeclaredMethods())
+        Stream.concat(Arrays.stream(this.getClass().getDeclaredMethods()), Arrays.stream(BaseSystem.class.getDeclaredMethods()))
                 .filter(m -> m.isAnnotationPresent(EventSubscriber.class))
                 .forEach(m -> {
                     m.setAccessible(true);
@@ -106,5 +107,59 @@ public abstract class BaseSystem {
                 });
 
         return cachedComponentSetters;
+    }
+
+    @EventSubscriber(CoreEvents.ComponentAdded)
+    public void componentAdded(IComponent component) {
+        Class<? extends IComponent> componentType = component.getClass();
+        getCachedComponentSetters().forEach(t -> {
+            if (!t.getOne() && t.getTwo() == componentType) {
+                try {
+                    t.getThree().invoke(this, component);
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+    @EventSubscriber(CoreEvents.GlobalComponentAdded)
+    public void globalComponentAdded(IGlobalComponent component) {
+        Class<? extends IGlobalComponent> componentType = component.getClass();
+        getCachedComponentSetters().forEach(t -> {
+            if (t.getOne() && t.getTwo() == componentType) {
+                try {
+                    t.getThree().invoke(this, component);
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+
+    @EventSubscriber(CoreEvents.ComponentRemoved)
+    public void componentRemoved(IComponent component) {
+        Class<? extends IComponent> componentType = component.getClass();
+        getCachedComponentSetters().forEach(t -> {
+            if (!t.getOne() && t.getTwo() == componentType) {
+                try {
+                    t.getThree().invoke(this, null);
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
+    }
+    @EventSubscriber(CoreEvents.GlobalComponentRemoved)
+    public void globalComponentRemoved(IGlobalComponent component) {
+        Class<? extends IGlobalComponent> componentType = component.getClass();
+        getCachedComponentSetters().forEach(t -> {
+            if (t.getOne() && t.getTwo() == componentType) {
+                try {
+                    t.getThree().invoke(this, null);
+                } catch (Throwable e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        });
     }
 }

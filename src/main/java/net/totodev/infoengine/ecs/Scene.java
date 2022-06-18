@@ -1,7 +1,6 @@
 package net.totodev.infoengine.ecs;
 
 import net.totodev.infoengine.core.CoreEvents;
-import net.totodev.infoengine.util.logging.*;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.list.ImmutableList;
 import org.eclipse.collections.api.list.primitive.*;
@@ -26,6 +25,10 @@ public class Scene {
     private final MutableMap<Class<? extends BaseSystem>, BaseSystem> systems = Maps.mutable.empty();
 
     private boolean isRunning = false;
+
+    public boolean isRunning() {
+        return isRunning;
+    }
 
     public void start() {
         if (isRunning) return;
@@ -100,8 +103,6 @@ public class Scene {
     @SuppressWarnings("unchecked")
     public <T extends IComponent> T getComponent(@NotNull Class<T> componentType) {
         IComponent temp = components.get(componentType);
-        if (temp == null)
-            Logger.log(LogLevel.Error, "Scene", "Unable to find component of type " + componentType.getName() + " in this scene.");
         return (T) temp;
     }
 
@@ -137,8 +138,6 @@ public class Scene {
     @SuppressWarnings("unchecked")
     public <T extends IGlobalComponent> T getGlobalComponent(@NotNull Class<T> componentType) {
         IGlobalComponent temp = globalComponents.get(componentType);
-        if (temp == null)
-            Logger.log(LogLevel.Error, "Scene", "Unable to find global component of type " + componentType.getName() + " in this scene.");
         return (T) temp;
     }
 
@@ -178,17 +177,15 @@ public class Scene {
      * @return A list of all entities that have all the specified components
      */
     public @NotNull IntList getEntitiesByComponents(@NotNull Class<? extends IComponent>... componentTypes) {
-        // Get and filter instances for component types
-        ImmutableList<IComponent> requiredComponents = Lists.immutable
-                .fromStream(Arrays.stream(componentTypes).map(this::getComponent).filter(Objects::nonNull));
+        ImmutableList<IComponent> requiredComponents = Lists.immutable.fromStream(
+                Arrays.stream(componentTypes).map(this::getComponent).filter(Objects::nonNull));
+
+        if (requiredComponents.isEmpty()) return IntLists.immutable.empty();
 
         MutableIntList temp = IntLists.mutable.empty();
-        for (int e : entities.toArray()) {
-            boolean hasAllComponents = true;
-            for (IComponent c : requiredComponents)
-                if (!c.isPresentOn(e)) hasAllComponents = false;
-            if (hasAllComponents) temp.add(e);
-        }
+        entities.forEach(e -> {
+            if (requiredComponents.stream().allMatch(c -> c.isPresentOn(e))) temp.add(e);
+        });
 
         return temp;
     }
