@@ -25,7 +25,7 @@ public class SceneEvents {
                     } catch (WrongMethodTypeException e) {
                         Logger.log(LogLevel.Error, "SceneEvents", "Wrong arguments supplied to event " + name + " [" + e + "]");
                     } catch (Throwable e) {
-                        Logger.log(LogLevel.Error, "SceneEvents", "Error while invoking event " + name + " [" + e + "]");
+                        throw new RuntimeException(e);
                     }
                 }
             } else {
@@ -35,7 +35,7 @@ public class SceneEvents {
                     } catch (WrongMethodTypeException e) {
                         Logger.log(LogLevel.Error, "SceneEvents", "Wrong arguments supplied to event " + name + " [" + e + "]");
                     } catch (Throwable e) {
-                        Logger.log(LogLevel.Error, "SceneEvents", "Error while invoking event " + name + " [" + e + "]");
+                        throw new RuntimeException(e);
                     }
                 }
             }

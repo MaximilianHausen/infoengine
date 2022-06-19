@@ -51,9 +51,6 @@ public final class VkFramebufferHelper {
     }
     public static long createFramebuffer(VkDevice device, long imageView, int width, int height, long renderPass) {
         try (MemoryStack stack = stackPush()) {
-            LongBuffer attachments = stack.mallocLong(1);
-            LongBuffer pFramebuffer = stack.mallocLong(1);
-
             VkFramebufferCreateInfo framebufferInfo = VkFramebufferCreateInfo.calloc(stack);
             framebufferInfo.sType(VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO);
             framebufferInfo.renderPass(renderPass);
@@ -61,9 +58,9 @@ public final class VkFramebufferHelper {
             framebufferInfo.height(height);
             framebufferInfo.layers(1);
 
-            attachments.put(0, imageView);
-            framebufferInfo.pAttachments(attachments);
+            framebufferInfo.pAttachments(stack.longs(imageView));
 
+            LongBuffer pFramebuffer = stack.mallocLong(1);
             if (vkCreateFramebuffer(device, framebufferInfo, null, pFramebuffer) != VK_SUCCESS)
                 throw new RuntimeException("Failed to create framebuffer");
 

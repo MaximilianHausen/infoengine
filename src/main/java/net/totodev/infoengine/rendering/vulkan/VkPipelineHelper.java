@@ -13,7 +13,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public final class VkPipelineHelper {
     public record VkPipeline(long pipeline, long pipelineLayout) {
     }
-    public static VkPipeline createGraphicsPipeline(VkDevice device, VkExtent2D swapchainExtent, long renderPass, long descriptorSetLayout) {
+    public static VkPipeline createGraphicsPipeline(VkDevice device, VkExtent2D swapchainExtent, long renderPass, VertexAttributeLayout vertexLayout, long descriptorSetLayout) {
         //TODO: Configurable pipeline creation, multiple render passes
         try (MemoryStack stack = stackPush()) {
             ByteBuffer vertShaderSPIRV = IO.readFromResource("shaders/vert.spv");
@@ -40,14 +40,10 @@ public final class VkPipelineHelper {
 
             // ===> VERTEX STAGE <===
 
-            VertexAttributeLayout vertexAttributeLayout = new VertexAttributeLayout();
-            vertexAttributeLayout.addAttribute(VK_FORMAT_R32G32_SFLOAT, 2 * Float.BYTES);
-            vertexAttributeLayout.addAttribute(VK_FORMAT_R32G32_SFLOAT, 2 * Float.BYTES);
-
             VkPipelineVertexInputStateCreateInfo vertexInputInfo = VkPipelineVertexInputStateCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO)
-                    .pVertexBindingDescriptions(vertexAttributeLayout.buildBindingDescription())
-                    .pVertexAttributeDescriptions(vertexAttributeLayout.buildAttributeDescriptions());
+                    .pVertexBindingDescriptions(vertexLayout.buildBindingDescription())
+                    .pVertexAttributeDescriptions(vertexLayout.buildAttributeDescriptions());
 
             // ===> ASSEMBLY STAGE <===
 
@@ -110,9 +106,15 @@ public final class VkPipelineHelper {
 
             // ===> PIPELINE LAYOUT CREATION <===
 
+            VkPushConstantRange.Buffer pushConstantRanges = VkPushConstantRange.calloc(1, stack)
+                    .offset(0)
+                    .size(128)
+                    .stageFlags(VK_SHADER_STAGE_VERTEX_BIT);
+
             VkPipelineLayoutCreateInfo pipelineLayoutInfo = VkPipelineLayoutCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO)
-                    .pSetLayouts(stack.longs(descriptorSetLayout));
+                    .pPushConstantRanges(pushConstantRanges);
+                    //.pSetLayouts(stack.longs(descriptorSetLayout)); //FIXME
 
             LongBuffer pPipelineLayout = stack.longs(VK_NULL_HANDLE);
             if (vkCreatePipelineLayout(device, pipelineLayoutInfo, null, pPipelineLayout) != VK_SUCCESS)

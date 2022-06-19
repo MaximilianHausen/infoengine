@@ -42,14 +42,14 @@ public final class VkCommandBufferHelper {
         }
     }
 
-    public static long createCommandPool(int queueFamily) {
-        return createCommandPool(Engine.getLogicalDevice(), queueFamily);
+    public static long createCommandPool(int flags, int queueFamily) {
+        return createCommandPool(Engine.getLogicalDevice(), flags, queueFamily);
     }
-    public static long createCommandPool(VkDevice device, int queueFamily) {
+    public static long createCommandPool(VkDevice device, int flags, int queueFamily) {
         try (MemoryStack stack = stackPush()) {
             VkCommandPoolCreateInfo poolInfo = VkCommandPoolCreateInfo.calloc(stack);
             poolInfo.sType(VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO);
-            poolInfo.flags(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT);
+            poolInfo.flags(flags);
             poolInfo.queueFamilyIndex(queueFamily);
 
             LongBuffer pCommandPool = stack.mallocLong(1);

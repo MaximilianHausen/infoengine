@@ -5,19 +5,25 @@ import org.eclipse.collections.impl.factory.primitive.IntLists;
 import org.lwjgl.vulkan.*;
 
 import static org.lwjgl.system.MemoryStack.stackGet;
-import static org.lwjgl.vulkan.VK10.VK_VERTEX_INPUT_RATE_VERTEX;
 
 public class VertexAttributeLayout {
-    MutableIntList attributes = IntLists.mutable.empty();
-    MutableIntList attributeSizes = IntLists.mutable.empty();
+    private final MutableIntList attributes = IntLists.mutable.empty();
+    private final MutableIntList attributeSizes = IntLists.mutable.empty();
+
+    private final int inputRate;
+
+    public VertexAttributeLayout(int inputRate) {
+        this.inputRate = inputRate;
+    }
 
     /**
      * @param format The format of the attribute to add
      * @param formatSize The size of the specified format in bytes (Look it up at <a href="https://khronos.org/registry/vulkan/specs/1.3-extensions/man/html/VkFormat.html#_description">VkFormat Documentation</a>)
      */
-    public void addAttribute(int format, int formatSize) {
+    public VertexAttributeLayout addAttribute(int format, int formatSize) {
         attributes.add(format);
         attributeSizes.add(formatSize);
+        return this;
     }
 
     public VkVertexInputBindingDescription.Buffer buildBindingDescription() {
@@ -26,7 +32,7 @@ public class VertexAttributeLayout {
 
         bindingDescription.binding(0);
         bindingDescription.stride((int) attributeSizes.sum());
-        bindingDescription.inputRate(VK_VERTEX_INPUT_RATE_VERTEX);
+        bindingDescription.inputRate(inputRate);
 
         return bindingDescription;
     }

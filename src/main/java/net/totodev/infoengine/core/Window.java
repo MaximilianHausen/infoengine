@@ -67,7 +67,7 @@ public class Window implements IDisposable {
 
     //region Random stuff
     /**
-     * Processes all pending events. This should only be called from the main thread!
+     * Processes all pending events. This must be called from the main thread!
      */
     public static void pollEvents() {
         glfwPollEvents();
@@ -79,8 +79,8 @@ public class Window implements IDisposable {
     }
 
     /**
-     * Returns if the window should be closed (e.g. by clicking the close button).
-     * @return If window should be closed
+     * Returns whether the window should be closed (e.g. by clicking the close button).
+     * @return Whether window should be closed
      */
     public boolean shouldClose() {
         if (isDisposed) throw new WindowDisposedException();
