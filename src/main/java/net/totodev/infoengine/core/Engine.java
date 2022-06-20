@@ -8,6 +8,9 @@ import org.eclipse.collections.api.set.ImmutableSet;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.vulkan.*;
 
+import java.util.concurrent.*;
+import java.util.function.Consumer;
+
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.vulkan.EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT;
@@ -18,16 +21,15 @@ public class Engine {
     public static class ThreadLock {
     }
 
-    private static final Thread mainThread = Thread.currentThread();
+    public record WorkerResources(long commandPool) {
+    }
 
     public static final ImmutableSet<String> VULKAN_EXTENSIONS = Sets.immutable.of(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
     public static final ImmutableSet<String> VALIDATION_LAYERS = Sets.immutable.of("VK_LAYER_KHRONOS_validation");
 
-    private static final ThreadLock threadLock = new ThreadLock();
-    private static Runnable mainThreadAction;
-
     private static Window mainWindow;
 
+    //region Vulkan
     private static VkInstance vkInstance;
     private static long vkDebugManager;
     private static VkPhysicalDevice vkPhysicalDevice;
@@ -37,10 +39,23 @@ public class Engine {
     private static int presentQueueFamily;
     private static VkQueue graphicsQueue;
     private static VkQueue presentQueue;
+    //endregion
+
+    //region Threading
+    private static final Thread mainThread = Thread.currentThread();
+    private static final ThreadLock mainThreadLock = new ThreadLock();
+    private static Runnable mainThreadAction;
+
+    private static final ThreadPoolExecutor workers = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
+    private static final ThreadLocal<WorkerResources> workerResources = ThreadLocal.withInitial(() -> new WorkerResources(
+            VkCommandBufferHelper.createCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, getGraphicsQueueFamily())
+    ));
+    //endregion
 
     /**
-     * Initializes glfw and vulkan and creates a hidden main window. This should be called as soon as possible.
-     * @param appName      The name of this application, used to init vulkan and name the
+     * Initializes glfw and vulkan and creates a hidden main window.
+     * This should be called from the main thread as soon as possible.
+     * @param appName      The name of this application, used to init vulkan and name the main window
      * @param appVersion   The version of this application, used to init vulkan
      * @param windowWidth  The width of the main window in screen coordinates
      * @param windowHeight The height of the main window in screen coordinates
@@ -53,15 +68,20 @@ public class Engine {
         mainWindow = new MainWindow(appName, windowWidth, windowHeight, false);
     }
 
+    /**
+     * Locks this thread until the main window is closed or {@link Engine#terminate()} is called from another thread.
+     * While locked, code can be executed on this thread through {@link Engine#executeOnMainThread(Runnable)}. <br/>
+     * Must be called from the main thread.
+     */
     public static void start() {
         glfwSetWindowCloseCallback(mainWindow.getId(), windowId -> terminate());
 
         mainWindow.setVisible(true);
 
-        synchronized (threadLock) {
+        synchronized (mainThreadLock) {
             while (!Thread.interrupted()) {
                 try {
-                    threadLock.wait();
+                    mainThreadLock.wait();
                 } catch (InterruptedException e) {
                     break;
                 }
@@ -73,35 +93,49 @@ public class Engine {
         }
     }
 
-    public static void executeOnMainThread(Runnable action) {
-        mainThreadAction = action;
-        synchronized (threadLock) {
-            threadLock.notify();
+    public static void terminate() {
+        mainThread.interrupt();
+        cleanup();
+    }
+
+    /**
+     * Runs a task asynchronously on the main thread.
+     * The main thread must be locked in {@link Engine#start()}.
+     * @param task The task to run
+     */
+    public static void executeOnMainThread(Runnable task) {
+        //FIXME: Task override when run concurrently
+        mainThreadAction = task;
+        synchronized (mainThreadLock) {
+            mainThreadLock.notify();
         }
     }
 
-    public static void terminate() {
-        mainThread.interrupt();
-    }
-
-    private static void cleanup() {
-        mainWindow.dispose();
-        vkDestroyDevice(vkLogicalDevice, null);
-        if (vkDebugManager != 0 && vkGetInstanceProcAddr(vkInstance, "vkDestroyDebugUtilsMessengerEXT") != NULL)
-            vkDestroyDebugUtilsMessengerEXT(vkInstance, vkDebugManager, null);
-        vkDestroyInstance(vkInstance, null);
-        glfwTerminate();
+    /**
+     * Runs a task asynchronously on the worker thread pool.
+     * @param task The task to run
+     */
+    public static void executeOnWorkerPool(Consumer<WorkerResources> task) {
+        workers.execute(() -> task.accept(workerResources.get()));
     }
 
     private static void initGlfw() {
         GLFWErrorCallback.createPrint(System.err).set();
 
-        if (!glfwInit())
-            Logger.log(LogLevel.Critical, "GLFW", "GLFW could not be initialized");
+        if (!glfwInit()) throw new RuntimeException("GLFW could not be initialized");
 
         glfwDefaultWindowHints();
         glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+    }
+
+    private static void cleanup() {
+        mainWindow.close();
+        vkDestroyDevice(vkLogicalDevice, null);
+        if (vkDebugManager != 0 && vkGetInstanceProcAddr(vkInstance, "vkDestroyDebugUtilsMessengerEXT") != NULL)
+            vkDestroyDebugUtilsMessengerEXT(vkInstance, vkDebugManager, null);
+        vkDestroyInstance(vkInstance, null);
+        glfwTerminate();
     }
 
     public static VkInstance getVkInstance() {

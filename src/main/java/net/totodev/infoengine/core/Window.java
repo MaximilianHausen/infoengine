@@ -1,6 +1,5 @@
 package net.totodev.infoengine.core;
 
-import net.totodev.infoengine.*;
 import net.totodev.infoengine.rendering.vulkan.*;
 import net.totodev.infoengine.util.logging.*;
 import org.eclipse.collections.api.list.primitive.LongList;
@@ -21,9 +20,9 @@ import static org.lwjgl.vulkan.VK10.vkDestroyImageView;
  * Represents a glfw window
  * @see <a href="https://www.glfw.org/docs/latest/window_guide.html">GLFW Docs: Windows</a>
  */
-public class Window implements IDisposable {
+public class Window implements AutoCloseable {
     private final long id;
-    private boolean isDisposed;
+    private boolean closed = false;
     private WindowModes currentMode = WindowModes.Windowed;
     // Used to configure the window when exiting fullscreen
     private int lastWindowPosX = 0, lastWindowPosY = 0, lastWindowSizeX = 0, lastWindowSizeY = 0;
@@ -74,7 +73,7 @@ public class Window implements IDisposable {
     }
 
     public void requestAttention() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         glfwRequestWindowAttention(id);
     }
 
@@ -83,14 +82,14 @@ public class Window implements IDisposable {
      * @return Whether window should be closed
      */
     public boolean shouldClose() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         return glfwWindowShouldClose(id);
     }
     //endregion
 
     //region Minimize/Maximize
     public void minimize() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         if (currentMode == WindowModes.Fullscreen) {
             Logger.log(LogLevel.Error, "GLFW", "Window " + id + " could not be minimized because it is in not in windowed mode");
             return;
@@ -99,12 +98,12 @@ public class Window implements IDisposable {
         Logger.log(LogLevel.Error, "GLFW", "Window " + id + " minimized");
     }
     public boolean isMinimized() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         return glfwGetWindowAttrib(id, GLFW_ICONIFIED) == GLFW_TRUE;
     }
 
     public void maximize() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         if (currentMode == WindowModes.Fullscreen) {
             Logger.log(LogLevel.Error, "GLFW", "Window " + id + " could not be maximized because it is in not in windowed mode");
             return;
@@ -113,12 +112,12 @@ public class Window implements IDisposable {
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " maximized");
     }
     public boolean isMaximized() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         return glfwGetWindowAttrib(id, GLFW_MAXIMIZED) == GLFW_TRUE;
     }
 
     public void restore() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         if (currentMode == WindowModes.Fullscreen) {
             Logger.log(LogLevel.Error, "GLFW", "Window " + id + " could not be restores because it is in not in windowed mode");
             return;
@@ -130,7 +129,7 @@ public class Window implements IDisposable {
 
     //region Modes
     public void setMode(@NotNull WindowModes mode) {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         switch (mode) {
             case Windowed -> setWindowed();
             case Borderless -> Logger.log(LogLevel.Error, "GLFW", "Borderless mode is not supported yet");
@@ -174,12 +173,12 @@ public class Window implements IDisposable {
 
     //region Pos/Size
     public void setPos(int x, int y) {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         glfwSetWindowPos(id, x, y);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " moved to  {x=" + x + ", y=" + y + "}");
     }
     public Vector2i getPos() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         try (MemoryStack stack = stackPush()) {
             IntBuffer x = stack.mallocInt(1), y = stack.mallocInt(1);
             glfwGetWindowPos(id, x, y);
@@ -187,12 +186,12 @@ public class Window implements IDisposable {
         }
     }
     public void setSize(int x, int y) {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         glfwSetWindowSize(id, x, y);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " resized to  {x=" + x + ", y=" + y + "}");
     }
     public Vector2i getSize() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         try (MemoryStack stack = stackPush()) {
             IntBuffer x = stack.mallocInt(1), y = stack.mallocInt(1);
             glfwGetWindowSize(id, x, y);
@@ -200,7 +199,7 @@ public class Window implements IDisposable {
         }
     }
     public int getWidth() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         try (MemoryStack stack = stackPush()) {
             IntBuffer x = stack.mallocInt(1);
             glfwGetWindowSize(id, x, null);
@@ -208,7 +207,7 @@ public class Window implements IDisposable {
         }
     }
     public int getHeight() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         try (MemoryStack stack = stackPush()) {
             IntBuffer y = stack.mallocInt(1);
             glfwGetWindowSize(id, null, y);
@@ -222,100 +221,100 @@ public class Window implements IDisposable {
      * Use -1 to disable one value
      */
     public void setSizeLimit(int minX, int minY, int maxX, int maxY) {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         glfwSetWindowSizeLimits(id, minX, minY, maxX, maxY);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " size limits set to {minX=" + minX + ", minY=" + minY + "}, {maxX=" + maxX + ", maxY=" + maxY + "}");
     }
 
     public void setAspectRatio(int x, int y) {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         glfwSetWindowAspectRatio(id, x, y);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " aspect ratio set to {x=" + x + ", y=" + y + "}");
     }
 
     public void setTitle(String title) {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         glfwSetWindowTitle(id, title);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " title set to \"" + title + "\"");
     }
 
     public boolean isFocused() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         return glfwGetWindowAttrib(id, GLFW_FOCUSED) == GLFW_TRUE;
     }
     public void focus() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         glfwFocusWindow(id);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " focused");
     }
 
     public Vector2i getFramebufferSize() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         int[] x = new int[1], y = new int[1];
         glfwGetFramebufferSize(id, x, y);
         return new Vector2i(x[0], y[0]);
     }
 
     public Vector2f getContentScale() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         float[] x = new float[1], y = new float[1];
         glfwGetWindowContentScale(id, x, y);
         return new Vector2f(x[0], y[0]);
     }
 
     public boolean isHovered() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         return glfwGetWindowAttrib(id, GLFW_HOVERED) == GLFW_TRUE;
     }
     //endregion
 
     //region Attributes
     public boolean isVisible() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         return glfwGetWindowAttrib(id, GLFW_VISIBLE) == GLFW_TRUE;
     }
     public void setVisible(boolean bool) {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         if (bool) glfwShowWindow(id);
         else glfwHideWindow(id);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "visible" : "hidden"));
     }
 
     public float getOpacity() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         return glfwGetWindowOpacity(id);
     }
     public void setOpacity(float opacity) {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         glfwSetWindowOpacity(id, opacity);
     }
 
     public boolean isResizable() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         return glfwGetWindowAttrib(id, GLFW_RESIZABLE) == GLFW_TRUE;
     }
     public void setResizable(boolean bool) {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         glfwSetWindowAttrib(id, GLFW_RESIZABLE, bool ? GLFW_TRUE : GLFW_FALSE);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "resizable");
     }
 
     public boolean isDecorated() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         return glfwGetWindowAttrib(id, GLFW_DECORATED) == GLFW_TRUE;
     }
     public void setDecorated(boolean bool) {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         glfwSetWindowAttrib(id, GLFW_DECORATED, bool ? GLFW_TRUE : GLFW_FALSE);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "decorated");
     }
 
     public boolean isFloating() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         return glfwGetWindowAttrib(id, GLFW_FLOATING) == GLFW_TRUE;
     }
     public void setFloating(boolean bool) {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         glfwSetWindowAttrib(id, GLFW_FLOATING, bool ? GLFW_TRUE : GLFW_FALSE);
         Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "floating");
     }
@@ -343,27 +342,25 @@ public class Window implements IDisposable {
     //endregion
 
     public long getId() {
-        if (isDisposed) throw new WindowDisposedException();
+        if (closed) throw new WindowClosedException();
         return id;
     }
 
-    public void dispose() {
-        if (isDisposed) throw new WindowDisposedException();
+    @Override
+    public void close() {
+        if (closed) return;
         vkImageViews.forEach(imageView -> vkDestroyImageView(Engine.getLogicalDevice(), imageView, null));
         vkDestroySwapchainKHR(Engine.getLogicalDevice(), vkSwapchain, null);
         glfwDestroyWindow(id);
-        isDisposed = true;
-    }
-    public boolean isDisposed() {
-        return isDisposed;
+        closed = true;
     }
 
     /**
-     * This Exception is thrown when calling a method on a disposed window.
+     * This Exception is thrown when calling a method on a previously closed window.
      */
-    public static class WindowDisposedException extends DisposedException {
-        public WindowDisposedException() {
-            super("Window was already disposed");
+    public static class WindowClosedException extends RuntimeException {
+        public WindowClosedException() {
+            super("Window was already closed");
         }
     }
 }

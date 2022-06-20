@@ -18,11 +18,11 @@ public final class VkImageHelper {
         return createTextureImage(Engine.getLogicalDevice(), Engine.getPhysicalDevice(), Engine.getGraphicsQueue(), commandPool, image);
     }
     public static VkImage createTextureImage(VkDevice device, VkPhysicalDevice physicalDevice, VkQueue queue, long commandPool, Image image) {
-        VkBufferHelper.VkBuffer stagingBuffer = VkBufferHelper.createFilledBuffer(device, physicalDevice, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, image.pixels(), null);
-        VkImage vkImage = createImage(device, physicalDevice, image.width(), image.height(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+        VkBufferHelper.VkBuffer stagingBuffer = VkBufferHelper.createFilledBuffer(device, physicalDevice, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, image.getPixels(), null);
+        VkImage vkImage = createImage(device, physicalDevice, image.getWidth(), image.getHeight(), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 
         transitionImageLayout(device, commandPool, queue, vkImage.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
-        copyBufferToImage(device, queue, commandPool, stagingBuffer.buffer(), vkImage.image, new BufferImageCopyRegion(0, 0, 0, 1, new Vector3i(), new Vector3i(image.width(), image.height(), 1)));
+        copyBufferToImage(device, queue, commandPool, stagingBuffer.buffer(), vkImage.image, new BufferImageCopyRegion(0, 0, 0, 1, new Vector3i(), new Vector3i(image.getWidth(), image.getHeight(), 1)));
 
         transitionImageLayout(device, commandPool, queue, vkImage.image, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
