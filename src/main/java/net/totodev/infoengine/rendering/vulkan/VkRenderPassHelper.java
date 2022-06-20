@@ -1,12 +1,12 @@
 package net.totodev.infoengine.rendering.vulkan;
 
 import net.totodev.infoengine.core.Engine;
-import net.totodev.infoengine.util.lambda.*;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
 import java.nio.LongBuffer;
+import java.util.function.*;
 
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.KHRSwapchain.VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
@@ -16,7 +16,7 @@ public final class VkRenderPassHelper {
     public static long createRenderPass(int imageFormat) {
         return createRenderPass(Engine.getLogicalDevice(), imageFormat, 1, null, 1, null);
     }
-    public static long createRenderPass(VkDevice device, int imageFormat, int attachmentCount, @Nullable Action2<VkAttachmentDescription.Buffer, VkAttachmentReference.Buffer> attachmentConfig, int subpassCount, @Nullable Action1<VkSubpassDescription.Buffer> subpassConfig) {
+    public static long createRenderPass(VkDevice device, int imageFormat, int attachmentCount, @Nullable BiConsumer<VkAttachmentDescription.Buffer, VkAttachmentReference.Buffer> attachmentConfig, int subpassCount, @Nullable Consumer<VkSubpassDescription.Buffer> subpassConfig) {
         try (MemoryStack stack = stackPush()) {
             VkAttachmentDescription.Buffer attachments = VkAttachmentDescription.calloc(attachmentCount, stack);
             attachments.format(imageFormat);
@@ -32,7 +32,7 @@ public final class VkRenderPassHelper {
             attachmentRef.attachment(0);
             attachmentRef.layout(VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL);
 
-            if (attachmentConfig != null) attachmentConfig.run(attachments, attachmentRef);
+            if (attachmentConfig != null) attachmentConfig.accept(attachments, attachmentRef);
 
             //TODO: Non-Color attachments
             VkSubpassDescription.Buffer subpasses = VkSubpassDescription.calloc(subpassCount, stack);
@@ -40,7 +40,7 @@ public final class VkRenderPassHelper {
             subpasses.colorAttachmentCount(attachmentCount);
             subpasses.pColorAttachments(attachmentRef);
 
-            if (subpassConfig != null) subpassConfig.run(subpasses);
+            if (subpassConfig != null) subpassConfig.accept(subpasses);
 
             //TODO: Subpass dependency config
             VkSubpassDependency.Buffer dependency = VkSubpassDependency.calloc(1, stack);

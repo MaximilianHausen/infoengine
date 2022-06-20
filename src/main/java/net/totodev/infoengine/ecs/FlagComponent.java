@@ -1,6 +1,6 @@
 package net.totodev.infoengine.ecs;
 
-import net.totodev.infoengine.loading.ComponentDataModel;
+import net.totodev.infoengine.resources.scene.ComponentDataModel;
 import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.jetbrains.annotations.*;

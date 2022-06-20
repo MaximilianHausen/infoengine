@@ -1,17 +1,17 @@
 package net.totodev.infoengine.util.logging;
 
-import net.totodev.infoengine.util.lambda.Action1;
 import org.jetbrains.annotations.NotNull;
 
 import java.time.LocalTime;
+import java.util.function.Consumer;
 
 /**
- * A simple customizable logger. Set the logging target with {@link #setLogTarget(Action1)}.
+ * A simple customizable logger. Set the logging target with {@link #setLogTarget(Consumer)}.
  */
 public class Logger {
     private static LogLevel minLogLevel = LogLevel.Info;
-    private static Action1<String> logTarget = System.out::println;
-    private static Action1<String> errLogTarget = System.err::println;
+    private static Consumer<String> logTarget = System.out::println;
+    private static Consumer<String> errLogTarget = System.err::println;
 
     /**
      * Formats a log message and send it to the respective logging target.
@@ -23,9 +23,9 @@ public class Logger {
         if (logLevel.getValue() < minLogLevel.getValue())
             return;
         if (logLevel.getValue() > 2)
-            errLogTarget.run(formatMessage(logLevel, source, message));
+            errLogTarget.accept(formatMessage(logLevel, source, message));
         else
-            logTarget.run(formatMessage(logLevel, source, message));
+            logTarget.accept(formatMessage(logLevel, source, message));
     }
 
     /**
@@ -41,7 +41,7 @@ public class Logger {
      * Sets the target to send the normal messages to. Announces this change on both the new and the old target with a log level of Info.
      * @param target The new target
      */
-    public static void setLogTarget(@NotNull Action1<String> target) {
+    public static void setLogTarget(@NotNull Consumer<String> target) {
         log(LogLevel.Info, "Logger", "Log target changed. This target will no longer receive log messages.");
         logTarget = target;
         log(LogLevel.Info, "Logger", "Log target changed. This target will now receive all log messages.");
@@ -51,7 +51,7 @@ public class Logger {
      * Sets the target to send the error messages to. Announces this change on the non-error target with a log level of Info.
      * @param target The new error target
      */
-    public static void setErrLogTarget(@NotNull Action1<String> target) {
+    public static void setErrLogTarget(@NotNull Consumer<String> target) {
         errLogTarget = target;
         log(LogLevel.Info, "Logger", "Error log target changed.");
     }

@@ -2,7 +2,6 @@ package net.totodev.infoengine.core;
 
 import net.totodev.infoengine.rendering.vulkan.*;
 import net.totodev.infoengine.util.SemVer;
-import net.totodev.infoengine.util.lambda.Action;
 import net.totodev.infoengine.util.logging.*;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.ImmutableSet;
@@ -25,7 +24,7 @@ public class Engine {
     public static final ImmutableSet<String> VALIDATION_LAYERS = Sets.immutable.of("VK_LAYER_KHRONOS_validation");
 
     private static final ThreadLock threadLock = new ThreadLock();
-    private static Action mainThreadAction;
+    private static Runnable mainThreadAction;
 
     private static Window mainWindow;
 
@@ -74,7 +73,7 @@ public class Engine {
         }
     }
 
-    public static void executeOnMainThread(Action action) {
+    public static void executeOnMainThread(Runnable action) {
         mainThreadAction = action;
         synchronized (threadLock) {
             threadLock.notify();

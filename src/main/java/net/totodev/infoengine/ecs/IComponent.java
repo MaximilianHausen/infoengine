@@ -1,6 +1,6 @@
 package net.totodev.infoengine.ecs;
 
-import net.totodev.infoengine.loading.ComponentDataModel;
+import net.totodev.infoengine.resources.scene.ComponentDataModel;
 import org.eclipse.collections.api.IntIterable;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;

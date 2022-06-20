@@ -1,11 +1,12 @@
 package net.totodev.infoengine.rendering.vulkan;
 
 import net.totodev.infoengine.util.BufferUtils;
-import net.totodev.infoengine.util.lambda.Action1;
 import org.eclipse.collections.api.RichIterable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
+
+import java.util.function.Consumer;
 
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
@@ -14,7 +15,7 @@ public final class VkLogicalDeviceHelper {
     public record LogicalDeviceCreationResult(VkDevice device, VkQueue graphicsQueue, VkQueue presentQueue) {
     }
 
-    public static LogicalDeviceCreationResult createLogicalDevice(VkPhysicalDevice physicalDevice, long surface, RichIterable<String> extensions, Action1<VkPhysicalDeviceFeatures> deviceFeatureConfig) {
+    public static LogicalDeviceCreationResult createLogicalDevice(VkPhysicalDevice physicalDevice, long surface, RichIterable<String> extensions, Consumer<VkPhysicalDeviceFeatures> deviceFeatureConfig) {
         try (MemoryStack stack = stackPush()) {
             VkQueueHelper.QueueFamilyIndices indices = VkQueueHelper.findQueueFamilies(physicalDevice, surface);
             int[] uniqueQueueFamilies = indices.unique();
@@ -29,7 +30,7 @@ public final class VkLogicalDeviceHelper {
             }
 
             VkPhysicalDeviceFeatures deviceFeatures = VkPhysicalDeviceFeatures.calloc(stack);
-            deviceFeatureConfig.run(deviceFeatures);
+            deviceFeatureConfig.accept(deviceFeatures);
             deviceFeatures.samplerAnisotropy(true);
 
             VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc(stack);

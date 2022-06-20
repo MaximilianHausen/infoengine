@@ -1,4 +1,4 @@
-package net.totodev.infoengine.loading;
+package net.totodev.infoengine.resources.scene;
 
 import com.google.gson.*;
 import net.totodev.infoengine.ecs.*;

@@ -2,7 +2,7 @@ package net.totodev.infoengine.tests.loading;
 
 import net.totodev.infoengine.core.components.Transform3d;
 import net.totodev.infoengine.ecs.Scene;
-import net.totodev.infoengine.loading.SceneLoader;
+import net.totodev.infoengine.resources.scene.SceneLoader;
 import net.totodev.infoengine.tests.CamelCaseGenerator;
 import net.totodev.infoengine.util.IO;
 import org.joml.*;
