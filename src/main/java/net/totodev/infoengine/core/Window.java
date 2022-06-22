@@ -2,7 +2,7 @@ package net.totodev.infoengine.core;
 
 import net.totodev.infoengine.rendering.vulkan.*;
 import net.totodev.infoengine.util.logging.*;
-import org.eclipse.collections.api.list.primitive.LongList;
+import org.eclipse.collections.api.list.primitive.*;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 import org.lwjgl.system.MemoryStack;
@@ -55,7 +55,7 @@ public class Window implements AutoCloseable {
     }
 
     protected void initVulkan() {
-        VkSwapchainHelper.SwapchainCreationResult swapchainCreationResult = VkSwapchainHelper.createSwapChain(this);
+        VkSwapchainHelper.SwapchainCreationResult swapchainCreationResult = VkSwapchainHelper.createSwapChain(this, 3);
         vkSwapchain = swapchainCreationResult.swapchain();
         vkImages = swapchainCreationResult.images();
         vkImageFormat = swapchainCreationResult.imageFormat();

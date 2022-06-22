@@ -3,6 +3,7 @@ package net.totodev.infoengine.rendering.vulkan;
 import net.totodev.infoengine.core.*;
 import org.eclipse.collections.api.list.primitive.*;
 import org.eclipse.collections.impl.factory.primitive.LongLists;
+import org.joml.Math;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -44,27 +45,24 @@ public final class VkSwapchainHelper {
 
     public record SwapchainCreationResult(long swapchain, LongList images, int imageFormat, VkExtent2D extent) {
     }
-    public static SwapchainCreationResult createSwapChain(Window window) {
-        return createSwapChain(Engine.getLogicalDevice(), window.getVkSurface(), window.getSize().x, window.getSize().y);
+    public static SwapchainCreationResult createSwapChain(Window window, int imageCount) {
+        return createSwapChain(Engine.getLogicalDevice(), window.getVkSurface(), window.getSize().x, window.getSize().y, imageCount);
     }
-    public static SwapchainCreationResult createSwapChain(VkDevice device, long surface, int sizeX, int sizeY) {
+    public static SwapchainCreationResult createSwapChain(VkDevice device, long surface, int sizeX, int sizeY, int imageCount) {
         try (MemoryStack stack = stackPush()) {
             SwapchainSupportDetails swapChainSupport = querySwapChainSupport(device.getPhysicalDevice(), surface);
 
             VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
-            int presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
             VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities, sizeX, sizeY);
 
-            IntBuffer imageCount = stack.ints(swapChainSupport.capabilities.minImageCount() + 1);
-
-            if (swapChainSupport.capabilities.maxImageCount() > 0 && imageCount.get(0) > swapChainSupport.capabilities.maxImageCount())
-                imageCount.put(0, swapChainSupport.capabilities.maxImageCount());
+            imageCount = Math.clamp(swapChainSupport.capabilities.minImageCount(), swapChainSupport.capabilities.maxImageCount(), imageCount);
+            IntBuffer pImageCount = stack.ints(imageCount);
 
             VkSwapchainCreateInfoKHR createInfo = VkSwapchainCreateInfoKHR.calloc(stack);
             createInfo.sType(VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR);
             createInfo.surface(surface);
             // Image settings
-            createInfo.minImageCount(imageCount.get(0));
+            createInfo.minImageCount(imageCount);
             createInfo.imageFormat(surfaceFormat.format());
             createInfo.imageColorSpace(surfaceFormat.colorSpace());
             createInfo.imageExtent(extent);
@@ -82,7 +80,7 @@ public final class VkSwapchainHelper {
 
             createInfo.preTransform(swapChainSupport.capabilities.currentTransform());
             createInfo.compositeAlpha(VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR); //TODO: Transparent framebuffer here
-            createInfo.presentMode(presentMode);
+            createInfo.presentMode(VK_PRESENT_MODE_FIFO_KHR);
             createInfo.clipped(true);
 
             createInfo.oldSwapchain(VK_NULL_HANDLE);
@@ -92,9 +90,9 @@ public final class VkSwapchainHelper {
                 throw new RuntimeException("Failed to create swap chain");
             long swapchain = pSwapChain.get(0);
 
-            vkGetSwapchainImagesKHR(device, swapchain, imageCount, null);
-            LongBuffer pSwapchainImages = stack.mallocLong(imageCount.get(0));
-            vkGetSwapchainImagesKHR(device, swapchain, imageCount, pSwapchainImages);
+            vkGetSwapchainImagesKHR(device, swapchain, pImageCount, null);
+            LongBuffer pSwapchainImages = stack.mallocLong(imageCount);
+            vkGetSwapchainImagesKHR(device, swapchain, pImageCount, pSwapchainImages);
             MutableLongList swapchainImages = LongLists.mutable.empty();
 
             for (int i = 0; i < pSwapchainImages.capacity(); i++)
@@ -113,14 +111,6 @@ public final class VkSwapchainHelper {
                 .filter(availableFormat -> availableFormat.colorSpace() == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
                 .findAny()
                 .orElse(availableFormats.get(0));
-    }
-
-    private static int chooseSwapPresentMode(IntBuffer availablePresentModes) {
-        for (int i = 0; i < availablePresentModes.capacity(); i++)
-            if (availablePresentModes.get(i) == VK_PRESENT_MODE_MAILBOX_KHR)
-                return availablePresentModes.get(i);
-
-        return VK_PRESENT_MODE_FIFO_KHR;
     }
 
     private static VkExtent2D chooseSwapExtent(VkSurfaceCapabilitiesKHR capabilities, int windowWidth, int windowHeight) {

@@ -1,8 +1,12 @@
 package net.totodev.infoengine.rendering;
 
+import net.totodev.infoengine.core.Engine;
 import net.totodev.infoengine.ecs.IGlobalComponent;
 import net.totodev.infoengine.rendering.vulkan.VkPipelineHelper;
+import org.eclipse.collections.api.factory.Lists;
 import org.lwjgl.vulkan.VkCommandBuffer;
+
+import java.util.Arrays;
 
 public class VulkanObjects implements IGlobalComponent {
     public static class FrameData {
@@ -17,7 +21,13 @@ public class VulkanObjects implements IGlobalComponent {
         public VkCommandBuffer commandBuffer;
     }
 
-    public final FrameData[] frameData = new FrameData[]{new FrameData(), new FrameData()};
+    public VulkanObjects() {
+        frameData = new FrameData[Engine.getMainWindow().getVkImages().size()];
+        for (int i = 0; i < frameData.length; i++)
+            frameData[i] = new FrameData();
+    }
+
+    public final FrameData[] frameData;
 
     public long commandPool;
 

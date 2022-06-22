@@ -38,7 +38,7 @@ public class VertexAttributeLayout {
     }
 
     public VkVertexInputAttributeDescription.Buffer buildAttributeDescriptions() {
-        int attributeCount = attributes.count(i -> true);
+        int attributeCount = attributes.size();
 
         VkVertexInputAttributeDescription.Buffer attributeDescriptions =
                 VkVertexInputAttributeDescription.calloc(attributeCount, stackGet());

@@ -22,9 +22,10 @@ public class ImageResource {
 
     private static VkImageHelper.VkImage emptyImage;
 
+    private boolean loading = false;
+
     private final File file;
     private VkImageHelper.VkImage image;
-    private boolean loading = false;
 
     public ImageResource(File file) {
         if (!file.isFile())
@@ -38,6 +39,11 @@ public class ImageResource {
 
     public VkImageHelper.VkImage getImage() {
         if (loading) return emptyImage;
+        if (!isLoaded()) {
+            load();
+            return emptyImage;
+        }
+
         return image;
     }
 

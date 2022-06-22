@@ -1,5 +1,6 @@
 package net.totodev.infoengine.util;
 
+import net.totodev.infoengine.core.Engine;
 import net.totodev.infoengine.rendering.Image;
 import net.totodev.infoengine.util.logging.*;
 import org.jetbrains.annotations.*;
@@ -15,8 +16,9 @@ import java.nio.file.Files;
  * Temporary helper class for IO, used until proper resource handling is implemented
  */
 public class IO {
-    public static ByteBuffer readFromResource(String filePath) {
-        try (InputStream inputStream = ClassLoader.getSystemClassLoader().getResourceAsStream(filePath)) {
+    public static ByteBuffer readFromResource(String filePath, boolean fromEngine) {
+        ClassLoader classLoader = fromEngine ? Engine.class.getClassLoader() : ClassLoader.getSystemClassLoader();
+        try (InputStream inputStream = classLoader.getResourceAsStream(filePath)) {
             return readAllBytes(inputStream);
         } catch (IOException e) {
             throw new RuntimeException(e.getMessage());
@@ -41,8 +43,8 @@ public class IO {
         }
     }
 
-    public static @Nullable File getFileFromResource(@NotNull String fileName) {
-        ClassLoader classLoader = IO.class.getClassLoader();
+    public static File getFileFromResource(@NotNull String fileName, boolean fromEngine) {
+        ClassLoader classLoader = fromEngine ? Engine.class.getClassLoader() : ClassLoader.getSystemClassLoader();
         URL resource = classLoader.getResource(fileName);
         try {
             if (resource == null) return null;

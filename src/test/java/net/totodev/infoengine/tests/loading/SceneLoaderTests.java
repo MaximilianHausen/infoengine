@@ -14,7 +14,7 @@ import java.io.File;
 public class SceneLoaderTests {
     @Test
     public void loadEmpty() {
-        File testSceneFile = IO.getFileFromResource("json/emptyScene.json");
+        File testSceneFile = IO.getFileFromResource("json/emptyScene.json", false);
         if (testSceneFile == null)
             Assertions.fail("File not found in resources/json/emptyScene.json");
 
@@ -25,7 +25,7 @@ public class SceneLoaderTests {
 
     @Test
     public void load() {
-        File testSceneFile = IO.getFileFromResource("json/simpleTestScene.json");
+        File testSceneFile = IO.getFileFromResource("json/simpleTestScene.json", false);
         if (testSceneFile == null)
             Assertions.fail("File not found in resources/json/simpleTestScene.json");
 

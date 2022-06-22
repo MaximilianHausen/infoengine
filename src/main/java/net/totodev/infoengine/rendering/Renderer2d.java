@@ -39,7 +39,6 @@ public class Renderer2d extends BaseSystem {
         vulkanObjects.renderPass = VkRenderPassHelper.createRenderPass(window.getVkImageFormat());
         VertexAttributeLayout vertexLayout = new VertexAttributeLayout(VK_VERTEX_INPUT_RATE_INSTANCE)
                 .addAttribute(VK_FORMAT_R32G32_SFLOAT, 2 * Float.BYTES) // Size
-                .addAttribute(VK_FORMAT_R16_SINT, Float.BYTES) // Texture Index
                 .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES) // Model Matrix 1
                 .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES) // Model Matrix 2
                 .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES) // Model Matrix 3
@@ -49,16 +48,18 @@ public class Renderer2d extends BaseSystem {
         vulkanObjects.commandPool = VkCommandBufferHelper.createCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, Engine.getGraphicsQueueFamily());
 
         // Per-Frame resources
-        VkCommandBufferHelper.createCommandBuffers(vulkanObjects.commandPool, window.getVkImages().count(l -> true))
+        VkCommandBufferHelper.createCommandBuffers(vulkanObjects.commandPool, window.getVkImages().size())
                 .forEachWithIndex((c, j) -> vulkanObjects.frameData[j].commandBuffer = c);
         VkFramebufferHelper.createFramebuffers(window.getVkImageViews(), window.getVkExtent().width(), window.getVkExtent().height(), vulkanObjects.renderPass)
                 .forEachWithIndex((f, j) -> vulkanObjects.frameData[j].framebuffer = f);
 
-        VkSyncObjectHelper.createSemaphores(2).forEachWithIndex((s, j) -> vulkanObjects.frameData[j].imageAvailableSemaphore = s);
-        VkSyncObjectHelper.createSemaphores(2).forEachWithIndex((s, j) -> vulkanObjects.frameData[j].renderFinishedSemaphore = s);
-        VkSyncObjectHelper.createFences(2).forEachWithIndex((s, j) -> vulkanObjects.frameData[j].inFlightFence = s);
+        int imageCount = Engine.getMainWindow().getVkImages().size();
 
-        VkImageHelper.VkImage image = VkImageHelper.createTextureImage(vulkanObjects.commandPool, IO.loadImageFromFile(IO.getFileFromResource("image.png")));
+        VkSyncObjectHelper.createSemaphores(imageCount).forEachWithIndex((s, j) -> vulkanObjects.frameData[j].imageAvailableSemaphore = s);
+        VkSyncObjectHelper.createSemaphores(imageCount).forEachWithIndex((s, j) -> vulkanObjects.frameData[j].renderFinishedSemaphore = s);
+        VkSyncObjectHelper.createFences(imageCount).forEachWithIndex((s, j) -> vulkanObjects.frameData[j].inFlightFence = s);
+
+        VkImageHelper.VkImage image = VkImageHelper.createTextureImage(vulkanObjects.commandPool, IO.loadImageFromFile(IO.getFileFromResource("image.png", false)));
         long imageView = VkImageHelper.createImageView(image.image(), VK_FORMAT_R8G8B8A8_SRGB);
         long sampler = VkImageHelper.createTextureSampler(VK_FILTER_NEAREST, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT, 0);
 
@@ -94,10 +95,10 @@ public class Renderer2d extends BaseSystem {
 
             // Build instance buffer
             var entities = getScene().getAllEntities();
-            ByteBuffer instanceData = stack.malloc((2 * Float.BYTES + Integer.BYTES + 16 * Float.BYTES) * entities.count(e -> true));
+            ByteBuffer instanceData = stack.malloc((2 * Float.BYTES + 16 * Float.BYTES) * entities.size());
             entities.forEach(e -> {
                 Vector2f pos = transform.getPosition(e, new Vector2f());
-                new InstanceData(new Vector2f(1, 1), 0, new Matrix4f().setTranslation(pos.x, pos.y, 0)).writeToBuffer(instanceData);
+                new InstanceData(new Vector2f(1, 1), new Matrix4f().setTranslation(pos.x, pos.y, 0)).writeToBuffer(instanceData);
             });
             VkBufferHelper.VkBuffer instanceBuffer = VkBufferHelper.createFilledBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, instanceData, null);
 

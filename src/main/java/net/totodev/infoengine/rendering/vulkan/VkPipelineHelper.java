@@ -16,8 +16,8 @@ public final class VkPipelineHelper {
     public static VkPipeline createGraphicsPipeline(VkDevice device, VkExtent2D swapchainExtent, long renderPass, VertexAttributeLayout vertexLayout, long descriptorSetLayout) {
         //TODO: Configurable pipeline creation, multiple render passes
         try (MemoryStack stack = stackPush()) {
-            ByteBuffer vertShaderSPIRV = IO.readFromResource("shaders/vert.spv");
-            ByteBuffer fragShaderSPIRV = IO.readFromResource("shaders/frag.spv");
+            ByteBuffer vertShaderSPIRV = IO.readFromResource("shaders/vert.spv", true);
+            ByteBuffer fragShaderSPIRV = IO.readFromResource("shaders/frag.spv", true);
 
             long vertShaderModule = createShaderModule(device, vertShaderSPIRV);
             long fragShaderModule = createShaderModule(device, fragShaderSPIRV);

@@ -167,8 +167,8 @@ public class Scene {
         return systems.containsKey(systemType);
     }
 
-    public ImmutableIntSet getAllEntities() {
-        return entities.toImmutable();
+    public IntSet getAllEntities() {
+        return entities;
     }
 
     /**
