@@ -1,6 +1,9 @@
 # Sceneloading
+
 Scenes können aus Json-Dateien geladen und darin gespeichert werden. Jeder Component serialisiert seine Daten beim Speichern und deserialisiert sie beim Laden.
+
 ## Format
+
 ```json
 {
     "formatVersion": "1.0",
@@ -46,7 +49,9 @@ Scenes können aus Json-Dateien geladen und darin gespeichert werden. Jeder Comp
 - `globalComponents:` Wie normale Components, aber ohne Daten pro Entity.
 
 ## Code
-Um Scenes zu laden, gibt es die SceneLoader Klasse. 
+
+Um Scenes zu laden, gibt es die SceneLoader Klasse.
+
 ```java
 public static void foo() {
     Scene scene = SceneLoader.loadSceneFromFile(Path.of("./testScene.json"))
