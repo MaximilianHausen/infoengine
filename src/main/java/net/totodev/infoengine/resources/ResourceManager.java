@@ -1,15 +1,24 @@
 package net.totodev.infoengine.resources;
 
 import net.totodev.infoengine.resources.image.ImageResource;
+import org.eclipse.collections.api.bimap.MutableBiMap;
 import org.eclipse.collections.api.factory.*;
 import org.eclipse.collections.api.list.MutableList;
-import org.eclipse.collections.api.map.MutableMap;
 
 import java.io.File;
 import java.nio.file.*;
 
 public class ResourceManager {
-    private static final MutableMap<String, ImageResource> images = Maps.mutable.empty();
+    private static final MutableBiMap<String, ImageResource> images = BiMaps.mutable.empty();
+
+    public static String getResourceKey(IResource resource) {
+        //Throw if not loaded
+        return images.inverse().get(resource);
+    }
+
+    public static ImageResource getImage(String resourceKey) {
+        return images.get(resourceKey);
+    }
 
     public static void loadResourcePack(File directory) {
         if (!directory.isDirectory())

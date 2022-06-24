@@ -3,6 +3,7 @@ package net.totodev.infoengine.resources.image;
 import net.totodev.infoengine.core.Engine;
 import net.totodev.infoengine.rendering.Image;
 import net.totodev.infoengine.rendering.vulkan.VkImageHelper;
+import net.totodev.infoengine.resources.IResource;
 import net.totodev.infoengine.util.IO;
 import org.lwjgl.system.MemoryStack;
 
@@ -11,7 +12,7 @@ import java.io.File;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class ImageResource {
+public class ImageResource implements IResource {
     static {
         try (MemoryStack stack = stackPush()) {
             try (Image temp = new Image(stack.calloc(4 * Integer.BYTES), 1, 1, 4)) {
