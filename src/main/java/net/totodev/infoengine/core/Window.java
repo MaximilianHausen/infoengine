@@ -2,7 +2,7 @@ package net.totodev.infoengine.core;
 
 import net.totodev.infoengine.rendering.vulkan.*;
 import net.totodev.infoengine.util.logging.*;
-import org.eclipse.collections.api.list.primitive.*;
+import org.eclipse.collections.api.list.primitive.LongList;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 import org.lwjgl.system.MemoryStack;

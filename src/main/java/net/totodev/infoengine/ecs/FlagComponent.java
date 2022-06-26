@@ -5,7 +5,7 @@ import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.jetbrains.annotations.*;
 
-public class FlagComponent implements IComponent {
+public class FlagComponent implements Component {
     private final MutableIntSet set = IntSets.mutable.empty();
     public void addOnEntity(int entityId) {
         set.add(entityId);

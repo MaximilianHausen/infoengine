@@ -16,6 +16,13 @@ public class Updater extends BaseSystem {
     }
 
     private void updateLoop(Scene scene) {
+        while (!scene.isRunning()) {
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
         //TODO: Proper update scheduling
         while (!Thread.interrupted()) {
             long currentNanos = java.lang.System.nanoTime();

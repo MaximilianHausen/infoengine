@@ -2,31 +2,19 @@ package net.totodev.infoengine.resources.image;
 
 import net.totodev.infoengine.core.Engine;
 import net.totodev.infoengine.rendering.Image;
-import net.totodev.infoengine.rendering.vulkan.VkImageHelper;
-import net.totodev.infoengine.resources.IResource;
+import net.totodev.infoengine.rendering.vulkan.*;
+import net.totodev.infoengine.resources.Resource;
 import net.totodev.infoengine.util.IO;
-import org.lwjgl.system.MemoryStack;
 
 import java.io.File;
 
-import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.*;
 
-public class ImageResource implements IResource {
-    static {
-        try (MemoryStack stack = stackPush()) {
-            try (Image temp = new Image(stack.calloc(4 * Integer.BYTES), 1, 1, 4)) {
-                Engine.executeOnWorkerPool(r -> emptyImage = VkImageHelper.createTextureImage(r.commandPool(), temp));
-            }
-        }
-    }
-
-    private static VkImageHelper.VkImage emptyImage;
-
-    private boolean loading = false;
-
+public class ImageResource implements Resource, ImageProvider {
     private final File file;
     private VkImageHelper.VkImage image;
+    private long imageView;
+    private long sampler;
 
     public ImageResource(File file) {
         if (!file.isFile())
@@ -39,38 +27,45 @@ public class ImageResource implements IResource {
     }
 
     public VkImageHelper.VkImage getImage() {
-        if (loading) return emptyImage;
-        if (!isLoaded()) {
-            load();
-            return emptyImage;
-        }
-
+        if (!isLoaded()) load();
         return image;
+    }
+
+    public long getImageView() {
+        if (!isLoaded()) load();
+        return imageView;
+    }
+
+    public long getSampler() {
+        if (!isLoaded()) load();
+        return sampler;
     }
 
     public boolean isLoaded() {
         return image != null;
     }
 
-    public boolean isLoading() {
-        return loading;
-    }
-
     public void load() {
-        if (loading || isLoaded()) return;
-        loading = true;
+        if (isLoaded()) return;
         try (Image temp = IO.loadImageFromFile(file)) {
-            Engine.executeOnWorkerPool(r -> {
-                image = VkImageHelper.createTextureImage(r.commandPool(), temp);
-                loading = false;
-            });
+            //Engine.executeOnWorkerPool(r -> {
+            //FIXME
+                long commandPool = VkCommandBufferHelper.createCommandPool(0, Engine.getGraphicsQueueFamily());
+                image = VkImageHelper.createTextureImage(commandPool, temp);
+                imageView = VkImageHelper.createImageView(image.image(), VK_FORMAT_R8G8B8A8_SRGB);
+                sampler = VkImageHelper.createTextureSampler(VK_FILTER_NEAREST, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT, 0);
+            //});
         }
     }
 
     public void unload() {
-        if (loading || !isLoaded()) return;
+        if (!isLoaded()) return;
+        vkDestroySampler(Engine.getLogicalDevice(), sampler, null);
+        vkDestroyImageView(Engine.getLogicalDevice(), imageView, null);
         vkDestroyImage(Engine.getLogicalDevice(), image.image(), null);
         vkFreeMemory(Engine.getLogicalDevice(), image.imageMemory(), null);
+        sampler = 0;
+        imageView = 0;
         image = null;
     }
 }

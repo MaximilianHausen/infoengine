@@ -2,7 +2,7 @@ package net.totodev.infoengine.resources;
 
 import java.io.File;
 
-public interface IResource {
+public interface Resource {
     File getFile();
 
     /**

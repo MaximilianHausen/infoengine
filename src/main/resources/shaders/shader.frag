@@ -1,11 +1,14 @@
 #version 460
 
-//layout(binding = 1) uniform sampler2D texSampler;
+#define MAX_TEXTURES 128
 
-layout(location = 0) in vec2 fragTexCoord;
+layout(binding = 0) uniform sampler2D texSampler[MAX_TEXTURES];
 
-layout(location = 0) out vec4 outColor;
+layout(location = 0) flat in int in_texIndex;
+layout(location = 1) in vec2 in_texCoord;
+
+layout(location = 0) out vec4 fragColor;
 
 void main() {
-    outColor = vec4(fragTexCoord, 0.0, 1.0);//texture(texSampler, fragTexCoord);
+    fragColor = texture(texSampler[in_texIndex], in_texCoord);
 }

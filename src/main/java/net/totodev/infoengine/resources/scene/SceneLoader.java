@@ -52,7 +52,7 @@ public class SceneLoader {
         // Register and initialize components
         for (ComponentModel componentModel : sceneModel.components) {
             try {
-                IComponent component = (IComponent) Class.forName(componentModel.type).getDeclaredConstructor().newInstance();
+                Component component = (Component) Class.forName(componentModel.type).getDeclaredConstructor().newInstance();
                 scene.addComponent(component);
                 component.deserializeAllState(componentModel.data);
             } catch (ClassNotFoundException e) {
@@ -71,7 +71,7 @@ public class SceneLoader {
         //TODO: Reuse component objects as global components
         for (GlobalComponentModel componentModel : sceneModel.globalComponents) {
             try {
-                IGlobalComponent component = (IGlobalComponent) Class.forName(componentModel.type).getDeclaredConstructor().newInstance();
+                GlobalComponent component = (GlobalComponent) Class.forName(componentModel.type).getDeclaredConstructor().newInstance();
                 scene.addGlobalComponent(component);
                 component.deserializeState(componentModel.data);
             } catch (ClassNotFoundException e) {

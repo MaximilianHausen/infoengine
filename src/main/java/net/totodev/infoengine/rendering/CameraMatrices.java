@@ -1,12 +1,12 @@
 package net.totodev.infoengine.rendering;
 
 import net.totodev.infoengine.core.components.Transform2d;
-import net.totodev.infoengine.util.IBufferWritable;
+import net.totodev.infoengine.util.BufferWritable;
 import org.joml.*;
 
 import java.nio.ByteBuffer;
 
-public class CameraMatrices implements IBufferWritable {
+public class CameraMatrices implements BufferWritable {
     public Matrix4f view;
     public Matrix4f proj;
 

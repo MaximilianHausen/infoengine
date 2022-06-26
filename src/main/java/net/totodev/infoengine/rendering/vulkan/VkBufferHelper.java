@@ -1,7 +1,7 @@
 package net.totodev.infoengine.rendering.vulkan;
 
 import net.totodev.infoengine.core.Engine;
-import net.totodev.infoengine.util.IBufferWritable;
+import net.totodev.infoengine.util.BufferWritable;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.list.primitive.IntList;
@@ -43,6 +43,11 @@ public final class VkBufferHelper {
 
             return new VkBuffer(pBuffer.get(0), bufferMemory);
         }
+    }
+
+    public static void destroyBuffer(VkDevice device, VkBuffer buffer) {
+        vkDestroyBuffer(device, buffer.buffer, null);
+        vkFreeMemory(device, buffer.bufferMemory, null);
     }
 
     //region Specific
@@ -128,8 +133,7 @@ public final class VkBufferHelper {
 
         copyBuffer(device, transferQueue, commandPool, stagingBuffer.buffer, finalBuffer.buffer, new BufferCopyRegion(0, 0, bufferData.capacity()));
 
-        vkDestroyBuffer(device, stagingBuffer.buffer, null);
-        vkFreeMemory(device, stagingBuffer.bufferMemory, null);
+        destroyBuffer(device, stagingBuffer);
 
         return finalBuffer;
     }
@@ -158,10 +162,10 @@ public final class VkBufferHelper {
         }
     }
 
-    public static void writeBuffer(long bufferMemory, long offset, IBufferWritable data) {
+    public static void writeBuffer(long bufferMemory, long offset, BufferWritable data) {
         writeBuffer(Engine.getLogicalDevice(), bufferMemory, offset, data);
     }
-    public static void writeBuffer(VkDevice device, long bufferMemory, long offset, IBufferWritable data) {
+    public static void writeBuffer(VkDevice device, long bufferMemory, long offset, BufferWritable data) {
         try (MemoryStack stack = stackPush()) {
             PointerBuffer mappedRegion = stack.mallocPointer(1);
             vkMapMemory(device, bufferMemory, offset, data.bytes(), 0, mappedRegion);

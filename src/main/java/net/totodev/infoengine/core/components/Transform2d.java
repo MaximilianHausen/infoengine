@@ -1,6 +1,6 @@
 package net.totodev.infoengine.core.components;
 
-import net.totodev.infoengine.ecs.IComponent;
+import net.totodev.infoengine.ecs.Component;
 import net.totodev.infoengine.resources.scene.ComponentDataModel;
 import net.totodev.infoengine.util.SerializationUtils;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
@@ -8,7 +8,7 @@ import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.jetbrains.annotations.*;
 import org.joml.*;
 
-public class Transform2d implements IComponent {
+public class Transform2d implements Component {
     private final MutableIntObjectMap<Matrix3x2f> transforms = IntObjectMaps.mutable.empty();
 
     public Vector2f getPosition(int entityId, @NotNull Vector2f out) {

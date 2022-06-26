@@ -20,8 +20,8 @@ public class Scene {
     private final MutableIntStack freeIds = IntStacks.mutable.empty(); //TODO: FIFO Queue
     private int highestId = 0;
 
-    private final MutableMap<Class<? extends IComponent>, IComponent> components = Maps.mutable.empty();
-    private final MutableMap<Class<? extends IGlobalComponent>, IGlobalComponent> globalComponents = Maps.mutable.empty();
+    private final MutableMap<Class<? extends Component>, Component> components = Maps.mutable.empty();
+    private final MutableMap<Class<? extends GlobalComponent>, GlobalComponent> globalComponents = Maps.mutable.empty();
     private final MutableMap<Class<? extends BaseSystem>, BaseSystem> systems = Maps.mutable.empty();
 
     private boolean isRunning = false;
@@ -75,8 +75,8 @@ public class Scene {
      * Adds a component to this scene. If a component of this type has already been added, it will be overwritten.
      * @param component The component to add
      */
-    public void addComponent(@NotNull IComponent component) {
-        Class<? extends IComponent> componentType = component.getClass();
+    public void addComponent(@NotNull Component component) {
+        Class<? extends Component> componentType = component.getClass();
         components.put(componentType, component);
         events.invokeEvent(CoreEvents.ComponentAdded, component);
     }
@@ -85,12 +85,12 @@ public class Scene {
      * Removes a component from this scene.
      * @param componentType The runtime type of the component to remove
      */
-    public void removeComponent(@NotNull Class<? extends IComponent> componentType) {
-        IComponent component = components.remove(componentType);
+    public void removeComponent(@NotNull Class<? extends Component> componentType) {
+        Component component = components.remove(componentType);
         events.invokeEvent(CoreEvents.ComponentRemoved, component);
     }
 
-    public boolean hasComponent(Class<? extends IComponent> componentType) {
+    public boolean hasComponent(Class<? extends Component> componentType) {
         return components.containsKey(componentType);
     }
 
@@ -101,8 +101,8 @@ public class Scene {
      * @return The retrieved component
      */
     @SuppressWarnings("unchecked")
-    public <T extends IComponent> T getComponent(@NotNull Class<T> componentType) {
-        IComponent temp = components.get(componentType);
+    public <T extends Component> T getComponent(@NotNull Class<T> componentType) {
+        Component temp = components.get(componentType);
         return (T) temp;
     }
 
@@ -110,8 +110,8 @@ public class Scene {
      * Adds a global component to this scene. If a global component of this type has already been added, it will be overwritten.
      * @param component The global component to add
      */
-    public void addGlobalComponent(@NotNull IGlobalComponent component) {
-        Class<? extends IGlobalComponent> componentType = component.getClass();
+    public void addGlobalComponent(@NotNull GlobalComponent component) {
+        Class<? extends GlobalComponent> componentType = component.getClass();
         globalComponents.put(componentType, component);
         events.invokeEvent(CoreEvents.GlobalComponentAdded, component);
     }
@@ -120,12 +120,12 @@ public class Scene {
      * Removes a global component from this scene.
      * @param componentType The runtime type of the global component to remove
      */
-    public void removeGlobalComponent(@NotNull Class<? extends IGlobalComponent> componentType) {
-        IGlobalComponent component = globalComponents.remove(componentType);
+    public void removeGlobalComponent(@NotNull Class<? extends GlobalComponent> componentType) {
+        GlobalComponent component = globalComponents.remove(componentType);
         events.invokeEvent(CoreEvents.GlobalComponentRemoved, component);
     }
 
-    public boolean hasGlobalComponent(Class<? extends IGlobalComponent> componentType) {
+    public boolean hasGlobalComponent(Class<? extends GlobalComponent> componentType) {
         return globalComponents.containsKey(componentType);
     }
 
@@ -136,8 +136,8 @@ public class Scene {
      * @return The retrieved component
      */
     @SuppressWarnings("unchecked")
-    public <T extends IGlobalComponent> T getGlobalComponent(@NotNull Class<T> componentType) {
-        IGlobalComponent temp = globalComponents.get(componentType);
+    public <T extends GlobalComponent> T getGlobalComponent(@NotNull Class<T> componentType) {
+        GlobalComponent temp = globalComponents.get(componentType);
         return (T) temp;
     }
 
@@ -176,8 +176,8 @@ public class Scene {
      * @param componentTypes The components to check for
      * @return A list of all entities that have all the specified components
      */
-    public @NotNull IntList getEntitiesByComponents(@NotNull Class<? extends IComponent>... componentTypes) {
-        ImmutableList<IComponent> requiredComponents = Lists.immutable.fromStream(
+    public @NotNull IntList getEntitiesByComponents(@NotNull Class<? extends Component>... componentTypes) {
+        ImmutableList<Component> requiredComponents = Lists.immutable.fromStream(
                 Arrays.stream(componentTypes).map(this::getComponent).filter(Objects::nonNull));
 
         if (requiredComponents.isEmpty()) return IntLists.immutable.empty();

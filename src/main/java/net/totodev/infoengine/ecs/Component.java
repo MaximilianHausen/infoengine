@@ -6,7 +6,7 @@ import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.impl.factory.Lists;
 import org.jetbrains.annotations.*;
 
-public interface IComponent {
+public interface Component {
     /**
      * Adds this component to an entity.
      * @param entityId The entity id to add this component to

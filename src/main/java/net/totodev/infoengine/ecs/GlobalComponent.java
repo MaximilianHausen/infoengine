@@ -1,6 +1,6 @@
 package net.totodev.infoengine.ecs;
 
-public interface IGlobalComponent {
+public interface GlobalComponent {
     String serializeState();
     void deserializeState(String data);
 }

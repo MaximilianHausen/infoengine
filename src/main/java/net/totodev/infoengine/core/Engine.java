@@ -2,7 +2,6 @@ package net.totodev.infoengine.core;
 
 import net.totodev.infoengine.rendering.vulkan.*;
 import net.totodev.infoengine.util.SemVer;
-import net.totodev.infoengine.util.logging.*;
 import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.lwjgl.glfw.GLFWErrorCallback;

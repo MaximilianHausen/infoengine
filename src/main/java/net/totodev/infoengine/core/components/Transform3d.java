@@ -1,6 +1,6 @@
 package net.totodev.infoengine.core.components;
 
-import net.totodev.infoengine.ecs.IComponent;
+import net.totodev.infoengine.ecs.Component;
 import net.totodev.infoengine.resources.scene.ComponentDataModel;
 import net.totodev.infoengine.util.SerializationUtils;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
@@ -9,7 +9,7 @@ import org.jetbrains.annotations.*;
 import org.joml.*;
 
 //TODO: Parents, Local/Parent(World)/World(Recursive)
-public class Transform3d implements IComponent {
+public class Transform3d implements Component {
     private final MutableIntObjectMap<Matrix4f> transforms = IntObjectMaps.mutable.empty();
 
     /**

@@ -11,7 +11,7 @@ import java.nio.file.*;
 public class ResourceManager {
     private static final MutableBiMap<String, ImageResource> images = BiMaps.mutable.empty();
 
-    public static String getResourceKey(IResource resource) {
+    public static String getResourceKey(Resource resource) {
         //Throw if not loaded
         return images.inverse().get(resource);
     }

@@ -18,6 +18,7 @@ public final class VkDescriptorHelper {
     public record DescriptorBindingInfo(int binding, int descriptorType, int descriptorCount, int shaderStages) {
     }
     public static long createDescriptorSetLayout(VkDevice device, DescriptorBindingInfo... bindings) {
+        //TODO: Bindless flags
         try (MemoryStack stack = stackPush()) {
             VkDescriptorSetLayoutBinding.Buffer vkBindings = VkDescriptorSetLayoutBinding.calloc(bindings.length, stack);
             for (int i = 0; i < bindings.length; i++) {
@@ -30,9 +31,9 @@ public final class VkDescriptorHelper {
                 vkBinding.stageFlags(binding.shaderStages);
             }
 
-            VkDescriptorSetLayoutCreateInfo layoutInfo = VkDescriptorSetLayoutCreateInfo.calloc(stack);
-            layoutInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO);
-            layoutInfo.pBindings(vkBindings);
+            VkDescriptorSetLayoutCreateInfo layoutInfo = VkDescriptorSetLayoutCreateInfo.calloc(stack)
+                    .sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO)
+                    .pBindings(vkBindings);
 
             LongBuffer pDescriptorSetLayout = stack.mallocLong(1);
             if (vkCreateDescriptorSetLayout(device, layoutInfo, null, pDescriptorSetLayout) != VK_SUCCESS)

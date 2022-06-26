@@ -1,6 +1,6 @@
 package net.totodev.infoengine.rendering;
 
-import net.totodev.infoengine.ecs.IComponent;
+import net.totodev.infoengine.ecs.Component;
 import net.totodev.infoengine.resources.scene.ComponentDataModel;
 import net.totodev.infoengine.util.SerializationUtils;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
@@ -8,7 +8,7 @@ import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.jetbrains.annotations.*;
 import org.joml.Vector2f;
 
-public class Camera2d implements IComponent {
+public class Camera2d implements Component {
     private final MutableIntObjectMap<Vector2f> sizes = IntObjectMaps.mutable.empty();
     private final MutableIntObjectMap<Vector2f> offsets = IntObjectMaps.mutable.empty();
 

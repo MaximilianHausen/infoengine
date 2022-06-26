@@ -1,8 +1,8 @@
 package net.totodev.infoengine.core.components;
 
-import net.totodev.infoengine.ecs.IGlobalComponent;
+import net.totodev.infoengine.ecs.GlobalComponent;
 
-public class UpdateRate implements IGlobalComponent {
+public class UpdateRate implements GlobalComponent {
     public int updateRate = 60;
 
     public String serializeState() {

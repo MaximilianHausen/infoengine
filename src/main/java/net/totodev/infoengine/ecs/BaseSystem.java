@@ -32,9 +32,9 @@ public abstract class BaseSystem {
         getCachedComponentSetters().forEach(t -> {
             try {
                 if (t.getOne())
-                    t.getThree().invoke(this, scene.getGlobalComponent((Class<? extends IGlobalComponent>) t.getTwo()));
+                    t.getThree().invoke(this, scene.getGlobalComponent((Class<? extends GlobalComponent>) t.getTwo()));
                 else
-                    t.getThree().invoke(this, scene.getComponent((Class<? extends IComponent>) t.getTwo()));
+                    t.getThree().invoke(this, scene.getComponent((Class<? extends Component>) t.getTwo()));
             } catch (Throwable e) {
                 throw new RuntimeException(e);
             }
@@ -93,9 +93,9 @@ public abstract class BaseSystem {
                     Class<?> fieldType = f.getType();
                     try {
                         f.setAccessible(true);
-                        if (IComponent.class.isAssignableFrom(fieldType))
+                        if (Component.class.isAssignableFrom(fieldType))
                             cachedComponentSetters.add(Tuples.triple(false, fieldType, MethodHandles.lookup().unreflectSetter(f)));
-                        else if (IGlobalComponent.class.isAssignableFrom(fieldType))
+                        else if (GlobalComponent.class.isAssignableFrom(fieldType))
                             cachedComponentSetters.add(Tuples.triple(true, fieldType, MethodHandles.lookup().unreflectSetter(f)));
                         else
                             Logger.log(LogLevel.Error, "System", "Skipped cached component because the type " + fieldType.getName() + " of field " + f.getName() + " does not implement IComponent or IGlobalComponent.");
@@ -110,8 +110,8 @@ public abstract class BaseSystem {
     }
 
     @EventSubscriber(CoreEvents.ComponentAdded)
-    public void componentAdded(IComponent component) {
-        Class<? extends IComponent> componentType = component.getClass();
+    public void componentAdded(Component component) {
+        Class<? extends Component> componentType = component.getClass();
         getCachedComponentSetters().forEach(t -> {
             if (!t.getOne() && t.getTwo() == componentType) {
                 try {
@@ -123,8 +123,8 @@ public abstract class BaseSystem {
         });
     }
     @EventSubscriber(CoreEvents.GlobalComponentAdded)
-    public void globalComponentAdded(IGlobalComponent component) {
-        Class<? extends IGlobalComponent> componentType = component.getClass();
+    public void globalComponentAdded(GlobalComponent component) {
+        Class<? extends GlobalComponent> componentType = component.getClass();
         getCachedComponentSetters().forEach(t -> {
             if (t.getOne() && t.getTwo() == componentType) {
                 try {
@@ -137,8 +137,8 @@ public abstract class BaseSystem {
     }
 
     @EventSubscriber(CoreEvents.ComponentRemoved)
-    public void componentRemoved(IComponent component) {
-        Class<? extends IComponent> componentType = component.getClass();
+    public void componentRemoved(Component component) {
+        Class<? extends Component> componentType = component.getClass();
         getCachedComponentSetters().forEach(t -> {
             if (!t.getOne() && t.getTwo() == componentType) {
                 try {
@@ -150,8 +150,8 @@ public abstract class BaseSystem {
         });
     }
     @EventSubscriber(CoreEvents.GlobalComponentRemoved)
-    public void globalComponentRemoved(IGlobalComponent component) {
-        Class<? extends IGlobalComponent> componentType = component.getClass();
+    public void globalComponentRemoved(GlobalComponent component) {
+        Class<? extends GlobalComponent> componentType = component.getClass();
         getCachedComponentSetters().forEach(t -> {
             if (t.getOne() && t.getTwo() == componentType) {
                 try {
