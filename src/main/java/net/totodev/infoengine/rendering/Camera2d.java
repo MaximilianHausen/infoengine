@@ -37,14 +37,18 @@ public class Camera2d implements Component {
     }
 
     //region IComponent
+    @Override
     public void addOnEntity(int entityId) {
         sizes.put(entityId, new Vector2f());
         offsets.put(entityId, new Vector2f());
     }
+    @Override
     public void removeFromEntity(int entityId) {
         sizes.remove(entityId);
         offsets.remove(entityId);
     }
+
+    @Override
     public void deserializeState(@NotNull ComponentDataModel data) {
         if (!isPresentOn(data.entity))
             addOnEntity(data.entity);
@@ -53,12 +57,15 @@ public class Camera2d implements Component {
         sizes.get(data.entity).set(deserializedData[0], deserializedData[1]);
         offsets.get(data.entity).set(deserializedData[2], deserializedData[3]);
     }
+    @Override
     public @Nullable String serializeState(int entityId) {
         if (!isPresentOn(entityId)) return null;
         Vector2f size = sizes.get(entityId);
         Vector2f offset = offsets.get(entityId);
         return SerializationUtils.serialize(size.x, size.y, offset.x, offset.y);
     }
+
+    @Override
     public boolean isPresentOn(int entityId) {
         return sizes.containsKey(entityId);
     }

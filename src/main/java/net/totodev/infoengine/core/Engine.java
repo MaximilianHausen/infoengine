@@ -64,7 +64,7 @@ public class Engine {
 
         vkInstance = VkInstanceHelper.createInstance(appName, appVersion, VALIDATION_LAYERS);
         vkDebugManager = VkDebugUtilsHelper.createDebugMessenger(vkInstance);
-        mainWindow = new MainWindow(appName, windowWidth, windowHeight, false);
+        mainWindow = new MainWindow(appName, windowWidth, windowHeight, true);
     }
 
     /**

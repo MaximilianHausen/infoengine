@@ -1,10 +1,10 @@
 #version 460
 
-layout(location = 0) in vec2 in_texIndex;
+layout(location = 0) in int in_texIndex;
 layout(location = 1) in vec2 in_size;
 layout(location = 2) in mat4 in_modelMatrix;
 
-layout(location = 0) out vec2 out_texIndex;
+layout(location = 0) out int out_texIndex;
 layout(location = 1) out vec2 out_texCoord;
 
 layout(push_constant) uniform constants {

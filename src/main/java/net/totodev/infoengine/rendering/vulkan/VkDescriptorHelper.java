@@ -6,7 +6,9 @@ import org.lwjgl.vulkan.*;
 import java.nio.LongBuffer;
 
 import static org.lwjgl.system.MemoryStack.*;
+import static org.lwjgl.vulkan.EXTDescriptorIndexing.VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT;
 import static org.lwjgl.vulkan.VK10.*;
+import static org.lwjgl.vulkan.VK12.VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
 
 public final class VkDescriptorHelper {
     /**
@@ -33,7 +35,8 @@ public final class VkDescriptorHelper {
 
             VkDescriptorSetLayoutCreateInfo layoutInfo = VkDescriptorSetLayoutCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO)
-                    .pBindings(vkBindings);
+                    .pBindings(vkBindings)
+                    .flags(VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT);
 
             LongBuffer pDescriptorSetLayout = stack.mallocLong(1);
             if (vkCreateDescriptorSetLayout(device, layoutInfo, null, pDescriptorSetLayout) != VK_SUCCESS)
@@ -63,6 +66,7 @@ public final class VkDescriptorHelper {
             poolInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO);
             poolInfo.pPoolSizes(vkPoolSizes);
             poolInfo.maxSets(maxSets);
+            poolInfo.flags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT);
 
             LongBuffer pDescriptorPool = stack.mallocLong(1);
             if (vkCreateDescriptorPool(device, poolInfo, null, pDescriptorPool) != VK_SUCCESS)

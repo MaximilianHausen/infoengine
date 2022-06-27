@@ -2,6 +2,7 @@ package net.totodev.infoengine.core;
 
 import net.totodev.infoengine.rendering.vulkan.*;
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.vulkan.*;
 
 /**
  * A window with all the first-time vulkan setup that depends on a surface
@@ -19,10 +20,15 @@ public class MainWindow extends Window {
         Engine.setGraphicsQueueFamily(queueFamilies.graphicsFamily);
         Engine.setPresentQueueFamily(queueFamilies.presentFamily);
 
+        VkPhysicalDeviceDescriptorIndexingFeaturesEXT indexingFeatures = VkPhysicalDeviceDescriptorIndexingFeaturesEXT.calloc()
+                .sType(VK13.VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES)
+                .runtimeDescriptorArray(true)
+                .descriptorBindingPartiallyBound(true);
+
         VkLogicalDeviceHelper.LogicalDeviceCreationResult deviceCreationResult = VkLogicalDeviceHelper.createLogicalDevice(Engine.getPhysicalDevice(), getVkSurface(), Engine.VULKAN_EXTENSIONS,
                 deviceFeatures -> {
                     deviceFeatures.samplerAnisotropy(true);
-                });
+                }, indexingFeatures.address());
         Engine.setLogicalDevice(deviceCreationResult.device());
         Engine.setGraphicsQueue(deviceCreationResult.graphicsQueue());
         Engine.setPresentQueue(deviceCreationResult.presentQueue());

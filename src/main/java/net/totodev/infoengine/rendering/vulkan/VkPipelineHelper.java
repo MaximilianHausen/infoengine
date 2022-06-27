@@ -113,13 +113,13 @@ public final class VkPipelineHelper {
 
             VkPipelineLayoutCreateInfo pipelineLayoutInfo = VkPipelineLayoutCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO)
-                    .pPushConstantRanges(pushConstantRanges);
-                    //.pSetLayouts(stack.longs(descriptorSetLayout)); //FIXME
+                    .pPushConstantRanges(pushConstantRanges)
+                    .pSetLayouts(stack.longs(descriptorSetLayout));
 
             LongBuffer pPipelineLayout = stack.longs(VK_NULL_HANDLE);
             if (vkCreatePipelineLayout(device, pipelineLayoutInfo, null, pPipelineLayout) != VK_SUCCESS)
                 throw new RuntimeException("Failed to create pipeline layout");
-            long pipelineLayout = pPipelineLayout.get(0); // Global
+            long pipelineLayout = pPipelineLayout.get(0);
 
             // ===> PIPELINE CREATION <===
 

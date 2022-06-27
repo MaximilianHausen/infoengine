@@ -95,24 +95,29 @@ public class Transform3d implements Component {
     }
 
     //region IComponent
+    @Override
     public void addOnEntity(int entityId) {
         transforms.put(entityId, new Matrix4f());
     }
+    @Override
     public void removeFromEntity(int entityId) {
         transforms.remove(entityId);
     }
 
+    @Override
     public void deserializeState(@NotNull ComponentDataModel data) {
         if (!isPresentOn(data.entity))
             addOnEntity(data.entity);
 
         transforms.get(data.entity).set(SerializationUtils.deserialize(data.value));
     }
+    @Override
     public @Nullable String serializeState(int entityId) {
         if (!isPresentOn(entityId)) return null;
         return SerializationUtils.serialize(transforms.get(entityId).get(new float[16]));
     }
 
+    @Override
     public boolean isPresentOn(int entityId) {
         return transforms.containsKey(entityId);
     }

@@ -15,7 +15,8 @@ public final class VkLogicalDeviceHelper {
     public record LogicalDeviceCreationResult(VkDevice device, VkQueue graphicsQueue, VkQueue presentQueue) {
     }
 
-    public static LogicalDeviceCreationResult createLogicalDevice(VkPhysicalDevice physicalDevice, long surface, RichIterable<String> extensions, Consumer<VkPhysicalDeviceFeatures> deviceFeatureConfig) {
+    public static LogicalDeviceCreationResult createLogicalDevice(VkPhysicalDevice physicalDevice, long surface, RichIterable<String> extensions, Consumer<VkPhysicalDeviceFeatures> deviceFeatureConfig, long pNext) {
+        //TODO: Fix this
         try (MemoryStack stack = stackPush()) {
             VkQueueHelper.QueueFamilyIndices indices = VkQueueHelper.findQueueFamilies(physicalDevice, surface);
             int[] uniqueQueueFamilies = indices.unique();
@@ -33,11 +34,12 @@ public final class VkLogicalDeviceHelper {
             deviceFeatureConfig.accept(deviceFeatures);
             deviceFeatures.samplerAnisotropy(true);
 
-            VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc(stack);
-            createInfo.sType(VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO);
-            createInfo.pQueueCreateInfos(queueCreateInfos);
-            createInfo.pEnabledFeatures(deviceFeatures);
-            createInfo.ppEnabledExtensionNames(BufferUtils.asPointerBuffer(extensions));
+            VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc(stack)
+                    .sType(VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO)
+                    .pQueueCreateInfos(queueCreateInfos)
+                    .pEnabledFeatures(deviceFeatures)
+                    .ppEnabledExtensionNames(BufferUtils.asPointerBuffer(extensions))
+                    .pNext(pNext);
 
             PointerBuffer pDevice = stack.pointers(VK_NULL_HANDLE);
             if (vkCreateDevice(physicalDevice, createInfo, null, pDevice) != VK_SUCCESS)

@@ -8,6 +8,7 @@ import net.totodev.infoengine.resources.image.ImageProvider;
 import net.totodev.infoengine.util.BufferWritable;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
+import org.eclipse.collections.api.list.primitive.IntList;
 import org.joml.*;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
@@ -29,7 +30,6 @@ public class Renderer2d extends BaseSystem {
     private Transform2d transform;
     @CachedComponent
     private Camera2d camera;
-
     @CachedComponent
     private Sprite2d sprite2d;
 
@@ -43,7 +43,7 @@ public class Renderer2d extends BaseSystem {
         Window window = Engine.getMainWindow();
 
         vulkanObjects.descriptorSetLayout = VkDescriptorHelper.createDescriptorSetLayout(Engine.getLogicalDevice(),
-                new VkDescriptorHelper.DescriptorBindingInfo(1, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 128, VK_SHADER_STAGE_FRAGMENT_BIT));
+                new VkDescriptorHelper.DescriptorBindingInfo(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 128, VK_SHADER_STAGE_FRAGMENT_BIT));
 
         vulkanObjects.renderPass = VkRenderPassHelper.createRenderPass(window.getVkImageFormat());
         VertexAttributeLayout vertexLayout = new VertexAttributeLayout(VK_VERTEX_INPUT_RATE_INSTANCE)
@@ -70,8 +70,6 @@ public class Renderer2d extends BaseSystem {
         VkSyncObjectHelper.createSemaphores(imageCount).forEachWithIndex((s, j) -> vulkanObjects.frameResources[j].renderFinishedSemaphore = s);
         VkSyncObjectHelper.createFences(imageCount).forEachWithIndex((s, j) -> vulkanObjects.frameResources[j].inFlightFence = s);
 
-        long sampler = VkImageHelper.createTextureSampler(VK_FILTER_NEAREST, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT, 0);
-
         vulkanObjects.descriptorPool = VkDescriptorHelper.createDescriptorPool(Engine.getLogicalDevice(), imageCount,
                 new VkDescriptorHelper.DescriptorPoolSize(VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 128 * imageCount));
     }
@@ -82,6 +80,9 @@ public class Renderer2d extends BaseSystem {
     @EventSubscriber(CoreEvents.Update)
     public void drawFrame() {
         Engine.executeOnMainThread(GLFW::glfwPollEvents);
+
+        IntList entities = getScene().getEntitiesByComponents(Sprite2d.class);
+        if (entities.size() == 0) return;
 
         try (MemoryStack stack = stackPush()) {
             VulkanObjects.FrameResources frameResource = vulkanObjects.frameResources[lastImageIndex == 2 ? 0 : lastImageIndex + 1];
@@ -102,7 +103,6 @@ public class Renderer2d extends BaseSystem {
             LongBuffer signalSemaphores = stack.longs(frameResource.renderFinishedSemaphore);
 
             //region Build frame data
-            var entities = getScene().getEntitiesByComponents(Sprite2d.class);
             MutableList<ImageProvider> images = Lists.mutable.empty();
 
             ByteBuffer instanceData = stack.malloc((Integer.BYTES + 2 * Float.BYTES + 16 * Float.BYTES) * entities.size());
@@ -123,7 +123,7 @@ public class Renderer2d extends BaseSystem {
                     VkBufferHelper.createFilledBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, instanceData, null),
                     VkDescriptorHelper.createDescriptorSet(Engine.getLogicalDevice(), vulkanObjects.descriptorPool, vulkanObjects.descriptorSetLayout,
                             new VkDescriptorHelper.DescriptorImageBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
-                                    (VkDescriptorHelper.Image[]) images.stream().map(i -> new VkDescriptorHelper.Image(i.getImageView(), i.getSampler(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)).toArray())));
+                                    images.stream().map(i -> new VkDescriptorHelper.Image(i.getImageView(), i.getSampler(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)).toArray(VkDescriptorHelper.Image[]::new))));
             //endregion
 
             VkCommandBuffer commandBuffer = frameResource.commandBuffer;

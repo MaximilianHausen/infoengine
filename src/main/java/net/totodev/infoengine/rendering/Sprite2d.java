@@ -21,19 +21,26 @@ public class Sprite2d implements Component {
     }
 
     //region IComponent
+    @Override
     public void addOnEntity(int entityId) {
         images.put(entityId, null);
     }
+    @Override
     public void removeFromEntity(int entityId) {
         images.remove(entityId);
     }
+
+    @Override
     public void deserializeState(@NotNull ComponentDataModel data) {
         images.put(data.entity, ResourceManager.getImage(data.value));
     }
+    @Override
     public @Nullable String serializeState(int entityId) {
         if (!isPresentOn(entityId)) return null;
         return images.get(entityId).getResourceKey();
     }
+
+    @Override
     public boolean isPresentOn(int entityId) {
         return images.containsKey(entityId);
     }
