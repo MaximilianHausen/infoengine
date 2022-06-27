@@ -9,8 +9,10 @@ import org.lwjgl.system.MemoryStack;
 
 import java.io.*;
 import java.net.*;
-import java.nio.ByteBuffer;
+import java.nio.*;
 import java.nio.file.Files;
+
+import static org.lwjgl.system.MemoryStack.stackPush;
 
 /**
  * Temporary helper class for IO, used until proper resource handling is implemented
@@ -59,8 +61,10 @@ public class IO {
     }
 
     public static @NotNull Image loadImageFromFile(@NotNull File file, @Range(from = 1, to = 4) int desiredChannels) {
-        int[] width = new int[1], height = new int[1], channels = new int[1];
-        ByteBuffer pixels = STBImage.stbi_load(file.getPath(), width, height, channels, desiredChannels);
-        return new Image(pixels, width[0], height[0], desiredChannels);
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer width = stack.callocInt(1), height = stack.callocInt(1), channels = stack.callocInt(1);
+            ByteBuffer pixels = STBImage.stbi_load(file.getPath(), width, height, channels, desiredChannels);
+            return new Image(pixels, width.get(0), height.get(0), desiredChannels);
+        }
     }
 }
