@@ -45,7 +45,7 @@ public final class Image implements AutoCloseable {
     @Override
     public void close() {
         if (closed) return;
-        //STBImage.stbi_image_free(pixels); FIXME: Image disposal
+        STBImage.stbi_image_free(pixels.rewind());
         closed = true;
     }
 
