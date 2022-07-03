@@ -170,7 +170,7 @@ public final class VkBufferHelper {
             PointerBuffer mappedRegion = stack.mallocPointer(1);
             vkMapMemory(device, bufferMemory, offset, data.bytes(), 0, mappedRegion);
             {
-                data.writeToBuffer(mappedRegion.getByteBuffer(0, data.bytes()));
+                data.writeToBuffer(mappedRegion.getByteBuffer(0, data.bytes()), 0);
             }
             vkUnmapMemory(device, bufferMemory);
         }

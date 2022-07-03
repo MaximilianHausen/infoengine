@@ -7,8 +7,11 @@ import java.nio.LongBuffer;
 
 import static org.lwjgl.system.MemoryStack.*;
 import static org.lwjgl.vulkan.VK10.*;
+import static org.lwjgl.vulkan.VK12.*;
 
 public final class VkDescriptorHelper {
+    //TODO: No hardcoded flags (update after bind)
+
     /**
      * @param binding         The binding number set in the shader
      * @param descriptorType  The type of this descriptor. See: {@link VK10#VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER}
@@ -18,7 +21,6 @@ public final class VkDescriptorHelper {
     public record DescriptorBindingInfo(int binding, int descriptorType, int descriptorCount, int shaderStages) {
     }
     public static long createDescriptorSetLayout(VkDevice device, DescriptorBindingInfo... bindings) {
-        //TODO: Bindless flags
         try (MemoryStack stack = stackPush()) {
             VkDescriptorSetLayoutBinding.Buffer vkBindings = VkDescriptorSetLayoutBinding.calloc(bindings.length, stack);
 
@@ -33,6 +35,7 @@ public final class VkDescriptorHelper {
 
             VkDescriptorSetLayoutCreateInfo layoutInfo = VkDescriptorSetLayoutCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO)
+                    .flags(VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT)
                     .pBindings(vkBindings);
 
             LongBuffer pDescriptorSetLayout = stack.callocLong(1);
@@ -59,13 +62,13 @@ public final class VkDescriptorHelper {
                 vkPoolSize.descriptorCount(poolSize.count);
             }
 
-            VkDescriptorPoolCreateInfo poolInfo = VkDescriptorPoolCreateInfo.calloc(stack);
-            poolInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO);
-            poolInfo.pPoolSizes(vkPoolSizes);
-            poolInfo.maxSets(maxSets);
-            poolInfo.flags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
+            VkDescriptorPoolCreateInfo poolInfo = VkDescriptorPoolCreateInfo.calloc(stack)
+                    .sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO)
+                    .flags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT | VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT)
+                    .pPoolSizes(vkPoolSizes)
+                    .maxSets(maxSets);
 
-            LongBuffer pDescriptorPool = stack.mallocLong(1);
+            LongBuffer pDescriptorPool = stack.callocLong(1);
             if (vkCreateDescriptorPool(device, poolInfo, null, pDescriptorPool) != VK_SUCCESS)
                 throw new RuntimeException("Failed to create descriptor pool");
             return pDescriptorPool.get(0);
@@ -113,6 +116,7 @@ public final class VkDescriptorHelper {
             allocInfo.descriptorPool(descriptorPool);
             allocInfo.pSetLayouts(stack.longs(descriptorSetLayout));
 
+            //TODO: Variable descriptor count (unbounded descriptor array)
             /*VkDescriptorSetVariableDescriptorCountAllocateInfo count = VkDescriptorSetVariableDescriptorCountAllocateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO)
                     .pDescriptorCounts(stack.ints(128));

@@ -47,12 +47,12 @@ public class Renderer2d extends BaseSystem {
 
         vulkanObjects.renderPass = VkRenderPassHelper.createRenderPass(window.getVkImageFormat());
         VertexAttributeLayout vertexLayout = new VertexAttributeLayout(VK_VERTEX_INPUT_RATE_INSTANCE)
-                .addAttribute(VK_FORMAT_R8_SINT, Integer.BYTES) // TexIndex
                 .addAttribute(VK_FORMAT_R32G32_SFLOAT, 2 * Float.BYTES) // Size
                 .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES) // Model Matrix 1
                 .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES) // Model Matrix 2
                 .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES) // Model Matrix 3
-                .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES); // Model Matrix 4
+                .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES) // Model Matrix 4
+                .addAttribute(VK_FORMAT_R8_SINT, Integer.BYTES); // TexIndex
 
         vulkanObjects.graphicsPipeline = VkPipelineHelper.createGraphicsPipeline(Engine.getLogicalDevice(), window.getVkExtent(), vulkanObjects.renderPass, vertexLayout, vulkanObjects.descriptorSetLayout);
 
@@ -75,7 +75,7 @@ public class Renderer2d extends BaseSystem {
     }
 
     private int lastImageIndex = 2;
-    private FrameData lastFrameResources;
+    private FrameData lastFrameData;
 
     @EventSubscriber(CoreEvents.Update)
     public void drawFrame() {
@@ -91,10 +91,10 @@ public class Renderer2d extends BaseSystem {
             vkWaitForFences(Engine.getLogicalDevice(), inFlightFence, true, Integer.MAX_VALUE);
             vkResetFences(Engine.getLogicalDevice(), inFlightFence);
 
-            if (lastFrameResources != null) {
+            if (lastFrameData != null) {
                 vkResetCommandBuffer(frameResource.commandBuffer, 0);
-                VkBufferHelper.destroyBuffer(Engine.getLogicalDevice(), lastFrameResources.instanceBuffer);
-                vkFreeDescriptorSets(Engine.getLogicalDevice(), vulkanObjects.descriptorPool, lastFrameResources.descriptorSet);
+                VkBufferHelper.destroyBuffer(Engine.getLogicalDevice(), lastFrameData.instanceBuffer);
+                vkFreeDescriptorSets(Engine.getLogicalDevice(), vulkanObjects.descriptorPool, lastFrameData.descriptorSet);
             }
 
             IntBuffer pImageIndex = stack.mallocInt(1);
@@ -106,20 +106,21 @@ public class Renderer2d extends BaseSystem {
 
             //region Build frame data
             MutableList<ImageProvider> images = Lists.mutable.empty();
+            ByteBuffer instanceData = stack.malloc(InstanceData.BYTES * entities.size());
 
-            ByteBuffer instanceData = stack.malloc((Integer.BYTES + 2 * Float.BYTES + 16 * Float.BYTES) * entities.size());
-            entities.forEach(e -> {
+            entities.forEachWithIndex((e, i) -> {
                 ImageProvider image = sprite2d.getSprite(e);
-                int index;
+                int spriteIndex;
                 if (images.contains(image))
-                    index = images.indexOf(image);
+                    spriteIndex = images.indexOf(image);
                 else {
-                    index = images.size();
+                    spriteIndex = images.size();
                     images.add(image);
                 }
 
+                // Negate y because joml was made for OpenGL which has an inverted y-axis
                 Vector2f pos = transform.getPosition(e, new Vector2f());
-                new InstanceData(index, new Vector2f(0.1f, 0.1f), new Matrix4f().setTranslation(pos.x, pos.y, 0)).writeToBuffer(instanceData);
+                new InstanceData(new Vector2f(0.1f, 0.1f), new Matrix4f().setTranslation(pos.x, -pos.y, 0), spriteIndex).writeToBuffer(instanceData, i * InstanceData.BYTES);
             });
 
             FrameData frameData = new FrameData(
@@ -157,7 +158,7 @@ public class Renderer2d extends BaseSystem {
             vkQueuePresentKHR(Engine.getPresentQueue(), presentInfo);
 
             lastImageIndex = pImageIndex.get(0);
-            lastFrameResources = frameData;
+            lastFrameData = frameData;
         }
     }
 
@@ -194,7 +195,7 @@ public class Renderer2d extends BaseSystem {
                 vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, vulkanObjects.graphicsPipeline.pipelineLayout(), 0, stack.longs(frameData.descriptorSet), null);
 
                 ByteBuffer pushConstantBuffer = stack.malloc(pushConstants.bytes());
-                pushConstants.writeToBuffer(pushConstantBuffer);
+                pushConstants.writeToBuffer(pushConstantBuffer, 0);
                 vkCmdPushConstants(commandBuffer, vulkanObjects.graphicsPipeline.pipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstantBuffer);
 
                 vkCmdDraw(commandBuffer, 6, frameData.instanceCount, 0, 0);

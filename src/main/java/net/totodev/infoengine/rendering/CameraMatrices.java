@@ -7,6 +7,8 @@ import org.joml.*;
 import java.nio.ByteBuffer;
 
 public class CameraMatrices implements BufferWritable {
+    public static final int BYTES = 2 * 16 * Float.BYTES;
+
     public Matrix4f view;
     public Matrix4f proj;
 
@@ -23,19 +25,19 @@ public class CameraMatrices implements BufferWritable {
         Vector2f scale = transform.getScale(entityId, new Vector2f());
 
         return new CameraMatrices(
-                new Matrix4f().translationRotateScaleInvert(new Vector3f(pos.x, pos.y, 0), new Quaternionf().rotateZ(rot), new Vector3f(scale.x, scale.y, 1)),
+                new Matrix4f().translationRotateScaleInvert(new Vector3f(pos.x, -pos.y, 0), new Quaternionf().rotateZ(rot), new Vector3f(scale.x, scale.y, 1)),
                 new Matrix4f()//.setOrtho2D(size.x / 2, size.x / 2, size.y / 2, size.y / 2) FIXME
         );
     }
 
     @Override
     public int bytes() {
-        return 2 * 16 * Float.BYTES;
+        return BYTES;
     }
 
     @Override
-    public void writeToBuffer(ByteBuffer buffer) {
-        view.get(0, buffer);
-        proj.get(16 * Float.BYTES, buffer);
+    public void writeToBuffer(ByteBuffer buffer, int offset) {
+        view.get(offset, buffer);
+        proj.get(offset + 16 * Float.BYTES, buffer);
     }
 }

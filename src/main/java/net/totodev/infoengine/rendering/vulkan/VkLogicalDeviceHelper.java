@@ -16,7 +16,6 @@ public final class VkLogicalDeviceHelper {
     }
 
     public static LogicalDeviceCreationResult createLogicalDevice(VkPhysicalDevice physicalDevice, long surface, RichIterable<String> extensions, Consumer<VkPhysicalDeviceFeatures> deviceFeatureConfig, long pNext) {
-        //TODO: Fix this
         try (MemoryStack stack = stackPush()) {
             VkQueueHelper.QueueFamilyIndices indices = VkQueueHelper.findQueueFamilies(physicalDevice, surface);
             int[] uniqueQueueFamilies = indices.unique();
