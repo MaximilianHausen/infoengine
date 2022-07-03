@@ -31,13 +31,19 @@ public final class VkCommandBufferHelper {
         try (MemoryStack stack = stackPush()) {
             vkEndCommandBuffer(commandBuffer);
 
-            VkSubmitInfo.Buffer submitInfo = VkSubmitInfo.calloc(1, stack);
-            submitInfo.sType(VK_STRUCTURE_TYPE_SUBMIT_INFO);
-            submitInfo.pCommandBuffers(stack.pointers(commandBuffer));
+            VkSubmitInfo submitInfo = VkSubmitInfo.calloc(stack)
+                    .sType(VK_STRUCTURE_TYPE_SUBMIT_INFO)
+                    .pCommandBuffers(stack.pointers(commandBuffer));
 
-            vkQueueSubmit(queue, submitInfo, VK_NULL_HANDLE);
-            vkQueueWaitIdle(queue);
+            LongBuffer pFence = stack.callocLong(1);
+            vkCreateFence(device, VkFenceCreateInfo.calloc(stack).sType(VK_STRUCTURE_TYPE_FENCE_CREATE_INFO), null, pFence);
 
+            synchronized (queue) {
+                vkQueueSubmit(queue, submitInfo, pFence.get(0));
+            }
+
+            vkWaitForFences(device, pFence, true, Long.MAX_VALUE);
+            vkDestroyFence(device, pFence.get(0), null);
             vkFreeCommandBuffers(device, commandPool, commandBuffer);
         }
     }

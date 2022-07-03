@@ -6,9 +6,7 @@ import org.lwjgl.vulkan.*;
 import java.nio.LongBuffer;
 
 import static org.lwjgl.system.MemoryStack.*;
-import static org.lwjgl.vulkan.EXTDescriptorIndexing.VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT;
 import static org.lwjgl.vulkan.VK10.*;
-import static org.lwjgl.vulkan.VK12.VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
 
 public final class VkDescriptorHelper {
     /**
@@ -23,22 +21,21 @@ public final class VkDescriptorHelper {
         //TODO: Bindless flags
         try (MemoryStack stack = stackPush()) {
             VkDescriptorSetLayoutBinding.Buffer vkBindings = VkDescriptorSetLayoutBinding.calloc(bindings.length, stack);
+
             for (int i = 0; i < bindings.length; i++) {
                 DescriptorBindingInfo binding = bindings[i];
-
-                VkDescriptorSetLayoutBinding vkBinding = vkBindings.get(i);
-                vkBinding.binding(binding.binding);
-                vkBinding.descriptorType(binding.descriptorType);
-                vkBinding.descriptorCount(binding.descriptorCount);
-                vkBinding.stageFlags(binding.shaderStages);
+                vkBindings.get(i)
+                        .binding(binding.binding)
+                        .descriptorType(binding.descriptorType)
+                        .descriptorCount(binding.descriptorCount)
+                        .stageFlags(binding.shaderStages);
             }
 
             VkDescriptorSetLayoutCreateInfo layoutInfo = VkDescriptorSetLayoutCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO)
-                    .pBindings(vkBindings)
-                    .flags(VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT);
+                    .pBindings(vkBindings);
 
-            LongBuffer pDescriptorSetLayout = stack.mallocLong(1);
+            LongBuffer pDescriptorSetLayout = stack.callocLong(1);
             if (vkCreateDescriptorSetLayout(device, layoutInfo, null, pDescriptorSetLayout) != VK_SUCCESS)
                 throw new RuntimeException("Failed to create descriptor set layout");
             return pDescriptorSetLayout.get(0);
@@ -66,7 +63,7 @@ public final class VkDescriptorHelper {
             poolInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO);
             poolInfo.pPoolSizes(vkPoolSizes);
             poolInfo.maxSets(maxSets);
-            poolInfo.flags(VK_DESCRIPTOR_POOL_CREATE_UPDATE_AFTER_BIND_BIT_EXT);
+            poolInfo.flags(VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT);
 
             LongBuffer pDescriptorPool = stack.mallocLong(1);
             if (vkCreateDescriptorPool(device, poolInfo, null, pDescriptorPool) != VK_SUCCESS)
@@ -87,6 +84,7 @@ public final class VkDescriptorHelper {
 
     public record BufferRegion(long buffer, long offset, long size) {
     }
+
     public static class DescriptorBufferBinding extends DescriptorBinding {
         public DescriptorBufferBinding(int binding, int descriptorType, int arrayOffset, BufferRegion... buffers) {
             super.binding = binding;
@@ -98,6 +96,7 @@ public final class VkDescriptorHelper {
 
     public record Image(long imageView, long sampler, int imageLayout) {
     }
+
     public static class DescriptorImageBinding extends DescriptorBinding {
         public DescriptorImageBinding(int binding, int descriptorType, int arrayOffset, Image... images) {
             super.binding = binding;
@@ -113,6 +112,11 @@ public final class VkDescriptorHelper {
             allocInfo.sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO);
             allocInfo.descriptorPool(descriptorPool);
             allocInfo.pSetLayouts(stack.longs(descriptorSetLayout));
+
+            /*VkDescriptorSetVariableDescriptorCountAllocateInfo count = VkDescriptorSetVariableDescriptorCountAllocateInfo.calloc(stack)
+                    .sType(VK_STRUCTURE_TYPE_DESCRIPTOR_SET_VARIABLE_DESCRIPTOR_COUNT_ALLOCATE_INFO)
+                    .pDescriptorCounts(stack.ints(128));
+            allocInfo.pNext(count);*/
 
             LongBuffer pDescriptorSet = stack.mallocLong(1);
             if (vkAllocateDescriptorSets(device, allocInfo, pDescriptorSet) != VK_SUCCESS)

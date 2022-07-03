@@ -17,9 +17,6 @@ import static org.lwjgl.vulkan.KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class Engine {
-    public static class ThreadLock {
-    }
-
     public record WorkerResources(long commandPool) {
     }
 
@@ -42,8 +39,7 @@ public class Engine {
 
     //region Threading
     private static final Thread mainThread = Thread.currentThread();
-    private static final ThreadLock mainThreadLock = new ThreadLock();
-    private static Runnable mainThreadAction;
+    private static final BlockingDeque<Runnable> mainThreadQueue = new LinkedBlockingDeque<>();
 
     private static final ThreadPoolExecutor workers = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
     private static final ThreadLocal<WorkerResources> workerResources = ThreadLocal.withInitial(() -> new WorkerResources(
@@ -77,17 +73,11 @@ public class Engine {
 
         mainWindow.setVisible(true);
 
-        synchronized (mainThreadLock) {
-            while (!Thread.interrupted()) {
-                try {
-                    mainThreadLock.wait();
-                } catch (InterruptedException e) {
-                    break;
-                }
-                if (mainThreadAction != null) {
-                    mainThreadAction.run();
-                    mainThreadAction = null;
-                }
+        while (true) {
+            try {
+                mainThreadQueue.take().run();
+            } catch (InterruptedException e) {
+                break;
             }
         }
     }
@@ -103,11 +93,7 @@ public class Engine {
      * @param task The task to run
      */
     public static void executeOnMainThread(Runnable task) {
-        //FIXME: Task override when run concurrently
-        mainThreadAction = task;
-        synchronized (mainThreadLock) {
-            mainThreadLock.notify();
-        }
+        mainThreadQueue.add(task);
     }
 
     /**
@@ -137,6 +123,7 @@ public class Engine {
         glfwTerminate();
     }
 
+    //region Properties
     public static VkInstance getVkInstance() {
         return vkInstance;
     }
@@ -150,6 +137,7 @@ public class Engine {
     static void setPhysicalDevice(VkPhysicalDevice physicalDevice) {
         Engine.vkPhysicalDevice = physicalDevice;
     }
+
     public static VkDevice getLogicalDevice() {
         return vkLogicalDevice;
     }
@@ -163,6 +151,7 @@ public class Engine {
     static void setGraphicsQueueFamily(int graphicsQueueFamily) {
         Engine.graphicsQueueFamily = graphicsQueueFamily;
     }
+
     public static int getPresentQueueFamily() {
         return presentQueueFamily;
     }
@@ -176,10 +165,12 @@ public class Engine {
     static void setGraphicsQueue(VkQueue graphicsQueue) {
         Engine.graphicsQueue = graphicsQueue;
     }
+
     public static VkQueue getPresentQueue() {
         return presentQueue;
     }
     static void setPresentQueue(VkQueue presentQueue) {
         Engine.presentQueue = presentQueue;
     }
+    //endregion
 }

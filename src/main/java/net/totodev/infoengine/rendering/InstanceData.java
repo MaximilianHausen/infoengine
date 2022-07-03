@@ -23,7 +23,7 @@ public class InstanceData implements BufferWritable {
     @Override
     public void writeToBuffer(ByteBuffer buffer) {
         buffer.putInt(imageIndex);
-        size.get(buffer);
-        modelMatrix.get(buffer);
+        size.get(Integer.BYTES, buffer);
+        modelMatrix.get(Integer.BYTES + 2 * Float.BYTES, buffer);
     }
 }

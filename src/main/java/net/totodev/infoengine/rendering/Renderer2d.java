@@ -21,7 +21,7 @@ import static org.lwjgl.vulkan.KHRSwapchain.*;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class Renderer2d extends BaseSystem {
-    public record FrameData(VkBufferHelper.VkBuffer instanceBuffer, long descriptorSet) {
+    public record FrameData(VkBufferHelper.VkBuffer instanceBuffer, long descriptorSet, int instanceCount) {
     }
 
     @CachedComponent
@@ -92,7 +92,9 @@ public class Renderer2d extends BaseSystem {
             vkResetFences(Engine.getLogicalDevice(), inFlightFence);
 
             if (lastFrameResources != null) {
+                vkResetCommandBuffer(frameResource.commandBuffer, 0);
                 VkBufferHelper.destroyBuffer(Engine.getLogicalDevice(), lastFrameResources.instanceBuffer);
+                vkFreeDescriptorSets(Engine.getLogicalDevice(), vulkanObjects.descriptorPool, lastFrameResources.descriptorSet);
             }
 
             IntBuffer pImageIndex = stack.mallocInt(1);
@@ -115,19 +117,20 @@ public class Renderer2d extends BaseSystem {
                     index = images.size();
                     images.add(image);
                 }
+
                 Vector2f pos = transform.getPosition(e, new Vector2f());
-                new InstanceData(index, new Vector2f(1, 1), new Matrix4f().setTranslation(pos.x, pos.y, 0)).writeToBuffer(instanceData);
+                new InstanceData(index, new Vector2f(0.1f, 0.1f), new Matrix4f().setTranslation(pos.x, pos.y, 0)).writeToBuffer(instanceData);
             });
 
             FrameData frameData = new FrameData(
                     VkBufferHelper.createFilledBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT, instanceData, null),
                     VkDescriptorHelper.createDescriptorSet(Engine.getLogicalDevice(), vulkanObjects.descriptorPool, vulkanObjects.descriptorSetLayout,
                             new VkDescriptorHelper.DescriptorImageBinding(0, VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 0,
-                                    images.stream().map(i -> new VkDescriptorHelper.Image(i.getImageView(), i.getSampler(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)).toArray(VkDescriptorHelper.Image[]::new))));
+                                    images.stream().map(i -> new VkDescriptorHelper.Image(i.getImageView(), i.getSampler(), VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL)).toArray(VkDescriptorHelper.Image[]::new))),
+                    entities.size());
             //endregion
 
             VkCommandBuffer commandBuffer = frameResource.commandBuffer;
-            vkResetCommandBuffer(commandBuffer, 0);
             recordCommandBuffer(commandBuffer, frameResource, CameraMatrices.fromCamera(camera, transform, getScene().getEntitiesByComponents(Camera2d.class).getFirst()), frameData);
 
             VkSubmitInfo submitInfo = VkSubmitInfo.calloc(stack);
@@ -138,8 +141,10 @@ public class Renderer2d extends BaseSystem {
             submitInfo.pWaitDstStageMask(waitStages);
             submitInfo.pSignalSemaphores(signalSemaphores);
 
-            if (vkQueueSubmit(Engine.getGraphicsQueue(), submitInfo, inFlightFence.get(0)) != VK_SUCCESS)
-                throw new RuntimeException("Failed to submit draw command buffer!");
+            synchronized (Engine.getGraphicsQueue()) {
+                if (vkQueueSubmit(Engine.getGraphicsQueue(), submitInfo, inFlightFence.get(0)) != VK_SUCCESS)
+                    throw new RuntimeException("Failed to submit draw command buffer!");
+            }
 
             VkPresentInfoKHR presentInfo = VkPresentInfoKHR.calloc(stack);
             presentInfo.sType(VK_STRUCTURE_TYPE_PRESENT_INFO_KHR);
@@ -192,7 +197,7 @@ public class Renderer2d extends BaseSystem {
                 pushConstants.writeToBuffer(pushConstantBuffer);
                 vkCmdPushConstants(commandBuffer, vulkanObjects.graphicsPipeline.pipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT, 0, pushConstantBuffer);
 
-                vkCmdDraw(commandBuffer, 6, 1, 0, 0);
+                vkCmdDraw(commandBuffer, 6, frameData.instanceCount, 0, 0);
             }
             vkCmdEndRenderPass(commandBuffer);
 

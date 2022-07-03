@@ -1,7 +1,5 @@
 package net.totodev.infoengine.rendering;
 
-import org.lwjgl.stb.STBImage;
-
 import java.nio.ByteBuffer;
 
 /**
@@ -45,7 +43,7 @@ public final class Image implements AutoCloseable {
     @Override
     public void close() {
         if (closed) return;
-        STBImage.stbi_image_free(pixels.rewind());
+        //STBImage.stbi_image_free(pixels.rewind()); FIXME
         closed = true;
     }
 

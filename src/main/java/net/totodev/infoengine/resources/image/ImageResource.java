@@ -32,19 +32,28 @@ public class ImageResource implements Resource, ImageProvider {
 
     public VkImageHelper.VkImage getImage() {
         if (loading) return getEmptyImage();
-        if (!isLoaded()) load();
+        if (!isLoaded()) {
+            load();
+            return getEmptyImage();
+        }
         return image;
     }
 
     public long getImageView() {
         if (loading) return getEmptyImageView();
-        if (!isLoaded()) load();
+        if (!isLoaded()) {
+            load();
+            return getEmptyImageView();
+        }
         return imageView;
     }
 
     public long getSampler() {
         if (loading) return getEmptySampler();
-        if (!isLoaded()) load();
+        if (!isLoaded()) {
+            load();
+            return getEmptySampler();
+        }
         return sampler;
     }
 
