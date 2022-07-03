@@ -25,7 +25,7 @@ public class ResourceManager {
             throw new IllegalArgumentException("File " + directory + " is not a directory");
         Path dirPath = directory.toPath();
         loadImagesRecursive(Paths.get(directory.getPath(), "textures").toFile())
-                .forEach(i -> images.put(dirPath.relativize(i.getFile().toPath()).toString(), i));
+                .forEach(i -> images.put(dirPath.relativize(i.getFile().toPath()).toString().replace('\\', '/'), i));
     }
 
     private static MutableList<ImageResource> loadImagesRecursive(File directory) {

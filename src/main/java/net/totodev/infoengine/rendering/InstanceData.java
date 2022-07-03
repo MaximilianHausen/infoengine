@@ -6,16 +6,16 @@ import org.joml.*;
 import java.nio.ByteBuffer;
 
 public class InstanceData implements BufferWritable {
-    public static final int BYTES = 2 * Float.BYTES + 16 * Float.BYTES + Integer.BYTES;
+    public static final int BYTES = Integer.BYTES + 2 * Float.BYTES + 16 * Float.BYTES;
 
+    public int imageIndex;
     public Vector2f size;
     public Matrix4f modelMatrix;
-    public int imageIndex;
 
-    public InstanceData(Vector2f size, Matrix4f modelMatrix, int imageIndex) {
+    public InstanceData(int imageIndex, Vector2f size, Matrix4f modelMatrix) {
+        this.imageIndex = imageIndex;
         this.size = size;
         this.modelMatrix = modelMatrix;
-        this.imageIndex = imageIndex;
     }
 
     @Override
@@ -25,8 +25,8 @@ public class InstanceData implements BufferWritable {
 
     @Override
     public void writeToBuffer(ByteBuffer buffer, int offset) {
-        size.get(offset, buffer);
-        modelMatrix.get(offset + 2 * Float.BYTES, buffer);
-        buffer.putInt(offset + 2 * Float.BYTES + 16 * Float.BYTES, imageIndex);
+        buffer.putInt(offset, imageIndex);
+        size.get(offset + Integer.BYTES, buffer);
+        modelMatrix.get(offset + Integer.BYTES + 2 * Float.BYTES, buffer);
     }
 }

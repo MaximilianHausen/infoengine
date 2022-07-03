@@ -47,12 +47,12 @@ public class Renderer2d extends BaseSystem {
 
         vulkanObjects.renderPass = VkRenderPassHelper.createRenderPass(window.getVkImageFormat());
         VertexAttributeLayout vertexLayout = new VertexAttributeLayout(VK_VERTEX_INPUT_RATE_INSTANCE)
+                .addAttribute(VK_FORMAT_R32_SINT, Integer.BYTES) // TexIndex
                 .addAttribute(VK_FORMAT_R32G32_SFLOAT, 2 * Float.BYTES) // Size
                 .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES) // Model Matrix 1
                 .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES) // Model Matrix 2
                 .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES) // Model Matrix 3
-                .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES) // Model Matrix 4
-                .addAttribute(VK_FORMAT_R8_SINT, Integer.BYTES); // TexIndex
+                .addAttribute(VK_FORMAT_R32G32B32A32_SFLOAT, 4 * Float.BYTES); // Model Matrix 4
 
         vulkanObjects.graphicsPipeline = VkPipelineHelper.createGraphicsPipeline(Engine.getLogicalDevice(), window.getVkExtent(), vulkanObjects.renderPass, vertexLayout, vulkanObjects.descriptorSetLayout);
 
@@ -120,7 +120,7 @@ public class Renderer2d extends BaseSystem {
 
                 // Negate y because joml was made for OpenGL which has an inverted y-axis
                 Vector2f pos = transform.getPosition(e, new Vector2f());
-                new InstanceData(new Vector2f(0.1f, 0.1f), new Matrix4f().setTranslation(pos.x, -pos.y, 0), spriteIndex).writeToBuffer(instanceData, i * InstanceData.BYTES);
+                new InstanceData(spriteIndex, new Vector2f(0.1f, 0.1f), new Matrix4f().setTranslation(pos.x, -pos.y, 0)).writeToBuffer(instanceData, i * InstanceData.BYTES);
             });
 
             FrameData frameData = new FrameData(
