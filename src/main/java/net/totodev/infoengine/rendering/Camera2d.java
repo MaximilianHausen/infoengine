@@ -36,7 +36,6 @@ public class Camera2d implements Component {
         setOffset(entityId, offset.x, offset.y);
     }
 
-    //region IComponent
     @Override
     public void addOnEntity(int entityId) {
         sizes.put(entityId, new Vector2f());
@@ -69,5 +68,4 @@ public class Camera2d implements Component {
     public boolean isPresentOn(int entityId) {
         return sizes.containsKey(entityId);
     }
-    //endregion
 }

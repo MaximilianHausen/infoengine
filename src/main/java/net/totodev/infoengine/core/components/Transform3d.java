@@ -94,7 +94,6 @@ public class Transform3d implements Component {
         transforms.get(entityId).scale(scale);
     }
 
-    //region IComponent
     @Override
     public void addOnEntity(int entityId) {
         transforms.put(entityId, new Matrix4f());
@@ -121,5 +120,4 @@ public class Transform3d implements Component {
     public boolean isPresentOn(int entityId) {
         return transforms.containsKey(entityId);
     }
-    //endregion
 }

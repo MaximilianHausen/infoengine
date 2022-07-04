@@ -26,7 +26,6 @@ public class Sprite2d implements Component {
         return images.get(entityId).getSize();
     }
 
-    //region IComponent
     @Override
     public void addOnEntity(int entityId) {
         images.put(entityId, null);
@@ -50,5 +49,4 @@ public class Sprite2d implements Component {
     public boolean isPresentOn(int entityId) {
         return images.containsKey(entityId);
     }
-    //endregion
 }

@@ -78,7 +78,6 @@ public class Transform2d implements Component {
         scale(entityId, scale.x, scale.y);
     }
 
-    //region IComponent
     @Override
     public void addOnEntity(int entityId) {
         transforms.put(entityId, new Matrix3x2f());
@@ -105,5 +104,4 @@ public class Transform2d implements Component {
     public boolean isPresentOn(int entityId) {
         return transforms.containsKey(entityId);
     }
-    //endregion
 }
