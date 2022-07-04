@@ -26,7 +26,7 @@ public class CameraMatrices implements BufferWritable {
 
         return new CameraMatrices(
                 new Matrix4f().translationRotateScaleInvert(new Vector3f(pos.x, -pos.y, 0), new Quaternionf().rotateZ(rot), new Vector3f(scale.x, scale.y, 1)),
-                new Matrix4f()//.setOrtho2D(size.x / 2, size.x / 2, size.y / 2, size.y / 2) FIXME
+                new Matrix4f().scale(1.0f / size.x, 1.0f / size.y, 1)//TODO: Orthographic projection matrix
         );
     }
 
