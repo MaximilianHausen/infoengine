@@ -1,6 +1,6 @@
 package net.totodev.infoengine.rendering;
 
-import net.totodev.infoengine.ecs.*;
+import net.totodev.infoengine.ecs.GlobalComponent;
 
 public class PixelScale implements GlobalComponent {
     private int pixelsPerUnit;

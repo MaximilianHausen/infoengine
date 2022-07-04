@@ -20,17 +20,17 @@ public class Velocity2d implements Component {
         if (!isPresentOn(entityId)) return;
         velocities.get(entityId).set(velocity);
     }
-    public void setVelocity(int entityId, float velX, float velY) {
+    public void setVelocity(int entityId, float x, float y) {
         if (!isPresentOn(entityId)) return;
-        velocities.get(entityId).set(velX, velY);
+        velocities.get(entityId).set(x, y);
     }
     public void changeVelocity(int entityId, Vector2f velocity) {
         if (!isPresentOn(entityId)) return;
         velocities.get(entityId).add(velocity);
     }
-    public void changeVelocity(int entityId, float velX, float velY) {
+    public void changeVelocity(int entityId, float x, float y) {
         if (!isPresentOn(entityId)) return;
-        velocities.get(entityId).add(velX, velY);
+        velocities.get(entityId).add(x, y);
     }
 
     public float getRotVelocity(int entityId) {
