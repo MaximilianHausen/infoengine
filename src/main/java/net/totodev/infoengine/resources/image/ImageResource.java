@@ -5,6 +5,7 @@ import net.totodev.infoengine.rendering.Image;
 import net.totodev.infoengine.rendering.vulkan.*;
 import net.totodev.infoengine.resources.Resource;
 import net.totodev.infoengine.util.IO;
+import org.joml.Vector2f;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.File;
@@ -18,6 +19,9 @@ public class ImageResource implements Resource, ImageProvider {
     private long imageView;
     private long sampler;
 
+    private int width = 0;
+    private int height = 0;
+
     private boolean loading = false;
 
     public ImageResource(File file) {
@@ -28,6 +32,10 @@ public class ImageResource implements Resource, ImageProvider {
 
     public File getFile() {
         return file;
+    }
+
+    public Vector2f getSize() {
+        return new Vector2f(width, height);
     }
 
     public VkImageHelper.VkImage getImage() {
@@ -69,6 +77,8 @@ public class ImageResource implements Resource, ImageProvider {
             image = VkImageHelper.createTextureImage(r.commandPool(), temp);
             imageView = VkImageHelper.createImageView(image.image(), VK_FORMAT_R8G8B8A8_SRGB);
             sampler = VkImageHelper.createTextureSampler(VK_FILTER_NEAREST, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT, 0);
+            width = temp.getWidth();
+            height = temp.getHeight();
             loading = false;
             temp.close();
         });

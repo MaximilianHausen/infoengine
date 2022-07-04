@@ -7,6 +7,7 @@ import net.totodev.infoengine.resources.scene.ComponentDataModel;
 import org.eclipse.collections.api.map.primitive.MutableIntObjectMap;
 import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.jetbrains.annotations.*;
+import org.joml.Vector2f;
 
 public class Sprite2d implements Component {
     private final MutableIntObjectMap<ImageResource> images = IntObjectMaps.mutable.empty();
@@ -18,6 +19,11 @@ public class Sprite2d implements Component {
     public void setSprite(int entityId, ImageResource image) {
         if (!isPresentOn(entityId)) return;
         images.put(entityId, image);
+    }
+
+    public Vector2f getSize(int entityId) {
+        if (!isPresentOn(entityId)) return null;
+        return images.get(entityId).getSize();
     }
 
     //region IComponent

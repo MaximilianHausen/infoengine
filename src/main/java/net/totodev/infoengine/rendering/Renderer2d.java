@@ -32,6 +32,8 @@ public class Renderer2d extends BaseSystem {
     private Camera2d camera;
     @CachedComponent
     private Sprite2d sprite2d;
+    @CachedComponent
+    private PixelScale pixelScale;
 
     @Override
     public void start(Scene scene) {
@@ -118,9 +120,14 @@ public class Renderer2d extends BaseSystem {
                     images.add(image);
                 }
 
-                // Negate y because joml was made for OpenGL which has an inverted y-axis
                 Vector2f pos = transform.getPosition(e, new Vector2f());
-                new InstanceData(spriteIndex, new Vector2f(0.1f, 0.1f), new Matrix4f().setTranslation(pos.x, -pos.y, 0)).writeToBuffer(instanceData, i * InstanceData.BYTES);
+                Vector2f scale = transform.getScale(e, new Vector2f());
+                float rot = transform.getRotation(e);
+                // Negate y because joml was made for OpenGL which has an inverted y-axis
+                Matrix4f modelMatrix = new Matrix4f().translationRotateScale(new Vector3f(pos.x, -pos.y, 0), new Quaternionf().rotateZ(rot), new Vector3f(scale.x, scale.y, 1));
+
+                Vector2f size = sprite2d.getSize(e).div(pixelScale.getPixelsPerUnit());
+                new InstanceData(spriteIndex, size, modelMatrix).writeToBuffer(instanceData, i * InstanceData.BYTES);
             });
 
             FrameData frameData = new FrameData(
