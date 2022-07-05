@@ -3,7 +3,7 @@ package net.totodev.infoengine.ecs;
 import net.totodev.infoengine.core.CoreEvents;
 import org.eclipse.collections.api.factory.Maps;
 import org.eclipse.collections.api.list.ImmutableList;
-import org.eclipse.collections.api.list.primitive.*;
+import org.eclipse.collections.api.list.primitive.MutableIntList;
 import org.eclipse.collections.api.map.MutableMap;
 import org.eclipse.collections.api.set.primitive.*;
 import org.eclipse.collections.api.stack.primitive.MutableIntStack;
@@ -176,11 +176,11 @@ public class Scene {
      * @param componentTypes The components to check for
      * @return A list of all entities that have all the specified components
      */
-    public @NotNull IntList getEntitiesByComponents(@NotNull Class<? extends Component>... componentTypes) {
+    public @NotNull MutableIntList getEntitiesByComponents(@NotNull Class<? extends Component>... componentTypes) {
         ImmutableList<Component> requiredComponents = Lists.immutable.fromStream(
                 Arrays.stream(componentTypes).map(this::getComponent).filter(Objects::nonNull));
 
-        if (requiredComponents.isEmpty()) return IntLists.immutable.empty();
+        if (requiredComponents.isEmpty()) return IntLists.mutable.empty();
 
         MutableIntList temp = IntLists.mutable.empty();
         entities.forEach(e -> {
