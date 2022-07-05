@@ -12,9 +12,9 @@ public class Camera2d implements Component {
     private final MutableIntObjectMap<Vector2f> sizes = IntObjectMaps.mutable.empty();
     private final MutableIntObjectMap<Vector2f> offsets = IntObjectMaps.mutable.empty();
 
-    public Vector2f getSize(int entityId, @NotNull Vector2f out) {
-        if (!isPresentOn(entityId)) return null;
-        return out.set(sizes.get(entityId));
+    //region Size
+    public Vector2f getSize(int entityId) {
+        return sizes.get(entityId);
     }
     public void setSize(int entityId, float x, float y) {
         if (!isPresentOn(entityId)) return;
@@ -23,10 +23,11 @@ public class Camera2d implements Component {
     public void setSize(int entityId, @NotNull Vector2f size) {
         setSize(entityId, size.x, size.y);
     }
+    //endregion
 
-    public Vector2f getOffset(int entityId, @NotNull Vector2f out) {
-        if (!isPresentOn(entityId)) return null;
-        return out.set(offsets.get(entityId));
+    //region Offset
+    public Vector2f getOffset(int entityId) {
+        return offsets.get(entityId);
     }
     public void setOffset(int entityId, float x, float y) {
         if (!isPresentOn(entityId)) return;
@@ -35,6 +36,7 @@ public class Camera2d implements Component {
     public void setOffset(int entityId, @NotNull Vector2f offset) {
         setOffset(entityId, offset.x, offset.y);
     }
+    //endregion
 
     @Override
     public void addOnEntity(int entityId) {

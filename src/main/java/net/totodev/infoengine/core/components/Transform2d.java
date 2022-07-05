@@ -8,9 +8,11 @@ import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.jetbrains.annotations.*;
 import org.joml.*;
 
+//TODO: Use individual maps and only lazily cache the matrices
 public class Transform2d implements Component {
     private final MutableIntObjectMap<Matrix3x2f> transforms = IntObjectMaps.mutable.empty();
 
+    //region Position
     public Vector2f getPosition(int entityId, @NotNull Vector2f out) {
         if (!isPresentOn(entityId)) return null;
         Matrix3x2f transform = transforms.get(entityId);
@@ -30,12 +32,11 @@ public class Transform2d implements Component {
     public void move(int entityId, @NotNull Vector2f posOffset) {
         move(entityId, posOffset.x, posOffset.y);
     }
+    //endregion
 
-    /**
-     * POSITIVE_INFINITY if not present on that entity
-     */
+    //region Rotation
     public float getRotation(int entityId) {
-        if (!isPresentOn(entityId)) return Float.POSITIVE_INFINITY;
+        if (!isPresentOn(entityId)) return 0;
         return transforms.get(entityId).positiveX(new Vector2f()).angle(new Vector2f(1, 0));
     }
     public void setRotation(int entityId, float angle) {
@@ -51,7 +52,9 @@ public class Transform2d implements Component {
         if (!isPresentOn(entityId)) return;
         transforms.get(entityId).rotate(angleOffset);
     }
+    //endregion
 
+    //region Scale
     public Vector2f getScale(int entityId, @NotNull Vector2f out) {
         if (!isPresentOn(entityId)) return null;
         Matrix3x2f transform = transforms.get(entityId);
@@ -77,6 +80,7 @@ public class Transform2d implements Component {
     public void scale(int entityId, @NotNull Vector2f scale) {
         scale(entityId, scale.x, scale.y);
     }
+    //endregion
 
     @Override
     public void addOnEntity(int entityId) {

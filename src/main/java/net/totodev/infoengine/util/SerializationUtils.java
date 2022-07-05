@@ -10,10 +10,13 @@ public class SerializationUtils {
     }
 
     public static float[] deserialize(String serializedValues) {
-        String[] serializedNumbers = serializedValues.split("\\|");
-        float[] numbers = new float[serializedNumbers.length];
-        for (int i = 0; i < serializedNumbers.length; i++)
-            numbers[i] = Float.parseFloat(serializedNumbers[i]);
+        return deserialize(serializedValues.split("\\|"));
+    }
+
+    public static float[] deserialize(String... serializedValues) {
+        float[] numbers = new float[serializedValues.length];
+        for (int i = 0; i < serializedValues.length; i++)
+            numbers[i] = Float.parseFloat(serializedValues[i]);
         return numbers;
     }
 }

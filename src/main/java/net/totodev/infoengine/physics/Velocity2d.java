@@ -13,7 +13,6 @@ public class Velocity2d implements Component {
     private final MutableIntFloatMap rotVelocities = IntFloatMaps.mutable.empty();
 
     public Vector2f getVelocity(int entityId) {
-        if (!isPresentOn(entityId)) return null;
         return velocities.get(entityId);
     }
     public void setVelocity(int entityId, Vector2f velocity) {
@@ -34,7 +33,6 @@ public class Velocity2d implements Component {
     }
 
     public float getRotVelocity(int entityId) {
-        if (!isPresentOn(entityId)) return 0;
         return rotVelocities.get(entityId);
     }
     public void setRotVelocity(int entityId, float rotVelocity) {
@@ -53,6 +51,7 @@ public class Velocity2d implements Component {
     @Override
     public void removeFromEntity(int entityId) {
         velocities.remove(entityId);
+        rotVelocities.remove(entityId);
     }
 
     @Override

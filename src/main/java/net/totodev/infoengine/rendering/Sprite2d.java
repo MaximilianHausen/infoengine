@@ -13,7 +13,6 @@ public class Sprite2d implements Component {
     private final MutableIntObjectMap<ImageResource> images = IntObjectMaps.mutable.empty();
 
     public ImageResource getSprite(int entityId) {
-        if (!isPresentOn(entityId)) return null;
         return images.get(entityId);
     }
     public void setSprite(int entityId, ImageResource image) {
