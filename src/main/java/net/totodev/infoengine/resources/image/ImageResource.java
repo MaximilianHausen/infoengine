@@ -5,7 +5,7 @@ import net.totodev.infoengine.rendering.Image;
 import net.totodev.infoengine.rendering.vulkan.*;
 import net.totodev.infoengine.resources.Resource;
 import net.totodev.infoengine.util.IO;
-import org.joml.Vector2f;
+import org.joml.Vector2i;
 import org.lwjgl.system.MemoryStack;
 
 import java.io.File;
@@ -34,8 +34,8 @@ public class ImageResource implements Resource, ImageProvider {
         return file;
     }
 
-    public Vector2f getSize() {
-        return new Vector2f(width, height);
+    public Vector2i getSize() {
+        return new Vector2i(width, height);
     }
 
     public VkImageHelper.VkImage getImage() {
