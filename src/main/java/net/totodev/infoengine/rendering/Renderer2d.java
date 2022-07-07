@@ -126,7 +126,7 @@ public class Renderer2d extends BaseSystem {
                 // Negate y because joml was made for OpenGL which has an inverted y-axis
                 Matrix4f modelMatrix = new Matrix4f().translationRotateScale(new Vector3f(pos.x, -pos.y, 0), new Quaternionf().rotateZ(rot), new Vector3f(scale.x, scale.y, 1));
 
-                Vector2f size = sprite2d.getSize(e).div(pixelScale.getPixelsPerUnit());
+                Vector2f size = new Vector2f(sprite2d.getSize(e)).div(pixelScale.getPixelsPerUnit());
                 new InstanceData(spriteIndex, size, modelMatrix).writeToBuffer(instanceData, i * InstanceData.BYTES);
             });
 
