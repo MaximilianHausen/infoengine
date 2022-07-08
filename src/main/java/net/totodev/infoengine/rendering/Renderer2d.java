@@ -10,7 +10,6 @@ import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.list.primitive.IntList;
 import org.joml.*;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 
@@ -80,7 +79,7 @@ public class Renderer2d extends BaseSystem {
     private FrameData lastFrameData;
 
     @EventSubscriber(CoreEvents.Update)
-    public void drawFrame() {
+    public void drawFrame(float deltaTime) {
         IntList entities = getScene().getEntitiesByComponents(Sprite2d.class);
         if (entities.size() == 0) return;
 

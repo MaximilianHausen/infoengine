@@ -32,7 +32,7 @@ public class Updater extends BaseSystem {
             long currentNanos = java.lang.System.nanoTime();
             if (currentNanos > lastFrameNanos + (1000000000 / (updateRate == null ? 60 : updateRate.updateRate))) {
                 Engine.executeOnMainThread(GLFW::glfwPollEvents);
-                scene.events.invokeEvent(CoreEvents.Update);
+                scene.events.invokeEvent(CoreEvents.Update, (currentNanos - lastFrameNanos) / 1000000000f);
                 lastFrameNanos = currentNanos;
             }
         }

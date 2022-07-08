@@ -13,7 +13,7 @@ public class CollisionDetector2d extends BaseSystem {
     private BoxCollider2d collider;
 
     @EventSubscriber(CoreEvents.Update)
-    public void update() {
+    public void update(float deltaTime) {
         MutableIntList toCheck = getScene().getEntitiesByComponents(BoxCollider2d.class, Transform2d.class);
         //TODO: Don't check from both sides
         toCheck.forEach(e1 -> toCheck.forEach(e2 -> {

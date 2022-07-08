@@ -3,6 +3,7 @@ package net.totodev.infoengine.physics;
 import net.totodev.infoengine.core.CoreEvents;
 import net.totodev.infoengine.core.components.Transform2d;
 import net.totodev.infoengine.ecs.*;
+import org.joml.Vector2f;
 
 public class VelocityApplier2d extends BaseSystem {
     @CachedComponent
@@ -11,10 +12,10 @@ public class VelocityApplier2d extends BaseSystem {
     private Velocity2d velocity;
 
     @EventSubscriber(CoreEvents.Update)
-    public void update() {
+    public void update(float deltaTime) {
         getScene().getEntitiesByComponents(Velocity2d.class, Transform2d.class).forEach(e -> {
-            transform.move(e, velocity.getVelocity(e));
-            transform.rotate(e, velocity.getRotVelocity(e));
+            transform.move(e, velocity.getVelocity(e).div(deltaTime, new Vector2f()));
+            transform.rotate(e, velocity.getRotVelocity(e) / deltaTime);
         });
     }
 }

@@ -49,5 +49,12 @@ public final class CoreEvents {
      */
     public static final String SystemRemoved = "SystemRemoved";
 
+    /**
+     * The main game loop <br/>
+     * Parameters: <br/>
+     * <pre><code>
+     * float deltaTime: The time since the last update in seconds
+     * </code></pre>
+     */
     public static final String Update = "Update";
 }
