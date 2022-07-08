@@ -81,8 +81,6 @@ public class Renderer2d extends BaseSystem {
 
     @EventSubscriber(CoreEvents.Update)
     public void drawFrame() {
-        Engine.executeOnMainThread(GLFW::glfwPollEvents);
-
         IntList entities = getScene().getEntitiesByComponents(Sprite2d.class);
         if (entities.size() == 0) return;
 

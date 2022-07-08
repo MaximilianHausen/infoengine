@@ -1,10 +1,14 @@
 package net.totodev.infoengine.core.systems;
 
-import net.totodev.infoengine.core.CoreEvents;
+import net.totodev.infoengine.core.*;
 import net.totodev.infoengine.core.components.UpdateRate;
 import net.totodev.infoengine.ecs.*;
+import org.lwjgl.glfw.GLFW;
 
 public class Updater extends BaseSystem {
+    @CachedComponent
+    private UpdateRate updateRate;
+
     private long lastFrameNanos;
 
     private Thread currentLoop;
@@ -26,8 +30,8 @@ public class Updater extends BaseSystem {
         //TODO: Proper update scheduling
         while (!Thread.interrupted()) {
             long currentNanos = java.lang.System.nanoTime();
-            UpdateRate rateComponent = scene.getGlobalComponent(UpdateRate.class);
-            if (currentNanos > lastFrameNanos + (1000000000 / (rateComponent == null ? 60 : rateComponent.updateRate))) {
+            if (currentNanos > lastFrameNanos + (1000000000 / (updateRate == null ? 60 : updateRate.updateRate))) {
+                Engine.executeOnMainThread(GLFW::glfwPollEvents);
                 scene.events.invokeEvent(CoreEvents.Update);
                 lastFrameNanos = currentNanos;
             }
