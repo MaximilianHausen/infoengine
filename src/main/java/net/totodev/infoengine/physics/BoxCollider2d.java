@@ -14,7 +14,8 @@ public class BoxCollider2d implements Component {
     public MutableIntObjectMap<Vector2f> sizes = IntObjectMaps.mutable.empty();
     public MutableIntObjectMap<Vector2f> offsets = IntObjectMaps.mutable.empty();
     public MutableIntFloatMap restitutions = IntFloatMaps.mutable.empty();
-    public MutableIntObjectMap<String> collisionTypes = IntObjectMaps.mutable.empty();
+    public MutableIntIntMap layers = IntIntMaps.mutable.empty();
+    public MutableIntIntMap types = IntIntMaps.mutable.empty();
 
     //region Size
     public Vector2f getSize(int entityId) {
@@ -52,13 +53,23 @@ public class BoxCollider2d implements Component {
     }
     //endregion
 
-    //region CollisionType
-    public String getCollisionType(int entityId) {
-        return collisionTypes.get(entityId);
+    //region Layer
+    public int getLayer(int entityId) {
+        return layers.get(entityId);
     }
-    public void setCollisionType(int entityId, String collisionType) {
+    public void setLayer(int entityId, int layer) {
         if (!isPresentOn(entityId)) return;
-        collisionTypes.put(entityId, collisionType);
+        layers.put(entityId, layer);
+    }
+    //endregion
+
+    //region Type
+    public int getType(int entityId) {
+        return types.get(entityId);
+    }
+    public void setType(int entityId, int type) {
+        if (!isPresentOn(entityId)) return;
+        types.put(entityId, type);
     }
     //endregion
 
@@ -67,14 +78,16 @@ public class BoxCollider2d implements Component {
         sizes.put(entityId, new Vector2f());
         offsets.put(entityId, new Vector2f());
         restitutions.remove(entityId); // Still gets 0 as default
-        collisionTypes.put(entityId, "");
+        layers.remove(entityId);
+        types.remove(entityId);
     }
     @Override
     public void removeFromEntity(int entityId) {
         sizes.remove(entityId);
         offsets.remove(entityId);
         restitutions.remove(entityId);
-        collisionTypes.remove(entityId);
+        layers.remove(entityId);
+        types.remove(entityId);
     }
 
     @Override
@@ -89,7 +102,8 @@ public class BoxCollider2d implements Component {
         sizes.get(data.entity).set(numbers[0], numbers[1]);
         offsets.get(data.entity).set(numbers[2], numbers[3]);
         restitutions.put(data.entity, numbers[4]);
-        collisionTypes.put(data.entity, String.join("|", Arrays.copyOfRange(splitValue, 5, splitValue.length)));
+        layers.put(data.entity, Integer.parseInt(splitValue[5]));
+        types.put(data.entity, Integer.parseInt(splitValue[6]));
     }
     @Override
     public @Nullable String serializeState(int entityId) {
@@ -97,7 +111,7 @@ public class BoxCollider2d implements Component {
         Vector2f size = sizes.get(entityId);
         Vector2f offset = offsets.get(entityId);
         float restitution = restitutions.get(entityId);
-        return SerializationUtils.serialize(size.x, size.y, offset.x, offset.y, restitution) + '|' + collisionTypes.get(entityId);
+        return SerializationUtils.serialize(size.x, size.y, offset.x, offset.y, restitution) + '|' + layers.get(entityId) + '|' + types.get(entityId);
     }
 
     @Override

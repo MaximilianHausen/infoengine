@@ -15,10 +15,11 @@ public class CollisionDetector2d extends BaseSystem {
     @EventSubscriber(CoreEvents.Update)
     public void update(float deltaTime) {
         MutableIntList toCheck = getScene().getEntitiesByComponents(BoxCollider2d.class, Transform2d.class);
-        //TODO: Don't check from both sides
         toCheck.forEach(e1 -> toCheck.forEach(e2 -> {
-            if (e1 == e2) return;
-            if (checkCollision(e1, e2)) getScene().events.invokeEvent("Phys:" + collider.getCollisionType(e1), e1, e2);
+            int layer = collider.getLayer(e1);
+            if (e1 == e2 || layer != collider.getLayer(e2)) return;
+            if (checkCollision(e1, e2)) getScene().events
+                    .invokeEvent("PhysStay", layer, e1, collider.getType(e1), e2, collider.getType(e2));
         }));
     }
 
