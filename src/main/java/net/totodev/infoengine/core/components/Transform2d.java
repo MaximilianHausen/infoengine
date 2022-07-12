@@ -56,9 +56,9 @@ public class Transform2d implements Component {
 
     //region Scale
     public Vector2f getScale(int entityId, @NotNull Vector2f out) {
-        Vector2f pos = positions.get(entityId);
-        if (pos == null) return null;
-        return out.set(pos);
+        Vector2f scale = scales.get(entityId);
+        if (scale == null) return null;
+        return out.set(scale);
     }
 
     public void setScale(int entityId, @NotNull Vector2f scale) {
