@@ -18,9 +18,9 @@ public class CameraMatrices implements BufferWritable {
     }
 
     public static CameraMatrices fromCamera(Camera2d camera, Transform2d transform, int entityId) {
-        Vector2f size = camera.getSize(entityId);
+        Vector2f size = camera.getSize(entityId, new Vector2f());
 
-        Vector2f pos = transform.getPosition(entityId, new Vector2f()).add(camera.getOffset(entityId));
+        Vector2f pos = transform.getPosition(entityId, new Vector2f()).add(camera.getOffset(entityId, new Vector2f()));
         float rot = transform.getRotation(entityId);
         Vector2f scale = transform.getScale(entityId, new Vector2f());
 

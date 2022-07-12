@@ -21,11 +21,14 @@ public class CollisionSolver2d extends BaseSystem {
         if (type1 != COLL_TYPE_SOLVE_DYNAMIC || type2 != COLL_TYPE_SOLVE_KINETIC) return;
 
         // Adapted from https://developer.ibm.com/tutorials/wa-build2dphysicsengine
-        Vector2f pos1 = transform.getPosition(entity1, new Vector2f()).add(collider.getOffset(entity1));
-        Vector2f pos2 = transform.getPosition(entity2, new Vector2f()).add(collider.getOffset(entity2));
+        Vector2f pos1 = transform.getPosition(entity1, new Vector2f()).add(collider.getOffset(entity1, new Vector2f()));
+        Vector2f pos2 = transform.getPosition(entity2, new Vector2f()).add(collider.getOffset(entity2, new Vector2f()));
 
-        Vector2f size1 = collider.getSize(entity1);
-        Vector2f size2 = collider.getSize(entity2);
+        Vector2f size1 = collider.getSize(entity1, new Vector2f());
+        Vector2f size2 = collider.getSize(entity2, new Vector2f());
+
+        Vector2f vel1 = velocity.getVelocity(entity1, new Vector2f());
+        Vector2f vel2 = velocity.getVelocity(entity2, new Vector2f());
 
         float dX = (pos2.x - pos1.x) / (size2.x / 2);
         float dY = (pos2.y - pos1.y) / (size2.y / 2);
@@ -57,17 +60,17 @@ public class CollisionSolver2d extends BaseSystem {
             if (Math.random() < .5) {
 
                 // Reflect the velocity at a reduced rate
-                velocity.setVelocity(entity1, velocity.getVelocity(entity1).mul(-collider.getRestitution(entity1), 1, new Vector2f()));
+                velocity.setVelocity(entity1, vel1.mul(-collider.getRestitution(entity1), 1));
 
                 // If the object's velocity is nearing 0, set it to 0
                 // STICKY_THRESHOLD is set to .0004
-                if (velocity.getVelocity(entity1).x < STICKY_THRESHOLD)
-                    velocity.setVelocity(entity1, 0, velocity.getVelocity(entity1).y);
+                if (Math.abs(vel1.x) < STICKY_THRESHOLD)
+                    velocity.setVelocity(entity1, 0, vel1.y);
             } else {
-                velocity.setVelocity(entity1, velocity.getVelocity(entity1).mul(1, -collider.getRestitution(entity1), new Vector2f()));
+                velocity.setVelocity(entity1, vel1.mul(1, -collider.getRestitution(entity1)));
 
-                if (velocity.getVelocity(entity1).y < STICKY_THRESHOLD)
-                    velocity.setVelocity(entity1, velocity.getVelocity(entity1).x, 0);
+                if (Math.abs(vel1.y) < STICKY_THRESHOLD)
+                    velocity.setVelocity(entity1, vel1.x, 0);
             }
 
         } else if (absDX > absDY) {
@@ -82,10 +85,10 @@ public class CollisionSolver2d extends BaseSystem {
             }
 
             // Velocity component
-            velocity.setVelocity(entity1, velocity.getVelocity(entity1).mul(-collider.getRestitution(entity1), 1, new Vector2f()));
+            velocity.setVelocity(entity1, vel1.mul(-collider.getRestitution(entity1), 1));
 
-            if (velocity.getVelocity(entity1).x < STICKY_THRESHOLD)
-                velocity.setVelocity(entity1, 0, velocity.getVelocity(entity1).y);
+            if (Math.abs(vel1.x) < STICKY_THRESHOLD)
+                velocity.setVelocity(entity1, 0, vel1.y);
 
         } else {
             // If the object is approaching from the top or bottom
@@ -99,10 +102,10 @@ public class CollisionSolver2d extends BaseSystem {
             }
 
             // Velocity component
-            velocity.setVelocity(entity1, velocity.getVelocity(entity1).mul(1, -collider.getRestitution(entity1), new Vector2f()));
+            velocity.setVelocity(entity1, vel1.mul(1, -collider.getRestitution(entity1)));
 
-            if (velocity.getVelocity(entity1).y < STICKY_THRESHOLD)
-                velocity.setVelocity(entity1, velocity.getVelocity(entity1).x, 0);
+            if (Math.abs(vel1.y) < STICKY_THRESHOLD)
+                velocity.setVelocity(entity1, vel1.x, 0);
         }
     }
 }

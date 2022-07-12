@@ -18,28 +18,32 @@ public class BoxCollider2d implements Component {
     public MutableIntIntMap types = IntIntMaps.mutable.empty();
 
     //region Size
-    public Vector2f getSize(int entityId) {
-        return sizes.get(entityId);
+    public Vector2f getSize(int entityId, @NotNull Vector2f out) {
+        Vector2f size = sizes.get(entityId);
+        if (size == null) return null;
+        return out.set(size);
+    }
+
+    public void setSize(int entityId, @NotNull Vector2f size) {
+        sizes.put(entityId, size);
     }
     public void setSize(int entityId, float x, float y) {
-        if (!isPresentOn(entityId)) return;
-        sizes.get(entityId).set(x, y);
-    }
-    public void setSize(int entityId, Vector2f size) {
-        setSize(entityId, size.x, size.y);
+        sizes.put(entityId, new Vector2f(x, y));
     }
     //endregion
 
     //region Offset
-    public Vector2f getOffset(int entityId) {
-        return offsets.get(entityId);
+    public Vector2f getOffset(int entityId, @NotNull Vector2f out) {
+        Vector2f offset = offsets.get(entityId);
+        if (offset == null) return null;
+        return out.set(offset);
+    }
+
+    public void setOffset(int entityId, @NotNull Vector2f offset) {
+        offsets.put(entityId, offset);
     }
     public void setOffset(int entityId, float x, float y) {
-        if (!isPresentOn(entityId)) return;
-        offsets.get(entityId).set(x, y);
-    }
-    public void setOffset(int entityId, Vector2f offset) {
-        setOffset(entityId, offset.x, offset.y);
+        offsets.put(entityId, new Vector2f(x, y));
     }
     //endregion
 
@@ -47,8 +51,8 @@ public class BoxCollider2d implements Component {
     public float getRestitution(int entityId) {
         return restitutions.get(entityId);
     }
+
     public void setRestitution(int entityId, float restitution) {
-        if (!isPresentOn(entityId)) return;
         restitutions.put(entityId, restitution);
     }
     //endregion
@@ -57,8 +61,8 @@ public class BoxCollider2d implements Component {
     public int getLayer(int entityId) {
         return layers.get(entityId);
     }
+
     public void setLayer(int entityId, int layer) {
-        if (!isPresentOn(entityId)) return;
         layers.put(entityId, layer);
     }
     //endregion
@@ -67,22 +71,14 @@ public class BoxCollider2d implements Component {
     public int getType(int entityId) {
         return types.get(entityId);
     }
+
     public void setType(int entityId, int type) {
-        if (!isPresentOn(entityId)) return;
         types.put(entityId, type);
     }
     //endregion
 
     @Override
-    public void addOnEntity(int entityId) {
-        sizes.put(entityId, new Vector2f());
-        offsets.put(entityId, new Vector2f());
-        restitutions.remove(entityId); // Still gets 0 as default
-        layers.remove(entityId);
-        types.remove(entityId);
-    }
-    @Override
-    public void removeFromEntity(int entityId) {
+    public void resetEntity(int entityId) {
         sizes.remove(entityId);
         offsets.remove(entityId);
         restitutions.remove(entityId);
@@ -92,18 +88,16 @@ public class BoxCollider2d implements Component {
 
     @Override
     public void deserializeState(@NotNull ComponentDataModel data) {
-        if (!isPresentOn(data.entity))
-            addOnEntity(data.entity);
-
         String[] splitValue = data.value.split("\\|");
-        String[] numberStrings = Arrays.copyOfRange(splitValue, 0, 5);
 
-        float[] numbers = SerializationUtils.deserialize(numberStrings);
-        sizes.get(data.entity).set(numbers[0], numbers[1]);
-        offsets.get(data.entity).set(numbers[2], numbers[3]);
-        restitutions.put(data.entity, numbers[4]);
-        layers.put(data.entity, Integer.parseInt(splitValue[5]));
-        types.put(data.entity, Integer.parseInt(splitValue[6]));
+        String[] floatStrings = Arrays.copyOfRange(splitValue, 0, 5);
+        float[] floats = SerializationUtils.deserialize(floatStrings);
+        setSize(data.entity, floats[0], floats[1]);
+        setOffset(data.entity, floats[2], floats[3]);
+        setRestitution(data.entity, floats[4]);
+
+        setLayer(data.entity, Integer.parseInt(splitValue[5]));
+        setType(data.entity, Integer.parseInt(splitValue[6]));
     }
     @Override
     public @Nullable String serializeState(int entityId) {
@@ -116,6 +110,10 @@ public class BoxCollider2d implements Component {
 
     @Override
     public boolean isPresentOn(int entityId) {
-        return sizes.contains(entityId);
+        return sizes.contains(entityId)
+                && offsets.containsKey(entityId)
+                && restitutions.containsKey(entityId)
+                && layers.containsKey(entityId)
+                && types.containsKey(entityId);
     }
 }

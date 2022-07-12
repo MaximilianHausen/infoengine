@@ -8,7 +8,12 @@ import org.eclipse.collections.impl.factory.primitive.IntObjectMaps;
 import org.jetbrains.annotations.*;
 import org.joml.*;
 
+//TODO: Remake similar to Transform2d
 //TODO: Parents, Local/Parent(World)/World(Recursive)
+
+/**
+ * CURRENTLY BROKEN
+ */
 public class Transform3d implements Component {
     private final MutableIntObjectMap<Matrix4f> transforms = IntObjectMaps.mutable.empty();
 
@@ -95,19 +100,12 @@ public class Transform3d implements Component {
     }
 
     @Override
-    public void addOnEntity(int entityId) {
-        transforms.put(entityId, new Matrix4f());
-    }
-    @Override
-    public void removeFromEntity(int entityId) {
+    public void resetEntity(int entityId) {
         transforms.remove(entityId);
     }
 
     @Override
     public void deserializeState(@NotNull ComponentDataModel data) {
-        if (!isPresentOn(data.entity))
-            addOnEntity(data.entity);
-
         transforms.get(data.entity).set(SerializationUtils.deserialize(data.value));
     }
     @Override

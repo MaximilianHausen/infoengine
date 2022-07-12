@@ -8,16 +8,10 @@ import org.jetbrains.annotations.*;
 
 public interface Component {
     /**
-     * Adds this component to an entity.
-     * @param entityId The entity id to add this component to
+     * Resets the data for an entity.
+     * @param entityId The entity id to reset the data for
      */
-    void addOnEntity(int entityId);
-
-    /**
-     * Removes this component from an entity.
-     * @param entityId The entity id to remove this component to
-     */
-    void removeFromEntity(int entityId);
+    void resetEntity(int entityId);
 
     /**
      * Sets the component state for one entity.

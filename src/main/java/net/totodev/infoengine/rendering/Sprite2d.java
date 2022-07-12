@@ -15,8 +15,8 @@ public class Sprite2d implements Component {
     public ImageResource getSprite(int entityId) {
         return images.get(entityId);
     }
+
     public void setSprite(int entityId, ImageResource image) {
-        if (!isPresentOn(entityId)) return;
         images.put(entityId, image);
     }
 
@@ -26,17 +26,13 @@ public class Sprite2d implements Component {
     }
 
     @Override
-    public void addOnEntity(int entityId) {
-        images.put(entityId, null);
-    }
-    @Override
-    public void removeFromEntity(int entityId) {
+    public void resetEntity(int entityId) {
         images.remove(entityId);
     }
 
     @Override
     public void deserializeState(@NotNull ComponentDataModel data) {
-        images.put(data.entity, ResourceManager.getImage(data.value));
+        setSprite(data.entity, ResourceManager.getImage(data.value));
     }
     @Override
     public @Nullable String serializeState(int entityId) {

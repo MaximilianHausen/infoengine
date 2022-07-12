@@ -63,7 +63,7 @@ public class Scene {
     public void destroyEntity(int entityId) {
         if (!isAlive(entityId)) return;
 
-        components.forEach((c) -> c.removeFromEntity(entityId));
+        components.forEach((c) -> c.resetEntity(entityId));
         events.invokeEvent(CoreEvents.DestroyEntity, entityId);
 
         entities.remove(entityId);

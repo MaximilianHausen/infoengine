@@ -5,29 +5,42 @@ import org.eclipse.collections.api.set.primitive.MutableIntSet;
 import org.eclipse.collections.impl.factory.primitive.IntSets;
 import org.jetbrains.annotations.*;
 
-public class FlagComponent implements Component {
+/**
+ * A common component that contains just a boolean. Must be subclassed for usage.
+ */
+public abstract class FlagComponent implements Component {
     private final MutableIntSet set = IntSets.mutable.empty();
 
-    @Override
-    public void addOnEntity(int entityId) {
-        set.add(entityId);
-    }
-    @Override
-    public void removeFromEntity(int entityId) {
-        set.remove(entityId);
-    }
-
-    @Override
-    public void deserializeState(@NotNull ComponentDataModel data) {
-        addOnEntity(data.entity);
-    }
-    @Override
-    public @Nullable String serializeState(int entityId) {
-        return set.contains(entityId) ? "" : null;
-    }
-
-    @Override
-    public boolean isPresentOn(int entityId) {
+    public final boolean isFlaged(int entityId) {
         return set.contains(entityId);
+    }
+
+    public final void setFlag(int entityId, boolean value) {
+        if (value) set.add(entityId);
+        else set.remove(entityId);
+    }
+
+    public final void invertFlag(int entityId) {
+        if (isFlaged(entityId)) set.remove(entityId);
+        else set.add(entityId);
+    }
+
+    @Override
+    public final void resetEntity(int entityId) {
+        setFlag(entityId, false);
+    }
+
+    @Override
+    public final void deserializeState(@NotNull ComponentDataModel data) {
+        setFlag(data.entity, true);
+    }
+    @Override
+    public final @Nullable String serializeState(int entityId) {
+        return isFlaged(entityId) ? "" : null;
+    }
+
+    @Override
+    public final boolean isPresentOn(int entityId) {
+        return isFlaged(entityId);
     }
 }

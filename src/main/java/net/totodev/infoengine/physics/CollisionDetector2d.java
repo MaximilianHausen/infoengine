@@ -25,8 +25,8 @@ public class CollisionDetector2d extends BaseSystem {
 
     private boolean checkCollision(int entity1, int entity2) {
         // Adapted from https://developer.ibm.com/tutorials/wa-build2dphysicsengine
-        Vector2f pos = transform.getPosition(entity1, new Vector2f()).add(collider.getOffset(entity1));
-        Vector2f size = collider.getSize(entity1);
+        Vector2f pos = transform.getPosition(entity1, new Vector2f()).add(collider.getOffset(entity1, new Vector2f()));
+        Vector2f size = collider.getSize(entity1, new Vector2f());
         float width = size.x / 2, height = size.y / 2;
 
         float l1 = pos.x - width;
@@ -34,8 +34,8 @@ public class CollisionDetector2d extends BaseSystem {
         float r1 = pos.x + width;
         float b1 = pos.y - height;
 
-        pos = transform.getPosition(entity2, new Vector2f()).add(collider.getOffset(entity2));
-        size = collider.getSize(entity2);
+        pos = transform.getPosition(entity2, new Vector2f()).add(collider.getOffset(entity2, new Vector2f()));
+        size = collider.getSize(entity2, new Vector2f());
         width = size.x / 2;
         height = size.y / 2;
 

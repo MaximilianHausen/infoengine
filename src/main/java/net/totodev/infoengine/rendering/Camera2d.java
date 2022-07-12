@@ -13,50 +13,46 @@ public class Camera2d implements Component {
     private final MutableIntObjectMap<Vector2f> offsets = IntObjectMaps.mutable.empty();
 
     //region Size
-    public Vector2f getSize(int entityId) {
-        return sizes.get(entityId);
+    public Vector2f getSize(int entityId, @NotNull Vector2f out) {
+        Vector2f size = sizes.get(entityId);
+        if (size == null) return null;
+        return out.set(size);
+    }
+
+    public void setSize(int entityId, @NotNull Vector2f size) {
+        sizes.put(entityId, size);
     }
     public void setSize(int entityId, float x, float y) {
-        if (!isPresentOn(entityId)) return;
-        sizes.get(entityId).set(x, y);
-    }
-    public void setSize(int entityId, @NotNull Vector2f size) {
-        setSize(entityId, size.x, size.y);
+        sizes.put(entityId, new Vector2f(x, y));
     }
     //endregion
 
     //region Offset
-    public Vector2f getOffset(int entityId) {
-        return offsets.get(entityId);
+    public Vector2f getOffset(int entityId, @NotNull Vector2f out) {
+        Vector2f offset = offsets.get(entityId);
+        if (offset == null) return null;
+        return out.set(offset);
+    }
+
+    public void setOffset(int entityId, @NotNull Vector2f offset) {
+        offsets.put(entityId, offset);
     }
     public void setOffset(int entityId, float x, float y) {
-        if (!isPresentOn(entityId)) return;
-        offsets.get(entityId).set(x, y);
-    }
-    public void setOffset(int entityId, @NotNull Vector2f offset) {
-        setOffset(entityId, offset.x, offset.y);
+        offsets.put(entityId, new Vector2f(x, y));
     }
     //endregion
 
     @Override
-    public void addOnEntity(int entityId) {
-        sizes.put(entityId, new Vector2f());
-        offsets.put(entityId, new Vector2f());
-    }
-    @Override
-    public void removeFromEntity(int entityId) {
+    public void resetEntity(int entityId) {
         sizes.remove(entityId);
         offsets.remove(entityId);
     }
 
     @Override
     public void deserializeState(@NotNull ComponentDataModel data) {
-        if (!isPresentOn(data.entity))
-            addOnEntity(data.entity);
-
-        float[] deserializedData = SerializationUtils.deserialize(data.value);
-        sizes.get(data.entity).set(deserializedData[0], deserializedData[1]);
-        offsets.get(data.entity).set(deserializedData[2], deserializedData[3]);
+        float[] values = SerializationUtils.deserialize(data.value);
+        setSize(data.entity, values[0], values[1]);
+        setOffset(data.entity, values[2], values[3]);
     }
     @Override
     public @Nullable String serializeState(int entityId) {
@@ -68,6 +64,6 @@ public class Camera2d implements Component {
 
     @Override
     public boolean isPresentOn(int entityId) {
-        return sizes.containsKey(entityId);
+        return sizes.containsKey(entityId) && offsets.containsKey(entityId);
     }
 }
