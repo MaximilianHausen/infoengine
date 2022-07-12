@@ -110,7 +110,7 @@ public class BoxCollider2d implements Component {
 
     @Override
     public boolean isPresentOn(int entityId) {
-        return sizes.contains(entityId)
+        return sizes.containsKey(entityId)
                 && offsets.containsKey(entityId)
                 && restitutions.containsKey(entityId)
                 && layers.containsKey(entityId)
