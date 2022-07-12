@@ -14,8 +14,8 @@ public class VelocityApplier2d extends BaseSystem {
     @EventSubscriber(CoreEvents.Update)
     public void update(float deltaTime) {
         getScene().getEntitiesByComponents(Velocity2d.class, Transform2d.class).forEach(e -> {
-            transform.move(e, velocity.getVelocity(e, new Vector2f()).div(deltaTime));
-            transform.rotate(e, velocity.getRotVelocity(e) / deltaTime);
+            transform.move(e, velocity.getVelocity(e, new Vector2f()).mul(deltaTime));
+            transform.rotate(e, velocity.getRotVelocity(e) * deltaTime);
         });
     }
 }
