@@ -1,2 +1,3 @@
-rootProject.name = "infoengine"
-
+rootProject.name = 'infoengine'
+include 'engine'
+include 'vulkan'

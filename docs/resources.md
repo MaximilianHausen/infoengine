@@ -44,8 +44,8 @@ public void foo() {
     ResourceManager.loadResourcePack(new File("./resourcepacks/pack1/")); // Inhalt: [ textures/tex.png, textures/otherTex.png ]
     ResourceManager.loadResourcePack(new File("./resourcepacks/pack2/")); // Inhalt: [ textures/tex.png ]
 
-    ImageResource image = ResourceManager.getImage("textures/tex.png"); // Kommt aus pack1
-    ImageResource image = ResourceManager.getImage("textures/otherTex.png"); // Kommt aus pack2
+    ImageResource image = ResourceManager.getImage("textures/tex.png"); // Kommt aus pack2
+    ImageResource image = ResourceManager.getImage("textures/otherTex.png"); // Kommt aus pack1
 }
 ```
 
@@ -57,6 +57,6 @@ Noch nicht in das Resourcensystem implementiert. Für eine temporäre Lösung si
 
 ### Bilder
 
-Bilder werden zu einer ImageResource geladen und dort zu einem VkImage, VkImageView und VkSampler weiterverarbeitet. ImageResources verwenden lazy-loading und laden das tatsächliche Bild erst dann, wenn es das erste Mal aufgerufen wird. Während das echte Bild im Hintergrund auf einem Worker-Thread lädt, wird ein durchsichtiges 1*1 Pixel Bild zurückgegeben. Man kann das Bild auch manuell mit ImageResource::load laden, wenn es beim ersten aufruf sofort gebraucht wird.
+Bilder werden zu einer ImageResource geladen und dort zu einem VkImage, VkImageView und VkSampler weiterverarbeitet. ImageResources verwenden lazy-loading und laden das tatsächliche Bild erst dann, wenn es das erste Mal aufgerufen wird. Während das echte Bild im Hintergrund auf einem Worker-Thread lädt, wird ein durchsichtiges 1*1 Pixel Bild zurückgegeben. Man kann das Bild auch manuell mit ImageResource::load laden, wenn es beim ersten Aufruf sofort gebraucht wird.
 
 !> Das ursprüngliche Bild wird NICHT aufgehoben, um Arbeitsspeicher zu sparen
