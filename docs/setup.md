@@ -16,10 +16,10 @@ Es müssen sowohl die Java-Library als auch die Natives für die benötigten Pla
 
 ```groovy
 dependencies {
-    implementation "net.totodev:infoengine:$VERSION"
-    runtimeOnly("net.totodev:infoengine:$VERSION") {
+    implementation "org.totodev:infoengine:$VERSION"
+    runtimeOnly("org.totodev:infoengine:$VERSION") {
         capabilities {
-            requireCapability("net.totodev:infoengine-$NATIVES")
+            requireCapability("org.totodev:infoengine-$NATIVES")
         }
     }
 }

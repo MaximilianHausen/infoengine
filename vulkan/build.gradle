@@ -3,8 +3,8 @@ plugins {
     id 'maven-publish'
 }
 
-group = 'org.totodev'
-version = '0.1'
+group 'org.totodev'
+version '0.1'
 
 project.ext.lwjglVersion = '3.3.1'
 
@@ -55,72 +55,14 @@ dependencies {
         arm64macosRuntimeOnly "$baseDependency:natives-macos-arm64"
     }
 
-    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.2'
-    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.2'
-
-    implementation 'com.google.code.gson:gson:2.9.0'
-
     implementation 'org.eclipse.collections:eclipse-collections:11.0.0'
     api 'org.eclipse.collections:eclipse-collections-api:11.0.0'
-    api 'org.jetbrains:annotations:23.0.0'
     api 'org.joml:joml:1.10.4'
 
-    // lwjgl
     implementation "org.lwjgl:lwjgl:$lwjglVersion"
-    implementation "org.lwjgl:lwjgl-assimp:$lwjglVersion"
-    implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
-    implementation "org.lwjgl:lwjgl-openal:$lwjglVersion"
-    implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
+    api "org.lwjgl:lwjgl-vulkan:$lwjglVersion"
 
-    // lwjgl natives
     allPlatformsNative "org.lwjgl:lwjgl:$lwjglVersion"
-    allPlatformsNative "org.lwjgl:lwjgl-assimp:$lwjglVersion"
-    allPlatformsNative "org.lwjgl:lwjgl-glfw:$lwjglVersion"
-    allPlatformsNative "org.lwjgl:lwjgl-openal:$lwjglVersion"
-    allPlatformsNative "org.lwjgl:lwjgl-stb:$lwjglVersion"
-
-    // vulkan + natives for each capability
-    implementation(project(':vulkan'))
-    x64windowsImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-x64windows'
-        }
-    }
-    x86windowsImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-x86windows'
-        }
-    }
-    arm64windowsImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-arm64windows'
-        }
-    }
-    x64linuxImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-x64linux'
-        }
-    }
-    arm64linuxImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-arm64linux'
-        }
-    }
-    arm32linuxImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-arm32linux'
-        }
-    }
-    x64macosImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-x64macos'
-        }
-    }
-    arm64macosImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-arm64macos'
-        }
-    }
 }
 
 publishing {
@@ -128,10 +70,10 @@ publishing {
         snapshot(MavenPublication) {
             from components.java
             pom {
-                name = 'Infoengine'
+                name = 'VkBuilder'
                 version = project.getVersion() + '-SNAPSHOT'
-                description = 'Java game engine with a focus on flexibility and correctness'
-                url = 'https://github.com/MaximilianHausen/infoengine'
+                description = 'Builder-style vulkan wrapper library'
+                url = 'https://github.com/MaximilianHausen/infoengine/tree/master/vulkan'
                 licenses {
                     license {
                         name = 'Mozilla Public License 2.0'
@@ -143,10 +85,10 @@ publishing {
         release(MavenPublication) {
             from components.java
             pom {
-                name = 'Infoengine'
+                name = 'VkBuilder'
                 version = project.getVersion()
-                description = 'Java game engine with a focus on flexibility and correctness'
-                url = 'https://github.com/MaximilianHausen/infoengine'
+                description = 'Builder-style vulkan wrapper library'
+                url = 'https://github.com/MaximilianHausen/infoengine/tree/master/vulkan'
                 licenses {
                     license {
                         name = 'Mozilla Public License 2.0'
@@ -180,10 +122,6 @@ publishing {
 tasks.withType(PublishToMavenRepository) {
     onlyIf {
         (repository == publishing.repositories.snapshot && publication == publishing.publications.snapshot) ||
-        (repository == publishing.repositories.release && publication == publishing.publications.release)
+                (repository == publishing.repositories.release && publication == publishing.publications.release)
     }
-}
-
-test {
-    useJUnitPlatform()
 }

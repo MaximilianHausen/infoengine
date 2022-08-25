@@ -12,13 +12,13 @@ Scenes können aus Json-Dateien geladen und darin gespeichert werden. Jeder Comp
     "entityCount": 3,
 
     "systems": [
-        "net.totodev.example.ExampleSystem",
-        "net.totodev.example.AnotherSystem"
+        "org.totodev.example.ExampleSystem",
+        "org.totodev.example.AnotherSystem"
     ],
 
     "components": [
         {
-            "type": "net.totodev.example.ExampleComponent",
+            "type": "org.totodev.example.ExampleComponent",
             "data": [
                 {
                     "entity": 0,
@@ -34,7 +34,7 @@ Scenes können aus Json-Dateien geladen und darin gespeichert werden. Jeder Comp
 
     "globalComponents": [
         {
-            "type": "net.totodev.example.ExampleGlobalComponent",
+            "type": "org.totodev.example.ExampleGlobalComponent",
             "data": "datadatadatadatadata"
         }
     ]

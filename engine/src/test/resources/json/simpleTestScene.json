@@ -6,11 +6,11 @@
 
   "components": [
     {
-      "type": "net.totodev.infoengine.ecs.Transform3d",
-      "values": [
+      "type": "org.totodev.engine.core.components.Transform3d",
+      "data": [
         {
           "entity": 0,
-          "data": "1|0|0|0|0|1|0|0|0|0|1|0|1|2|3|1"
+          "value": "1|0|0|0|0|1|0|0|0|0|1|0|1|2|3|1"
         }
       ]
     }
