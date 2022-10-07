@@ -5,7 +5,7 @@ import org.eclipse.collections.api.set.ImmutableSet;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.vulkan.*;
 import org.totodev.engine.rendering.vulkan.*;
-import org.totodev.engine.util.SemVer;
+import org.totodev.vulkan.*;
 
 import java.util.concurrent.*;
 import java.util.function.Consumer;
@@ -21,7 +21,7 @@ public class Engine {
     }
 
     public static final ImmutableSet<String> VULKAN_EXTENSIONS = Sets.immutable.of(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-    public static final ImmutableSet<String> VALIDATION_LAYERS = Sets.immutable.of("VK_LAYER_KHRONOS_validation");
+    public static final String[] VALIDATION_LAYERS = new String[]{"VK_LAYER_KHRONOS_validation"};
 
     private static Window mainWindow;
 
@@ -58,7 +58,11 @@ public class Engine {
     public static void initialize(String appName, SemVer appVersion, int windowWidth, int windowHeight) {
         initGlfw();
 
-        vkInstance = VkInstanceHelper.createInstance(appName, appVersion, VALIDATION_LAYERS);
+        vkInstance = new InstanceBuilder()
+                .appInfo(appName, appVersion, "infoengine", new SemVer(1, 0, 0))
+                .layers(VALIDATION_LAYERS)
+                .debugCallback(VkDebugUtilsHelper::loggingDebugCallback)
+                .build();
         vkDebugManager = VkDebugUtilsHelper.createDebugMessenger(vkInstance);
         mainWindow = new MainWindow(appName, windowWidth, windowHeight, true);
     }

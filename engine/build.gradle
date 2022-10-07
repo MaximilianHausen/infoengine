@@ -125,21 +125,6 @@ dependencies {
 
 publishing {
     publications {
-        snapshot(MavenPublication) {
-            from components.java
-            pom {
-                name = 'Infoengine'
-                version = project.getVersion() + '-SNAPSHOT'
-                description = 'Java game engine with a focus on flexibility and correctness'
-                url = 'https://github.com/MaximilianHausen/infoengine'
-                licenses {
-                    license {
-                        name = 'Mozilla Public License 2.0'
-                        url = 'https://www.mozilla.org/en-US/MPL/2.0/'
-                    }
-                }
-            }
-        }
         release(MavenPublication) {
             from components.java
             pom {
@@ -155,20 +140,35 @@ publishing {
                 }
             }
         }
+        snapshot(MavenPublication) {
+            from components.java
+            pom {
+                name = 'Infoengine'
+                version = project.getVersion() + '-SNAPSHOT'
+                description = 'Java game engine with a focus on flexibility and correctness'
+                url = 'https://github.com/MaximilianHausen/infoengine'
+                licenses {
+                    license {
+                        name = 'Mozilla Public License 2.0'
+                        url = 'https://www.mozilla.org/en-US/MPL/2.0/'
+                    }
+                }
+            }
+        }
     }
 
     repositories {
         maven {
-            name = 'snapshot'
-            url = uri("https://maven.totodev.de/snapshots")
+            name = 'release'
+            url = uri("https://maven.totodev.de/releases")
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
                 password = System.getenv("MAVEN_PASSWORD")
             }
         }
         maven {
-            name = 'release'
-            url = uri("https://maven.totodev.de/releases")
+            name = 'snapshot'
+            url = uri("https://maven.totodev.de/snapshots")
             credentials {
                 username = System.getenv("MAVEN_USERNAME")
                 password = System.getenv("MAVEN_PASSWORD")
@@ -179,8 +179,8 @@ publishing {
 
 tasks.withType(PublishToMavenRepository) {
     onlyIf {
-        (repository == publishing.repositories.snapshot && publication == publishing.publications.snapshot) ||
-        (repository == publishing.repositories.release && publication == publishing.publications.release)
+        (repository == publishing.repositories.release && publication == publishing.publications.release) ||
+        (repository == publishing.repositories.snapshot && publication == publishing.publications.snapshot)
     }
 }
 
