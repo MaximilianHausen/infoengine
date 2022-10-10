@@ -1,9 +1,13 @@
 package org.totodev.engine.util.logging;
 
 import org.jetbrains.annotations.NotNull;
+import org.lwjgl.vulkan.VkDebugUtilsMessengerCallbackDataEXT;
 
 import java.time.LocalTime;
 import java.util.function.Consumer;
+
+import static org.lwjgl.vulkan.EXTDebugUtils.*;
+import static org.lwjgl.vulkan.VK10.VK_FALSE;
 
 /**
  * A simple customizable logger. Set the logging target with {@link #setLogTarget(Consumer)}.
@@ -72,5 +76,19 @@ public class Logger {
             paddedSource = paddedSource.substring(0, 10);
 
         return timestamp + spacing + logLevel + spacing + paddedSource + spacing + message;
+    }
+
+    public static int vkLoggingCallback(int messageSeverity, int messageType, long pCallbackData, long pUserData) {
+        VkDebugUtilsMessengerCallbackDataEXT callbackData = VkDebugUtilsMessengerCallbackDataEXT.create(pCallbackData);
+
+        LogLevel logLevel = switch (messageSeverity) {
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT -> LogLevel.Trace;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT -> LogLevel.Info;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT -> LogLevel.Error;
+            default -> LogLevel.Debug;
+        };
+        Logger.log(logLevel, "Vulkan", callbackData.pMessageString());
+
+        return VK_FALSE;
     }
 }

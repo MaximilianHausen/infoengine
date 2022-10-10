@@ -4,15 +4,17 @@ import org.eclipse.collections.api.factory.Sets;
 import org.eclipse.collections.api.set.ImmutableSet;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.vulkan.*;
-import org.totodev.engine.rendering.vulkan.*;
-import org.totodev.vulkan.*;
+import org.totodev.engine.rendering.VkBuilder;
+import org.totodev.engine.rendering.vulkan.VkCommandBufferHelper;
+import org.totodev.engine.util.logging.Logger;
+import org.totodev.vulkan.SemVer;
 
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.system.MemoryUtil.NULL;
-import static org.lwjgl.vulkan.EXTDebugUtils.vkDestroyDebugUtilsMessengerEXT;
+import static org.lwjgl.vulkan.EXTDebugUtils.*;
 import static org.lwjgl.vulkan.KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME;
 import static org.lwjgl.vulkan.VK10.*;
 
@@ -58,12 +60,16 @@ public class Engine {
     public static void initialize(String appName, SemVer appVersion, int windowWidth, int windowHeight) {
         initGlfw();
 
-        vkInstance = new InstanceBuilder()
+        vkInstance = VkBuilder.instance()
                 .appInfo(appName, appVersion, "infoengine", new SemVer(1, 0, 0))
                 .layers(VALIDATION_LAYERS)
-                .debugCallback(VkDebugUtilsHelper::loggingDebugCallback)
+                .debugCallback(Logger::vkLoggingCallback)
                 .build();
-        vkDebugManager = VkDebugUtilsHelper.createDebugMessenger(vkInstance);
+        vkDebugManager = VkBuilder.debugUtilsMessenger()
+                .severities(VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+                .types(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
+                .callback(Logger::vkLoggingCallback)
+                .build();
         mainWindow = new MainWindow(appName, windowWidth, windowHeight, true);
     }
 
