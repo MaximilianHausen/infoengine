@@ -6,6 +6,7 @@ import org.joml.Math;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 import org.totodev.engine.core.*;
+import org.totodev.vulkan.QueueFamilies;
 
 import java.nio.*;
 
@@ -69,11 +70,11 @@ public final class VkSwapchainHelper {
             createInfo.imageArrayLayers(1);
             createInfo.imageUsage(VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT);
 
-            VkQueueHelper.QueueFamilyIndices indices = VkQueueHelper.findQueueFamilies(device.getPhysicalDevice(), surface);
+            QueueFamilies indices = new QueueFamilies(device.getPhysicalDevice());
 
-            if (!indices.graphicsFamily.equals(indices.presentFamily)) {
+            if (!indices.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, null).equals(indices.findQueueFamily(0, surface))) {
                 createInfo.imageSharingMode(VK_SHARING_MODE_CONCURRENT);
-                createInfo.pQueueFamilyIndices(stack.ints(indices.graphicsFamily, indices.presentFamily));
+                createInfo.pQueueFamilyIndices(stack.ints(indices.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, null).index(), indices.findQueueFamily(0, surface).index()));
             } else {
                 createInfo.imageSharingMode(VK_SHARING_MODE_EXCLUSIVE);
             }

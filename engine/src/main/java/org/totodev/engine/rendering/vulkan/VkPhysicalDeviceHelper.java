@@ -7,6 +7,7 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 import org.totodev.engine.core.Engine;
+import org.totodev.vulkan.QueueFamilies;
 
 import java.nio.IntBuffer;
 
@@ -41,7 +42,7 @@ public final class VkPhysicalDeviceHelper {
 
     private static boolean isDeviceSuitable(VkPhysicalDevice device, long surface, Iterable<String> requiredExtensions) {
         try (MemoryStack stack = stackPush()) {
-            VkQueueHelper.QueueFamilyIndices indices = VkQueueHelper.findQueueFamilies(device, surface);
+            QueueFamilies indices = new QueueFamilies(device);
             boolean extensionsSupported = checkDeviceExtensionSupport(device, Sets.mutable.ofAll(requiredExtensions));
             boolean swapChainAdequate = false;
 
@@ -53,7 +54,7 @@ public final class VkPhysicalDeviceHelper {
                 swapChainAdequate = swapChainSupport.formats().hasRemaining() && swapChainSupport.presentModes().hasRemaining();
             }
 
-            return indices.isComplete() && extensionsSupported && swapChainAdequate &&
+            return /*indices.isComplete() &&*/ extensionsSupported && swapChainAdequate &&
                     supportedFeatures.samplerAnisotropy();
         }
     }

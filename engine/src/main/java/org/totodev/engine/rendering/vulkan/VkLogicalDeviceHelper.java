@@ -5,6 +5,7 @@ import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 import org.totodev.engine.util.BufferUtils;
+import org.totodev.vulkan.QueueFamilies;
 
 import java.util.function.Consumer;
 
@@ -17,15 +18,14 @@ public final class VkLogicalDeviceHelper {
 
     public static LogicalDeviceCreationResult createLogicalDevice(VkPhysicalDevice physicalDevice, long surface, RichIterable<String> extensions, Consumer<VkPhysicalDeviceFeatures> deviceFeatureConfig, long pNext) {
         try (MemoryStack stack = stackPush()) {
-            VkQueueHelper.QueueFamilyIndices indices = VkQueueHelper.findQueueFamilies(physicalDevice, surface);
-            int[] uniqueQueueFamilies = indices.unique();
+            QueueFamilies queueFamilies = new QueueFamilies(physicalDevice);
 
-            VkDeviceQueueCreateInfo.Buffer queueCreateInfos = VkDeviceQueueCreateInfo.calloc(uniqueQueueFamilies.length, stack);
+            VkDeviceQueueCreateInfo.Buffer queueCreateInfos = VkDeviceQueueCreateInfo.calloc(queueFamilies.count(), stack);
 
-            for (int i = 0; i < uniqueQueueFamilies.length; i++) {
+            for (int i = 0; i < queueFamilies.count(); i++) {
                 VkDeviceQueueCreateInfo queueCreateInfo = queueCreateInfos.get(i);
                 queueCreateInfo.sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO);
-                queueCreateInfo.queueFamilyIndex(uniqueQueueFamilies[i]);
+                queueCreateInfo.queueFamilyIndex(i);
                 queueCreateInfo.pQueuePriorities(stack.floats(1.0f));
             }
 
@@ -46,9 +46,9 @@ public final class VkLogicalDeviceHelper {
             VkDevice device = new VkDevice(pDevice.get(0), physicalDevice, createInfo);
 
             PointerBuffer pQueue = stack.pointers(VK_NULL_HANDLE);
-            vkGetDeviceQueue(device, indices.graphicsFamily, 0, pQueue);
+            vkGetDeviceQueue(device, queueFamilies.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, null).index(), 0, pQueue);
             VkQueue graphicsQueue = new VkQueue(pQueue.get(0), device);
-            vkGetDeviceQueue(device, indices.presentFamily, 0, pQueue);
+            vkGetDeviceQueue(device, queueFamilies.findQueueFamily(0, surface).index(), 0, pQueue);
             VkQueue presentQueue = new VkQueue(pQueue.get(0), device);
 
             return new LogicalDeviceCreationResult(device, graphicsQueue, presentQueue);

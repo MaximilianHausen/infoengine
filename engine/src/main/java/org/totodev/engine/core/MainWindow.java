@@ -3,6 +3,9 @@ package org.totodev.engine.core;
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.vulkan.*;
 import org.totodev.engine.rendering.vulkan.*;
+import org.totodev.vulkan.QueueFamilies;
+
+import static org.lwjgl.vulkan.VK10.VK_QUEUE_GRAPHICS_BIT;
 
 /**
  * A window with all the first-time vulkan setup that depends on a surface
@@ -16,9 +19,9 @@ public class MainWindow extends Window {
     protected void initVulkan() {
         Engine.setPhysicalDevice(VkPhysicalDeviceHelper.pickPhysicalDevice(Engine.getVkInstance(), getVkSurface(), null, Engine.VULKAN_EXTENSIONS));
 
-        VkQueueHelper.QueueFamilyIndices queueFamilies = VkQueueHelper.findQueueFamilies(Engine.getPhysicalDevice(), getVkSurface());
-        Engine.setGraphicsQueueFamily(queueFamilies.graphicsFamily);
-        Engine.setPresentQueueFamily(queueFamilies.presentFamily);
+        QueueFamilies queueFamilies = new QueueFamilies(Engine.getPhysicalDevice());
+        Engine.setGraphicsQueueFamily(queueFamilies.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, null).index());
+        Engine.setPresentQueueFamily(queueFamilies.findQueueFamily(0, getVkSurface()).index());
 
         VkPhysicalDeviceDescriptorIndexingFeaturesEXT indexingFeatures = VkPhysicalDeviceDescriptorIndexingFeaturesEXT.calloc()
                 .sType(VK13.VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES)
