@@ -2,7 +2,8 @@ package org.totodev.engine.core;
 
 import org.jetbrains.annotations.NotNull;
 import org.lwjgl.vulkan.*;
-import org.totodev.engine.rendering.vulkan.*;
+import org.totodev.engine.rendering.VkBuilder;
+import org.totodev.engine.rendering.vulkan.VkLogicalDeviceHelper;
 import org.totodev.vulkan.QueueFamilies;
 
 import static org.lwjgl.vulkan.VK10.VK_QUEUE_GRAPHICS_BIT;
@@ -17,7 +18,11 @@ public class MainWindow extends Window {
 
     @Override
     protected void initVulkan() {
-        Engine.setPhysicalDevice(VkPhysicalDeviceHelper.pickPhysicalDevice(Engine.getVkInstance(), getVkSurface(), null, Engine.VULKAN_EXTENSIONS));
+        Engine.setPhysicalDevice(VkBuilder.physicalDevice()
+                .extensions(Engine.VULKAN_EXTENSIONS)
+                .features((features) -> true)
+                .queueFamilies((families) -> families.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, null) != null && families.findQueueFamily(0, getVkSurface()) != null)
+                .pick());
 
         QueueFamilies queueFamilies = new QueueFamilies(Engine.getPhysicalDevice());
         Engine.setGraphicsQueueFamily(queueFamilies.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, null).index());

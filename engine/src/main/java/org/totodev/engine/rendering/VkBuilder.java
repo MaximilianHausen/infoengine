@@ -10,7 +10,12 @@ public class VkBuilder {
     public static InstanceBuilder instance() {
         return new InstanceBuilder();
     }
+
     public static DebugUtilsMessengerBuilder debugUtilsMessenger() {
         return new DebugUtilsMessengerBuilder().instance(Engine.getVkInstance());
+    }
+
+    public static PhysicalDevicePicker physicalDevice() {
+        return new PhysicalDevicePicker().instance(Engine.getVkInstance());
     }
 }
