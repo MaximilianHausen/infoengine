@@ -13,6 +13,12 @@ import static org.lwjgl.vulkan.VK10.*;
 
 public class QueueFamilies {
     public record QueueFamily(VkPhysicalDevice device, int index, int flags, int queueCount) {
+        //TODO: Queue Creation
+        /*PointerBuffer pQueue = stack.pointers(VK_NULL_HANDLE);
+        vkGetDeviceQueue(device, queueFamilies.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, null).index(), 0, pQueue);
+        VkQueue graphicsQueue = new VkQueue(pQueue.get(0), device);
+        vkGetDeviceQueue(device, queueFamilies.findQueueFamily(0, surface).index(), 0, pQueue);
+        VkQueue presentQueue = new VkQueue(pQueue.get(0), device);*/
     }
 
     private final QueueFamily[] families;
@@ -35,9 +41,12 @@ public class QueueFamilies {
     }
 
     public VkPhysicalDevice physicalDevice() {
-        return families[0].device;
+        return families[0].device();
     }
 
+    public QueueFamily[] all() {
+        return families;
+    }
     public int count() {
         return families.length;
     }

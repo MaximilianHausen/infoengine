@@ -18,4 +18,8 @@ public class VkBuilder {
     public static PhysicalDevicePicker physicalDevice() {
         return new PhysicalDevicePicker().instance(Engine.getVkInstance());
     }
+
+    public static LogicalDeviceBuilder logicalDevice() {
+        return new LogicalDeviceBuilder();
+    }
 }
