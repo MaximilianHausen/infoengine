@@ -9,7 +9,6 @@ jobs:
       - uses: gradle/wrapper-validation-action@v1
       - uses: actions/setup-java@v3
         with:
-          distribution: zulu
           java-version: 17
       - run: chmod +x ./gradlew
       - uses: gradle/gradle-build-action@v2
