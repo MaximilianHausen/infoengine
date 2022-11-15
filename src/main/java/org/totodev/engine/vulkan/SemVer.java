@@ -1,4 +1,4 @@
-package org.totodev.vulkan;
+package org.totodev.engine.vulkan;
 
 import static org.lwjgl.vulkan.VK10.VK_MAKE_API_VERSION;
 

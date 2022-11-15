@@ -1,6 +1,7 @@
 bin/
 build/
 .gradle/
-.idea/
 
+.idea/
 !.idea/codeStyles/*
+.fleet/

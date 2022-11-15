@@ -6,7 +6,7 @@ import org.joml.Math;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 import org.totodev.engine.core.*;
-import org.totodev.vulkan.QueueFamilies;
+import org.totodev.engine.vulkan.QueueFamilies;
 
 import java.nio.*;
 

@@ -1,7 +1,7 @@
 package org.totodev.engine.rendering;
 
 import org.totodev.engine.core.Engine;
-import org.totodev.vulkan.*;
+import org.totodev.engine.vulkan.*;
 
 /**
  * Factory for different vulkan builders with engine-specific boilerplate values being set automatically.

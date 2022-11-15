@@ -1,4 +1,4 @@
-package org.totodev.vulkan;
+package org.totodev.engine.vulkan;
 
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;

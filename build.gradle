@@ -71,6 +71,7 @@ dependencies {
     implementation "org.lwjgl:lwjgl-glfw:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-openal:$lwjglVersion"
     implementation "org.lwjgl:lwjgl-stb:$lwjglVersion"
+    implementation "org.lwjgl:lwjgl-vulkan:$lwjglVersion"
 
     // lwjgl natives
     allPlatformsNative "org.lwjgl:lwjgl:$lwjglVersion"
@@ -78,49 +79,6 @@ dependencies {
     allPlatformsNative "org.lwjgl:lwjgl-glfw:$lwjglVersion"
     allPlatformsNative "org.lwjgl:lwjgl-openal:$lwjglVersion"
     allPlatformsNative "org.lwjgl:lwjgl-stb:$lwjglVersion"
-
-    // vulkan + natives for each capability
-    implementation(project(':vulkan'))
-    x64windowsImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-x64windows'
-        }
-    }
-    x86windowsImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-x86windows'
-        }
-    }
-    arm64windowsImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-arm64windows'
-        }
-    }
-    x64linuxImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-x64linux'
-        }
-    }
-    arm64linuxImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-arm64linux'
-        }
-    }
-    arm32linuxImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-arm32linux'
-        }
-    }
-    x64macosImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-x64macos'
-        }
-    }
-    arm64macosImplementation(project(':vulkan')) {
-        capabilities {
-            requireCapability 'org.totodev:vulkan-arm64macos'
-        }
-    }
 }
 
 publishing {

@@ -4,7 +4,7 @@ import org.jetbrains.annotations.NotNull;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 import org.totodev.engine.rendering.VkBuilder;
-import org.totodev.vulkan.QueueFamilies;
+import org.totodev.engine.vulkan.QueueFamilies;
 
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.vulkan.VK10.VK_QUEUE_GRAPHICS_BIT;

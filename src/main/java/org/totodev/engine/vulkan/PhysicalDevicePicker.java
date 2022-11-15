@@ -1,4 +1,4 @@
-package org.totodev.vulkan;
+package org.totodev.engine.vulkan;
 
 import org.eclipse.collections.api.factory.*;
 import org.eclipse.collections.api.set.MutableSet;

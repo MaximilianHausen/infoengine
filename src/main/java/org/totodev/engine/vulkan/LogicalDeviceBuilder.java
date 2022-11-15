@@ -1,4 +1,4 @@
-package org.totodev.vulkan;
+package org.totodev.engine.vulkan;
 
 import org.eclipse.collections.api.RichIterable;
 import org.eclipse.collections.impl.factory.Lists;

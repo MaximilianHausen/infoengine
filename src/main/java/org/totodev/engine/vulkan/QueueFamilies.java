@@ -1,4 +1,4 @@
-package org.totodev.vulkan;
+package org.totodev.engine.vulkan;
 
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.system.MemoryStack;

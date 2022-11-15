@@ -7,7 +7,7 @@ import org.lwjgl.vulkan.*;
 import org.totodev.engine.rendering.VkBuilder;
 import org.totodev.engine.rendering.vulkan.VkCommandBufferHelper;
 import org.totodev.engine.util.logging.Logger;
-import org.totodev.vulkan.SemVer;
+import org.totodev.engine.vulkan.SemVer;
 
 import java.util.concurrent.*;
 import java.util.function.Consumer;
