@@ -43,10 +43,10 @@ public class LogicalDeviceBuilder {
 
             VkDeviceQueueCreateInfo.Buffer queueCreateInfos = VkDeviceQueueCreateInfo.calloc(queueFamilies.count(), stack);
 
-            for (QueueFamilies.QueueFamily queueFamily : queueFamilies.all()) {
-                VkDeviceQueueCreateInfo queueCreateInfo = queueCreateInfos.get(queueFamily.index());
+            for (QueueFamily queueFamily : queueFamilies.all()) {
+                VkDeviceQueueCreateInfo queueCreateInfo = queueCreateInfos.get(queueFamily.familyIndex());
                 queueCreateInfo.sType(VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO);
-                queueCreateInfo.queueFamilyIndex(queueFamily.index());
+                queueCreateInfo.queueFamilyIndex(queueFamily.familyIndex());
                 queueCreateInfo.pQueuePriorities(stack.floats(1.0f));
             }
 

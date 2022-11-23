@@ -72,9 +72,9 @@ public final class VkSwapchainHelper {
 
             QueueFamilies indices = new QueueFamilies(device.getPhysicalDevice());
 
-            if (!indices.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, null).equals(indices.findQueueFamily(0, surface))) {
+            if (!indices.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, false).equals(indices.findQueueFamily(0, true))) {
                 createInfo.imageSharingMode(VK_SHARING_MODE_CONCURRENT);
-                createInfo.pQueueFamilyIndices(stack.ints(indices.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, null).index(), indices.findQueueFamily(0, surface).index()));
+                createInfo.pQueueFamilyIndices(stack.ints(indices.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, false).familyIndex(), indices.findQueueFamily(0, true).familyIndex()));
             } else {
                 createInfo.imageSharingMode(VK_SHARING_MODE_EXCLUSIVE);
             }

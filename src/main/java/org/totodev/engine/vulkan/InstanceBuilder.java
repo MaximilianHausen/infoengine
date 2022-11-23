@@ -1,6 +1,6 @@
 package org.totodev.engine.vulkan;
 
-import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.api.set.*;
 import org.eclipse.collections.impl.factory.Sets;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
@@ -15,8 +15,8 @@ import static org.lwjgl.vulkan.VK12.*;
 
 public class InstanceBuilder {
     private VkApplicationInfo appInfo;
-    private ImmutableSet<String> layers;
-    private ImmutableSet<String> extensions;
+    private SetIterable<String> layers;
+    private SetIterable<String> extensions;
     private VkDebugUtilsMessengerCallbackEXTI debugCallback;
 
     public InstanceBuilder appInfo(String appName, SemVer appVersion, String engineName, SemVer engineVersion) {
@@ -30,13 +30,13 @@ public class InstanceBuilder {
         return this;
     }
 
-    public InstanceBuilder layers(String... layers) {
-        this.layers = Sets.immutable.of(layers);
+    public InstanceBuilder layers(SetIterable<String> layers) {
+        this.layers = layers;
         return this;
     }
 
-    public InstanceBuilder extensions(String... extensions) {
-        this.extensions = Sets.immutable.of(extensions);
+    public InstanceBuilder extensions(SetIterable<String> extensions) {
+        this.extensions = extensions;
         return this;
     }
 

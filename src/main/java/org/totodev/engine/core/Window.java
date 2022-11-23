@@ -30,12 +30,12 @@ public class Window implements AutoCloseable {
     //region Vulkan
     private final long vkSurface;
 
-    private long vkSwapchain;
-    private int vkImageFormat;
-    private VkExtent2D vkExtent;
+    private final long vkSwapchain;
+    private final int vkImageFormat;
+    private final VkExtent2D vkExtent;
 
-    private LongList vkImages;
-    private LongList vkImageViews;
+    private final LongList vkImages;
+    private final LongList vkImageViews;
     //endregion
 
     /**
@@ -46,15 +46,7 @@ public class Window implements AutoCloseable {
         if (id == NULL)
             Logger.log(LogLevel.Critical, "GLFW", "Window could not be created");
 
-        // Seperated because the override in MainWindow needs a surface to exist and this is better than making everything protected
         vkSurface = VkSurfaceHelper.createSurface(Engine.getVkInstance(), id);
-        initVulkan();
-
-        if (!startHidden) glfwShowWindow(id);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " created and set as current");
-    }
-
-    protected void initVulkan() {
         VkSwapchainHelper.SwapchainCreationResult swapchainCreationResult = VkSwapchainHelper.createSwapChain(this, 3);
         vkSwapchain = swapchainCreationResult.swapchain();
         vkImages = swapchainCreationResult.images();
@@ -62,6 +54,9 @@ public class Window implements AutoCloseable {
         vkExtent = swapchainCreationResult.extent();
 
         vkImageViews = VkImageHelper.createImageViews(Engine.getLogicalDevice(), vkImages, vkImageFormat);
+
+        if (!startHidden) glfwShowWindow(id);
+        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " created and set as current");
     }
 
     //region Random stuff

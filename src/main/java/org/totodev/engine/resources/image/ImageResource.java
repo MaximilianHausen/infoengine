@@ -118,7 +118,7 @@ public class ImageResource implements Resource, ImageProvider {
     public static void loadEmpty() {
         try (MemoryStack stack = stackPush()) {
             try (Image temp = new Image(stack.calloc(4), 1, 1, 4)) {
-                long commandPool = VkCommandBufferHelper.createCommandPool(0, Engine.getGraphicsQueueFamily());
+                long commandPool = VkCommandBufferHelper.createCommandPool(0, Engine.getGraphicsQueueFamily().familyIndex());
                 emptyImage = VkImageHelper.createTextureImage(commandPool, temp);
                 emptyImageView = VkImageHelper.createImageView(emptyImage.image(), VK_FORMAT_R8G8B8A8_SRGB);
                 emptySampler = VkImageHelper.createTextureSampler(VK_FILTER_NEAREST, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT, 0);

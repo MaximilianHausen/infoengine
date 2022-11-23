@@ -1,29 +1,32 @@
 package org.totodev.engine.core;
 
 import org.eclipse.collections.api.factory.Sets;
-import org.eclipse.collections.api.set.ImmutableSet;
+import org.eclipse.collections.api.set.*;
+import org.lwjgl.PointerBuffer;
 import org.lwjgl.glfw.GLFWErrorCallback;
+import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 import org.totodev.engine.rendering.VkBuilder;
 import org.totodev.engine.rendering.vulkan.VkCommandBufferHelper;
 import org.totodev.engine.util.logging.Logger;
-import org.totodev.engine.vulkan.SemVer;
+import org.totodev.engine.vulkan.*;
 
 import java.util.concurrent.*;
 import java.util.function.Consumer;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFWVulkan.*;
+import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.vulkan.EXTDebugUtils.*;
-import static org.lwjgl.vulkan.KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME;
 import static org.lwjgl.vulkan.VK10.*;
 
 public class Engine {
     public record WorkerResources(long commandPool) {
     }
 
-    public static final ImmutableSet<String> VULKAN_EXTENSIONS = Sets.immutable.of(VK_KHR_SWAPCHAIN_EXTENSION_NAME);
-    public static final String[] VALIDATION_LAYERS = new String[]{"VK_LAYER_KHRONOS_validation"};
+    private static String appName;
+    private static SemVer appVersion;
 
     private static Window mainWindow;
 
@@ -33,8 +36,9 @@ public class Engine {
     private static VkPhysicalDevice vkPhysicalDevice;
     private static VkDevice vkLogicalDevice;
 
-    private static int graphicsQueueFamily;
-    private static int presentQueueFamily;
+    //TODO: Rework queue management
+    private static QueueFamily graphicsQueueFamily;
+    private static QueueFamily presentQueueFamily;
     private static VkQueue graphicsQueue;
     private static VkQueue presentQueue;
     //endregion
@@ -45,43 +49,90 @@ public class Engine {
 
     private static final ThreadPoolExecutor workers = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
     private static final ThreadLocal<WorkerResources> workerResources = ThreadLocal.withInitial(() -> new WorkerResources(
-            VkCommandBufferHelper.createCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, getGraphicsQueueFamily())
+        VkCommandBufferHelper.createCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, getGraphicsQueueFamily().familyIndex())
     ));
     //endregion
 
     /**
      * Initializes glfw and vulkan and creates a hidden main window.
      * This should be called from the main thread as soon as possible.
-     * @param appName      The name of this application, used to init vulkan and name the main window
-     * @param appVersion   The version of this application, used to init vulkan
-     * @param windowWidth  The width of the main window in screen coordinates
-     * @param windowHeight The height of the main window in screen coordinates
+     * @param appName    The name of this application, used to init vulkan and name the main window
+     * @param appVersion The version of this application, used to init vulkan
      */
-    public static void initialize(String appName, SemVer appVersion, int windowWidth, int windowHeight) {
+    public static void initialize(String appName, SemVer appVersion) {
+        Engine.appName = appName;
+        Engine.appVersion = appVersion;
+
         initGlfw();
+        initVulkan();
+    }
+
+    private static void initGlfw() {
+        GLFWErrorCallback.createPrint(System.err).set();
+
+        if (!glfwInit()) throw new RuntimeException("GLFW could not be initialized");
+
+        glfwDefaultWindowHints();
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+    }
+
+    private static void initVulkan() {
+        PointerBuffer ppExtensions = glfwGetRequiredInstanceExtensions();
+        if (ppExtensions == null) throw new RuntimeException("Vulkan extensions required for window creation not found");
+        MutableSet<String> extensions = Sets.mutable.empty();
+        while (ppExtensions.hasRemaining())
+            extensions.add(ppExtensions.getStringASCII());
 
         vkInstance = VkBuilder.instance()
-                .appInfo(appName, appVersion, "infoengine", new SemVer(1, 0, 0))
-                .layers(VALIDATION_LAYERS)
-                .debugCallback(Logger::vkLoggingCallback)
-                .build();
+            .appInfo(appName, appVersion, "infoengine", new SemVer(1, 0, 0))
+            .layers(Sets.immutable.of("VK_LAYER_KHRONOS_validation"))
+            .extensions(extensions)
+            .debugCallback(Logger::vkLoggingCallback)
+            .build();
+
         vkDebugManager = VkBuilder.debugUtilsMessenger()
-                .severities(VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-                .types(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
-                .callback(Logger::vkLoggingCallback)
+            .severities(VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
+            .types(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
+            .callback(Logger::vkLoggingCallback)
+            .build();
+
+        vkPhysicalDevice = VkBuilder.physicalDevice()
+            .extensions(extensions)
+            .features((features) -> true)
+            .queueFamilies((families) -> families.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, false) != null && families.findQueueFamily(0, true) != null)
+            .pick();
+
+        try (MemoryStack stack = stackPush()) {
+            VkPhysicalDeviceDescriptorIndexingFeaturesEXT indexingFeatures = VkPhysicalDeviceDescriptorIndexingFeaturesEXT.calloc(stack)
+                .sType(VK12.VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES)
+                .runtimeDescriptorArray(true)
+                .descriptorBindingPartiallyBound(true);
+
+            vkLogicalDevice = VkBuilder.logicalDevice()
+                .physicalDevice(Engine.getPhysicalDevice())
+                .extensions(extensions)
+                .features(features -> features.samplerAnisotropy(true))
+                .pNext(indexingFeatures.address())
                 .build();
-        mainWindow = new MainWindow(appName, windowWidth, windowHeight, true);
+        }
+
+        QueueFamilies queueFamilies = new QueueFamilies(Engine.getPhysicalDevice());
+        graphicsQueueFamily = queueFamilies.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, false);
+        presentQueueFamily = queueFamilies.findQueueFamily(0, true);
+
+        graphicsQueue = graphicsQueueFamily.getQueue(vkLogicalDevice, 0);
+        presentQueue = presentQueueFamily.getQueue(vkLogicalDevice, 0);
     }
 
     /**
-     * Locks this thread until the main window is closed or {@link Engine#terminate()} is called from another thread.
+     * Locks the executing thread until the main window is closed or {@link Engine#terminate()} is called from another thread.
      * While locked, code can be executed on this thread through {@link Engine#executeOnMainThread(Runnable)}. <br/>
      * Must be called from the main thread.
      */
-    public static void start() {
+    public static void start(int windowWidth, int windowHeight) {
+        mainWindow = new Window(appName, windowWidth, windowHeight, false);
         glfwSetWindowCloseCallback(mainWindow.getId(), windowId -> terminate());
-
-        mainWindow.setVisible(true);
 
         while (true) {
             try {
@@ -99,7 +150,7 @@ public class Engine {
 
     /**
      * Runs a task asynchronously on the main thread.
-     * The main thread must be locked in {@link Engine#start()}.
+     * The main thread must be locked in {@link Engine#start(int, int)}.
      * @param task The task to run
      */
     public static void executeOnMainThread(Runnable task) {
@@ -112,16 +163,6 @@ public class Engine {
      */
     public static void executeOnWorkerPool(Consumer<WorkerResources> task) {
         workers.execute(() -> task.accept(workerResources.get()));
-    }
-
-    private static void initGlfw() {
-        GLFWErrorCallback.createPrint(System.err).set();
-
-        if (!glfwInit()) throw new RuntimeException("GLFW could not be initialized");
-
-        glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     }
 
     private static void cleanup() {
@@ -155,17 +196,17 @@ public class Engine {
         Engine.vkLogicalDevice = logicalDevice;
     }
 
-    public static int getGraphicsQueueFamily() {
+    public static QueueFamily getGraphicsQueueFamily() {
         return graphicsQueueFamily;
     }
-    static void setGraphicsQueueFamily(int graphicsQueueFamily) {
+    static void setGraphicsQueueFamily(QueueFamily graphicsQueueFamily) {
         Engine.graphicsQueueFamily = graphicsQueueFamily;
     }
 
-    public static int getPresentQueueFamily() {
+    public static QueueFamily getPresentQueueFamily() {
         return presentQueueFamily;
     }
-    static void setPresentQueueFamily(int presentQueueFamily) {
+    static void setPresentQueueFamily(QueueFamily presentQueueFamily) {
         Engine.presentQueueFamily = presentQueueFamily;
     }
 

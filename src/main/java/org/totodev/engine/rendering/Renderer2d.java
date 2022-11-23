@@ -58,7 +58,7 @@ public class Renderer2d extends BaseSystem {
 
         vulkanObjects.graphicsPipeline = VkPipelineHelper.createGraphicsPipeline(Engine.getLogicalDevice(), window.getVkExtent(), vulkanObjects.renderPass, vertexLayout, vulkanObjects.descriptorSetLayout);
 
-        vulkanObjects.commandPool = VkCommandBufferHelper.createCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, Engine.getGraphicsQueueFamily());
+        vulkanObjects.commandPool = VkCommandBufferHelper.createCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, Engine.getGraphicsQueueFamily().familyIndex());
 
         // Per-Frame resources
         VkCommandBufferHelper.createCommandBuffers(vulkanObjects.commandPool, window.getVkImages().size())
