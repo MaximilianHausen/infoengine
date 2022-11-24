@@ -8,13 +8,14 @@ import org.lwjgl.vulkan.VkExtent2D;
 import org.totodev.engine.rendering.vulkan.*;
 import org.totodev.engine.util.logging.*;
 
-import java.nio.IntBuffer;
+import java.nio.*;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFWVulkan.glfwCreateWindowSurface;
 import static org.lwjgl.system.MemoryStack.stackPush;
 import static org.lwjgl.system.MemoryUtil.NULL;
 import static org.lwjgl.vulkan.KHRSwapchain.vkDestroySwapchainKHR;
-import static org.lwjgl.vulkan.VK10.vkDestroyImageView;
+import static org.lwjgl.vulkan.VK10.*;
 
 /**
  * Represents a glfw window
@@ -46,7 +47,13 @@ public class Window implements AutoCloseable {
         if (id == NULL)
             Logger.log(LogLevel.Critical, "GLFW", "Window could not be created");
 
-        vkSurface = VkSurfaceHelper.createSurface(Engine.getVkInstance(), id);
+        try (MemoryStack stack = stackPush()) {
+            LongBuffer pSurface = stack.longs(VK_NULL_HANDLE);
+            if (glfwCreateWindowSurface(Engine.getVkInstance(), id, null, pSurface) != VK_SUCCESS)
+                throw new RuntimeException("Failed to create window surface");
+            vkSurface = pSurface.get(0);
+        }
+
         VkSwapchainHelper.SwapchainCreationResult swapchainCreationResult = VkSwapchainHelper.createSwapChain(this, 3);
         vkSwapchain = swapchainCreationResult.swapchain();
         vkImages = swapchainCreationResult.images();
