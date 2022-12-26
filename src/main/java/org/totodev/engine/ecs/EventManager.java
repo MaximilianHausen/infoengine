@@ -23,7 +23,7 @@ public class EventManager {
                     try {
                         method.invoke();
                     } catch (WrongMethodTypeException e) {
-                        Logger.log(LogLevel.Error, "SceneEvents", "Wrong arguments supplied to event " + name + " [" + e + "]");
+                        Logger.log(LogLevel.ERROR, "SceneEvents", "Wrong arguments supplied to event " + name + " [" + e + "]");
                     } catch (Throwable e) {
                         throw new RuntimeException(e);
                     }
@@ -33,7 +33,7 @@ public class EventManager {
                     try {
                         method.invokeWithArguments(args);
                     } catch (WrongMethodTypeException e) {
-                        Logger.log(LogLevel.Error, "SceneEvents", "Wrong arguments supplied to event " + name + " [" + e + "]");
+                        Logger.log(LogLevel.ERROR, "SceneEvents", "Wrong arguments supplied to event " + name + " [" + e + "]");
                     } catch (Throwable e) {
                         throw new RuntimeException(e);
                     }

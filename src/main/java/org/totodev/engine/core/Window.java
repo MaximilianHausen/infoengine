@@ -5,8 +5,10 @@ import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.VkExtent2D;
+import org.totodev.engine.rendering.VkBuilder;
 import org.totodev.engine.rendering.vulkan.*;
 import org.totodev.engine.util.logging.*;
+import org.totodev.engine.vulkan.SwapchainBuilder;
 
 import java.nio.*;
 
@@ -24,7 +26,7 @@ import static org.lwjgl.vulkan.VK10.*;
 public class Window implements AutoCloseable {
     private final long id;
     private boolean closed = false;
-    private WindowModes currentMode = WindowModes.Windowed;
+    private WindowModes currentMode = WindowModes.WINDOWED;
     // Used to configure the window when exiting fullscreen
     private int lastWindowPosX = 0, lastWindowPosY = 0, lastWindowSizeX = 0, lastWindowSizeY = 0;
 
@@ -45,7 +47,7 @@ public class Window implements AutoCloseable {
     public Window(@NotNull String title, int width, int height, boolean startHidden) {
         id = glfwCreateWindow(width, height, title, NULL, NULL);
         if (id == NULL)
-            Logger.log(LogLevel.Critical, "GLFW", "Window could not be created");
+            Logger.log(LogLevel.CRITICAL, "GLFW", "Window could not be created");
 
         try (MemoryStack stack = stackPush()) {
             LongBuffer pSurface = stack.longs(VK_NULL_HANDLE);
@@ -54,7 +56,10 @@ public class Window implements AutoCloseable {
             vkSurface = pSurface.get(0);
         }
 
-        VkSwapchainHelper.SwapchainCreationResult swapchainCreationResult = VkSwapchainHelper.createSwapChain(this, 3);
+        SwapchainBuilder.SwapchainCreationResult swapchainCreationResult = VkBuilder.swapchain(this)
+            .imageCount(3)
+            .queues(Engine.getGraphicsQueueFamily(), Engine.getPresentQueueFamily())
+            .build();
         vkSwapchain = swapchainCreationResult.swapchain();
         vkImages = swapchainCreationResult.images();
         vkImageFormat = swapchainCreationResult.imageFormat();
@@ -63,7 +68,7 @@ public class Window implements AutoCloseable {
         vkImageViews = VkImageHelper.createImageViews(Engine.getLogicalDevice(), vkImages, vkImageFormat);
 
         if (!startHidden) glfwShowWindow(id);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " created and set as current");
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " created and set as current");
     }
 
     //region Random stuff
@@ -92,12 +97,12 @@ public class Window implements AutoCloseable {
     //region Minimize/Maximize
     public void minimize() {
         if (closed) throw new WindowClosedException();
-        if (currentMode == WindowModes.Fullscreen) {
-            Logger.log(LogLevel.Error, "GLFW", "Window " + id + " could not be minimized because it is in not in windowed mode");
+        if (currentMode == WindowModes.FULLSCREEN) {
+            Logger.log(LogLevel.ERROR, "GLFW", "Window " + id + " could not be minimized because it is in not in windowed mode");
             return;
         }
         glfwIconifyWindow(id);
-        Logger.log(LogLevel.Error, "GLFW", "Window " + id + " minimized");
+        Logger.log(LogLevel.ERROR, "GLFW", "Window " + id + " minimized");
     }
     public boolean isMinimized() {
         if (closed) throw new WindowClosedException();
@@ -106,12 +111,12 @@ public class Window implements AutoCloseable {
 
     public void maximize() {
         if (closed) throw new WindowClosedException();
-        if (currentMode == WindowModes.Fullscreen) {
-            Logger.log(LogLevel.Error, "GLFW", "Window " + id + " could not be maximized because it is in not in windowed mode");
+        if (currentMode == WindowModes.FULLSCREEN) {
+            Logger.log(LogLevel.ERROR, "GLFW", "Window " + id + " could not be maximized because it is in not in windowed mode");
             return;
         }
         glfwMaximizeWindow(id);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " maximized");
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " maximized");
     }
     public boolean isMaximized() {
         if (closed) throw new WindowClosedException();
@@ -120,12 +125,12 @@ public class Window implements AutoCloseable {
 
     public void restore() {
         if (closed) throw new WindowClosedException();
-        if (currentMode == WindowModes.Fullscreen) {
-            Logger.log(LogLevel.Error, "GLFW", "Window " + id + " could not be restores because it is in not in windowed mode");
+        if (currentMode == WindowModes.FULLSCREEN) {
+            Logger.log(LogLevel.ERROR, "GLFW", "Window " + id + " could not be restores because it is in not in windowed mode");
             return;
         }
         glfwRestoreWindow(id);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " restored");
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " restored");
     }
     //endregion
 
@@ -133,25 +138,25 @@ public class Window implements AutoCloseable {
     public void setMode(@NotNull WindowModes mode) {
         if (closed) throw new WindowClosedException();
         switch (mode) {
-            case Windowed -> setWindowed();
-            case Borderless -> Logger.log(LogLevel.Error, "GLFW", "Borderless mode is not supported yet");
-            case Fullscreen -> setFullscreen();
+            case WINDOWED -> setWindowed();
+            case BORDERLESS -> Logger.log(LogLevel.ERROR, "GLFW", "Borderless mode is not supported yet");
+            case FULLSCREEN -> setFullscreen();
         }
     }
     private void setWindowed() {
         switch (currentMode) {
-            case Windowed -> Logger.log(LogLevel.Debug, "GLFW", "Window " + id + " already in windowed mode");
-            case Fullscreen -> {
+            case WINDOWED -> Logger.log(LogLevel.DEBUG, "GLFW", "Window " + id + " already in windowed mode");
+            case FULLSCREEN -> {
                 glfwSetWindowMonitor(id, NULL, lastWindowPosX, lastWindowPosY, lastWindowSizeX, lastWindowSizeY, GLFW_DONT_CARE);
                 glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-                currentMode = WindowModes.Windowed;
-                Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set to windowed mode");
+                currentMode = WindowModes.WINDOWED;
+                Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " set to windowed mode");
             }
         }
     }
     private void setFullscreen() {
         switch (currentMode) {
-            case Windowed -> {
+            case WINDOWED -> {
                 int[] winPosX = new int[1], winPosY = new int[1], winSizeX = new int[1], winSizeY = new int[1];
                 glfwGetWindowPos(id, winPosX, winPosY);
                 glfwGetWindowSize(id, winSizeX, winSizeY);
@@ -165,10 +170,10 @@ public class Window implements AutoCloseable {
 
                 glfwSetWindowMonitor(id, glfwGetWindowMonitor(id), 0, 0, monSizeX[0], monSizeY[0], GLFW_DONT_CARE);
                 glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-                currentMode = WindowModes.Fullscreen;
-                Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set to fullscreen mode");
+                currentMode = WindowModes.FULLSCREEN;
+                Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " set to fullscreen mode");
             }
-            case Fullscreen -> Logger.log(LogLevel.Debug, "GLFW", "Window " + id + " already in fullscreen mode");
+            case FULLSCREEN -> Logger.log(LogLevel.DEBUG, "GLFW", "Window " + id + " already in fullscreen mode");
         }
     }
     //endregion
@@ -177,7 +182,7 @@ public class Window implements AutoCloseable {
     public void setPos(int x, int y) {
         if (closed) throw new WindowClosedException();
         glfwSetWindowPos(id, x, y);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " moved to  {x=" + x + ", y=" + y + "}");
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " moved to  {x=" + x + ", y=" + y + "}");
     }
     public Vector2i getPos() {
         if (closed) throw new WindowClosedException();
@@ -190,7 +195,7 @@ public class Window implements AutoCloseable {
     public void setSize(int x, int y) {
         if (closed) throw new WindowClosedException();
         glfwSetWindowSize(id, x, y);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " resized to  {x=" + x + ", y=" + y + "}");
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " resized to  {x=" + x + ", y=" + y + "}");
     }
     public Vector2i getSize() {
         if (closed) throw new WindowClosedException();
@@ -225,19 +230,19 @@ public class Window implements AutoCloseable {
     public void setSizeLimit(int minX, int minY, int maxX, int maxY) {
         if (closed) throw new WindowClosedException();
         glfwSetWindowSizeLimits(id, minX, minY, maxX, maxY);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " size limits set to {minX=" + minX + ", minY=" + minY + "}, {maxX=" + maxX + ", maxY=" + maxY + "}");
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " size limits set to {minX=" + minX + ", minY=" + minY + "}, {maxX=" + maxX + ", maxY=" + maxY + "}");
     }
 
     public void setAspectRatio(int x, int y) {
         if (closed) throw new WindowClosedException();
         glfwSetWindowAspectRatio(id, x, y);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " aspect ratio set to {x=" + x + ", y=" + y + "}");
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " aspect ratio set to {x=" + x + ", y=" + y + "}");
     }
 
     public void setTitle(String title) {
         if (closed) throw new WindowClosedException();
         glfwSetWindowTitle(id, title);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " title set to \"" + title + "\"");
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " title set to \"" + title + "\"");
     }
 
     public boolean isFocused() {
@@ -247,7 +252,7 @@ public class Window implements AutoCloseable {
     public void focus() {
         if (closed) throw new WindowClosedException();
         glfwFocusWindow(id);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " focused");
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " focused");
     }
 
     public Vector2i getFramebufferSize() {
@@ -279,7 +284,7 @@ public class Window implements AutoCloseable {
         if (closed) throw new WindowClosedException();
         if (bool) glfwShowWindow(id);
         else glfwHideWindow(id);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "visible" : "hidden"));
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " set as " + (bool ? "visible" : "hidden"));
     }
 
     public float getOpacity() {
@@ -298,7 +303,7 @@ public class Window implements AutoCloseable {
     public void setResizable(boolean bool) {
         if (closed) throw new WindowClosedException();
         glfwSetWindowAttrib(id, GLFW_RESIZABLE, bool ? GLFW_TRUE : GLFW_FALSE);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "resizable");
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "resizable");
     }
 
     public boolean isDecorated() {
@@ -308,7 +313,7 @@ public class Window implements AutoCloseable {
     public void setDecorated(boolean bool) {
         if (closed) throw new WindowClosedException();
         glfwSetWindowAttrib(id, GLFW_DECORATED, bool ? GLFW_TRUE : GLFW_FALSE);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "decorated");
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "decorated");
     }
 
     public boolean isFloating() {
@@ -318,7 +323,7 @@ public class Window implements AutoCloseable {
     public void setFloating(boolean bool) {
         if (closed) throw new WindowClosedException();
         glfwSetWindowAttrib(id, GLFW_FLOATING, bool ? GLFW_TRUE : GLFW_FALSE);
-        Logger.log(LogLevel.Info, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "floating");
+        Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " set as " + (bool ? "" : "not ") + "floating");
     }
     //endregion
 
@@ -352,6 +357,7 @@ public class Window implements AutoCloseable {
     public void close() {
         if (closed) return;
         vkImageViews.forEach(imageView -> vkDestroyImageView(Engine.getLogicalDevice(), imageView, null));
+        vkExtent.free();
         vkDestroySwapchainKHR(Engine.getLogicalDevice(), vkSwapchain, null);
         glfwDestroyWindow(id);
         closed = true;

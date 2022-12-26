@@ -75,7 +75,7 @@ public abstract class BaseSystem {
                                 MethodHandles.lookup().unreflect(m).bindTo(this)
                         ));
                     } catch (IllegalAccessException e) {
-                        Logger.log(LogLevel.Error, "System", "Could not access method " + m.getName() + " when reading event subscribers.");
+                        Logger.log(LogLevel.ERROR, "System", "Could not access method " + m.getName() + " when reading event subscribers.");
                     }
                 });
 
@@ -98,11 +98,11 @@ public abstract class BaseSystem {
                         else if (GlobalComponent.class.isAssignableFrom(fieldType))
                             cachedComponentSetters.add(Tuples.triple(true, fieldType, MethodHandles.lookup().unreflectSetter(f)));
                         else
-                            Logger.log(LogLevel.Error, "System", "Skipped cached component because the type " + fieldType.getName() + " of field " + f.getName() + " does not implement IComponent or IGlobalComponent.");
+                            Logger.log(LogLevel.ERROR, "System", "Skipped cached component because the type " + fieldType.getName() + " of field " + f.getName() + " does not implement IComponent or IGlobalComponent.");
                     } catch (InaccessibleObjectException | SecurityException e) {
-                        Logger.log(LogLevel.Error, "System", "Could not set field " + f.getName() + " as accessible when reading cached components.");
+                        Logger.log(LogLevel.ERROR, "System", "Could not set field " + f.getName() + " as accessible when reading cached components.");
                     } catch (IllegalAccessException e) {
-                        Logger.log(LogLevel.Error, "System", "Could not access field " + f.getName() + " when reading cached components.");
+                        Logger.log(LogLevel.ERROR, "System", "Could not access field " + f.getName() + " when reading cached components.");
                     }
                 });
 

@@ -21,7 +21,7 @@ public class SceneLoader {
     public static @NotNull Scene loadSceneFromFile(@NotNull Path path) {
         String jsonText = IO.getTextFromFile(new File(path.toUri()));
         if (jsonText.equals("")) {
-            Logger.log(LogLevel.Critical, "SceneLoader", "File " + path + " not found or is empty");
+            Logger.log(LogLevel.CRITICAL, "SceneLoader", "File " + path + " not found or is empty");
             return new Scene();
         }
         return loadScene(jsonText);
@@ -41,7 +41,7 @@ public class SceneLoader {
         try {
             sceneModel = gson.fromJson(sceneJson, SceneModel.class);
         } catch (JsonSyntaxException e) {
-            Logger.log(LogLevel.Critical, "SceneLoader", "Invalid scene file");
+            Logger.log(LogLevel.CRITICAL, "SceneLoader", "Invalid scene file");
             return scene;
         }
 
@@ -56,13 +56,13 @@ public class SceneLoader {
                 scene.addComponent(component);
                 component.deserializeAllState(componentModel.data);
             } catch (ClassNotFoundException e) {
-                Logger.log(LogLevel.Error, "SceneLoader", "Class " + componentModel.type + " could not be found. This component will not be added.");
+                Logger.log(LogLevel.ERROR, "SceneLoader", "Class " + componentModel.type + " could not be found. This component will not be added.");
                 errors++;
             } catch (NoSuchMethodException e) {
-                Logger.log(LogLevel.Error, "SceneLoader", "Empty constructor could not found on class " + componentModel.type + ". This component will not be added.");
+                Logger.log(LogLevel.ERROR, "SceneLoader", "Empty constructor could not found on class " + componentModel.type + ". This component will not be added.");
                 errors++;
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                Logger.log(LogLevel.Error, "SceneLoader", "Error while instantiating class " + componentModel.type + ". This component will not be added.");
+                Logger.log(LogLevel.ERROR, "SceneLoader", "Error while instantiating class " + componentModel.type + ". This component will not be added.");
                 errors++;
             }
         }
@@ -75,13 +75,13 @@ public class SceneLoader {
                 scene.addGlobalComponent(component);
                 component.deserializeState(componentModel.data);
             } catch (ClassNotFoundException e) {
-                Logger.log(LogLevel.Error, "SceneLoader", "Class " + componentModel.type + " could not be found. This global component will not be added.");
+                Logger.log(LogLevel.ERROR, "SceneLoader", "Class " + componentModel.type + " could not be found. This global component will not be added.");
                 errors++;
             } catch (NoSuchMethodException e) {
-                Logger.log(LogLevel.Error, "SceneLoader", "Empty constructor could not found on class " + componentModel.type + ". This global component will not be added.");
+                Logger.log(LogLevel.ERROR, "SceneLoader", "Empty constructor could not found on class " + componentModel.type + ". This global component will not be added.");
                 errors++;
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                Logger.log(LogLevel.Error, "SceneLoader", "Error while instantiating class " + componentModel.type + ". This global component will not be added.");
+                Logger.log(LogLevel.ERROR, "SceneLoader", "Error while instantiating class " + componentModel.type + ". This global component will not be added.");
                 errors++;
             }
         }
@@ -92,18 +92,18 @@ public class SceneLoader {
                 BaseSystem system = (BaseSystem) Class.forName(type).getDeclaredConstructor().newInstance();
                 scene.addSystem(system);
             } catch (ClassNotFoundException e) {
-                Logger.log(LogLevel.Error, "SceneLoader", "Class " + type + " could not be found. This system will not be added.");
+                Logger.log(LogLevel.ERROR, "SceneLoader", "Class " + type + " could not be found. This system will not be added.");
                 errors++;
             } catch (NoSuchMethodException e) {
-                Logger.log(LogLevel.Error, "SceneLoader", "Empty constructor could not found on class " + type + ". This system will not be added.");
+                Logger.log(LogLevel.ERROR, "SceneLoader", "Empty constructor could not found on class " + type + ". This system will not be added.");
                 errors++;
             } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-                Logger.log(LogLevel.Error, "SceneLoader", "Error while instantiating class " + type + ". This system will not be added.");
+                Logger.log(LogLevel.ERROR, "SceneLoader", "Error while instantiating class " + type + ". This system will not be added.");
                 errors++;
             }
         }
 
-        Logger.log(errors == 0 ? LogLevel.Info : LogLevel.Error, "SceneLoader", "Scene " + sceneModel.name + " loaded " + (errors == 0 ? "successfully." : "with " + errors + (errors == 1 ? " error." : " errors.")));
+        Logger.log(errors == 0 ? LogLevel.INFO : LogLevel.ERROR, "SceneLoader", "Scene " + sceneModel.name + " loaded " + (errors == 0 ? "successfully." : "with " + errors + (errors == 1 ? " error." : " errors.")));
         scene.start();
         return scene;
     }

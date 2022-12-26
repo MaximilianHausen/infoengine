@@ -5,11 +5,11 @@ package org.totodev.engine.util.logging;
  * Used by the {@link Logger} to discard unimportant messages
  */
 public enum LogLevel {
-    Trace(0),
-    Debug(1),
-    Info(2),
-    Error(3),
-    Critical(4);
+    TRACE(0),
+    DEBUG(1),
+    INFO(2),
+    ERROR(3),
+    CRITICAL(4);
 
     private final int value;
 
@@ -24,11 +24,11 @@ public enum LogLevel {
     @Override
     public String toString() {
         return switch (this) {
-            case Trace -> "Trace";
-            case Debug -> "Debug";
-            case Info -> "Info ";
-            case Error -> "Error";
-            case Critical -> "Crit ";
+            case TRACE -> "Trace";
+            case DEBUG -> "Debug";
+            case INFO -> "Info ";
+            case ERROR -> "Error";
+            case CRITICAL -> "Crit ";
         };
     }
 }

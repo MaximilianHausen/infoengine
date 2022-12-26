@@ -40,7 +40,7 @@ public class IO {
         try {
             return Files.readString(file.toPath());
         } catch (IOException e) {
-            Logger.log(LogLevel.Error, "IO", "Text could not be read from file <" + file.toPath() + ">");
+            Logger.log(LogLevel.ERROR, "IO", "Text could not be read from file <" + file.toPath() + ">");
             return "";
         }
     }

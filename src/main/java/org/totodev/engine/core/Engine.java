@@ -54,9 +54,8 @@ public class Engine {
     //endregion
 
     /**
-     * Initializes glfw and vulkan and creates a hidden main window.
-     * This should be called from the main thread as soon as possible.
-     * @param appName    The name of this application, used to init vulkan and name the main window
+     * Initializes glfw and vulkan. This should be called from the main thread as soon as possible.
+     * @param appName    The name of this application, used to init vulkan and name the main window in {@link Engine#start(int, int)}
      * @param appVersion The version of this application, used to init vulkan
      */
     public static void initialize(String appName, SemVer appVersion) {
@@ -78,16 +77,18 @@ public class Engine {
     }
 
     private static void initVulkan() {
-        PointerBuffer ppExtensions = glfwGetRequiredInstanceExtensions();
-        if (ppExtensions == null) throw new RuntimeException("Vulkan extensions required for window creation not found");
-        MutableSet<String> extensions = Sets.mutable.empty();
-        while (ppExtensions.hasRemaining())
-            extensions.add(ppExtensions.getStringASCII());
+        PointerBuffer ppGlfwInstanceExtensions = glfwGetRequiredInstanceExtensions();
+        if (ppGlfwInstanceExtensions == null) throw new RuntimeException("Vulkan instance extensions required for window creation not found");
+        MutableSet<String> instanceExtensions = Sets.mutable.empty();
+        while (ppGlfwInstanceExtensions.hasRemaining())
+            instanceExtensions.add(ppGlfwInstanceExtensions.getStringASCII());
+
+        ImmutableSet<String> deviceExtensions = Sets.immutable.of(KHRSwapchain.VK_KHR_SWAPCHAIN_EXTENSION_NAME);
 
         vkInstance = VkBuilder.instance()
             .appInfo(appName, appVersion, "infoengine", new SemVer(1, 0, 0))
             .layers(Sets.immutable.of("VK_LAYER_KHRONOS_validation"))
-            .extensions(extensions)
+            .extensions(instanceExtensions)
             .debugCallback(Logger::vkLoggingCallback)
             .build();
 
@@ -98,7 +99,7 @@ public class Engine {
             .build();
 
         vkPhysicalDevice = VkBuilder.physicalDevice()
-            .extensions(extensions)
+            .extensions(deviceExtensions)
             .features((features) -> true)
             .queueFamilies((families) -> families.findQueueFamily(VK_QUEUE_GRAPHICS_BIT, false) != null && families.findQueueFamily(0, true) != null)
             .pick();
@@ -111,7 +112,7 @@ public class Engine {
 
             vkLogicalDevice = VkBuilder.logicalDevice()
                 .physicalDevice(Engine.getPhysicalDevice())
-                .extensions(extensions)
+                .extensions(deviceExtensions)
                 .features(features -> features.samplerAnisotropy(true))
                 .pNext(indexingFeatures.address())
                 .build();
@@ -129,6 +130,8 @@ public class Engine {
      * Locks the executing thread until the main window is closed or {@link Engine#terminate()} is called from another thread.
      * While locked, code can be executed on this thread through {@link Engine#executeOnMainThread(Runnable)}. <br/>
      * Must be called from the main thread.
+     * @param windowWidth Width of the new main window in pixels
+     * @param windowHeight Height of the new main window in pixels
      */
     public static void start(int windowWidth, int windowHeight) {
         mainWindow = new Window(appName, windowWidth, windowHeight, false);

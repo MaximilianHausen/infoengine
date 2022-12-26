@@ -13,7 +13,7 @@ import static org.lwjgl.vulkan.VK10.VK_FALSE;
  * A simple customizable logger. Set the logging target with {@link #setLogTarget(Consumer)}.
  */
 public class Logger {
-    private static LogLevel minLogLevel = LogLevel.Info;
+    private static LogLevel minLogLevel = LogLevel.INFO;
     private static Consumer<String> logTarget = System.out::println;
     private static Consumer<String> errLogTarget = System.err::println;
 
@@ -38,7 +38,7 @@ public class Logger {
      */
     public static void setLogLevel(@NotNull LogLevel minLevel) {
         minLogLevel = minLevel;
-        log(LogLevel.Info, "Logger", "LogLevel set to " + minLogLevel + ".");
+        log(LogLevel.INFO, "Logger", "LogLevel set to " + minLogLevel + ".");
     }
 
     /**
@@ -46,9 +46,9 @@ public class Logger {
      * @param target The new target
      */
     public static void setLogTarget(@NotNull Consumer<String> target) {
-        log(LogLevel.Info, "Logger", "Log target changed. This target will no longer receive log messages.");
+        log(LogLevel.INFO, "Logger", "Log target changed. This target will no longer receive log messages.");
         logTarget = target;
-        log(LogLevel.Info, "Logger", "Log target changed. This target will now receive all log messages.");
+        log(LogLevel.INFO, "Logger", "Log target changed. This target will now receive all log messages.");
     }
 
     /**
@@ -57,7 +57,7 @@ public class Logger {
      */
     public static void setErrLogTarget(@NotNull Consumer<String> target) {
         errLogTarget = target;
-        log(LogLevel.Info, "Logger", "Error log target changed.");
+        log(LogLevel.INFO, "Logger", "Error log target changed.");
     }
 
     private static @NotNull String formatMessage(@NotNull LogLevel logLevel, @NotNull String source, @NotNull String message) {
@@ -82,10 +82,10 @@ public class Logger {
         VkDebugUtilsMessengerCallbackDataEXT callbackData = VkDebugUtilsMessengerCallbackDataEXT.create(pCallbackData);
 
         LogLevel logLevel = switch (messageSeverity) {
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT -> LogLevel.Trace;
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT -> LogLevel.Info;
-            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT -> LogLevel.Error;
-            default -> LogLevel.Debug;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT -> LogLevel.TRACE;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT -> LogLevel.INFO;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT -> LogLevel.ERROR;
+            default -> LogLevel.DEBUG;
         };
         Logger.log(logLevel, "Vulkan", callbackData.pMessageString());
 
