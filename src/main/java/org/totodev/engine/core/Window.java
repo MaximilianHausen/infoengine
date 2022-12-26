@@ -157,21 +157,23 @@ public class Window implements AutoCloseable {
     private void setFullscreen() {
         switch (currentMode) {
             case WINDOWED -> {
-                int[] winPosX = new int[1], winPosY = new int[1], winSizeX = new int[1], winSizeY = new int[1];
-                glfwGetWindowPos(id, winPosX, winPosY);
-                glfwGetWindowSize(id, winSizeX, winSizeY);
-                lastWindowPosX = winPosX[0];
-                lastWindowPosY = winPosY[0];
-                lastWindowSizeX = winSizeX[0];
-                lastWindowSizeY = winSizeY[0];
+                try (MemoryStack stack = stackPush()) {
+                    IntBuffer winPosX = stack.callocInt(1), winPosY = stack.callocInt(1), winSizeX = stack.callocInt(1), winSizeY = stack.callocInt(1);
+                    glfwGetWindowPos(id, winPosX, winPosY);
+                    glfwGetWindowSize(id, winSizeX, winSizeY);
+                    lastWindowPosX = winPosX.get();
+                    lastWindowPosY = winPosY.get();
+                    lastWindowSizeX = winSizeX.get();
+                    lastWindowSizeY = winSizeY.get();
 
-                int[] monSizeX = new int[1], monSizeY = new int[1];
-                glfwGetMonitorWorkarea(glfwGetWindowMonitor(id), new int[1], new int[1], monSizeX, monSizeY);
+                    IntBuffer monSizeX = winSizeX, monSizeY = winSizeY; // Reusing the old buffers. Reassigning for readability.
+                    glfwGetMonitorWorkarea(glfwGetWindowMonitor(id), null, null, monSizeX, monSizeY);
 
-                glfwSetWindowMonitor(id, glfwGetWindowMonitor(id), 0, 0, monSizeX[0], monSizeY[0], GLFW_DONT_CARE);
-                glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
-                currentMode = WindowModes.FULLSCREEN;
-                Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " set to fullscreen mode");
+                    glfwSetWindowMonitor(id, glfwGetWindowMonitor(id), 0, 0, monSizeX.get(), monSizeY.get(), GLFW_DONT_CARE);
+                    glfwSetInputMode(id, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                    currentMode = WindowModes.FULLSCREEN;
+                    Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " set to fullscreen mode");
+                }
             }
             case FULLSCREEN -> Logger.log(LogLevel.DEBUG, "GLFW", "Window " + id + " already in fullscreen mode");
         }
@@ -257,16 +259,20 @@ public class Window implements AutoCloseable {
 
     public Vector2i getFramebufferSize() {
         if (closed) throw new WindowClosedException();
-        int[] x = new int[1], y = new int[1];
-        glfwGetFramebufferSize(id, x, y);
-        return new Vector2i(x[0], y[0]);
+        try (MemoryStack stack = stackPush()) {
+            IntBuffer x = stack.mallocInt(1), y = stack.mallocInt(1);
+            glfwGetFramebufferSize(id, x, y);
+            return new Vector2i(x.get(), y.get());
+        }
     }
 
     public Vector2f getContentScale() {
         if (closed) throw new WindowClosedException();
-        float[] x = new float[1], y = new float[1];
-        glfwGetWindowContentScale(id, x, y);
-        return new Vector2f(x[0], y[0]);
+        try (MemoryStack stack = stackPush()) {
+            FloatBuffer x = stack.callocFloat(1), y = stack.callocFloat(1);
+            glfwGetWindowContentScale(id, x, y);
+            return new Vector2f(x.get(), y.get());
+        }
     }
 
     public boolean isHovered() {
