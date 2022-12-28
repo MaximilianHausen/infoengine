@@ -1,7 +1,5 @@
 package org.totodev.engine.rendering.vulkan;
 
-import org.eclipse.collections.api.list.primitive.*;
-import org.eclipse.collections.impl.factory.primitive.LongLists;
 import org.joml.Vector3i;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -63,72 +61,6 @@ public final class VkImageHelper {
             vkBindImageMemory(device, textureImage, textureImageMemory, 0);
 
             return new VkImage(textureImage, textureImageMemory);
-        }
-    }
-
-    public static long createImageView(long image, int imageFormat) {
-        return createImageView(Engine.getLogicalDevice(), image, imageFormat);
-    }
-    public static long createImageView(VkDevice device, long image, int imageFormat) {
-        try (MemoryStack stack = stackPush()) {
-            VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.calloc(stack);
-            createInfo.sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO);
-            createInfo.image(image);
-            createInfo.viewType(VK_IMAGE_VIEW_TYPE_2D);
-            createInfo.format(imageFormat);
-
-            // createInfo.components().r(VK_COMPONENT_SWIZZLE_IDENTITY);
-            // createInfo.components().g(VK_COMPONENT_SWIZZLE_IDENTITY);
-            // createInfo.components().b(VK_COMPONENT_SWIZZLE_IDENTITY);
-            // createInfo.components().a(VK_COMPONENT_SWIZZLE_IDENTITY);
-
-            createInfo.subresourceRange().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT);
-            createInfo.subresourceRange().baseMipLevel(0);
-            createInfo.subresourceRange().levelCount(1);
-            createInfo.subresourceRange().baseArrayLayer(0);
-            createInfo.subresourceRange().layerCount(1);
-
-            LongBuffer pImageView = stack.mallocLong(1);
-            if (vkCreateImageView(device, createInfo, null, pImageView) != VK_SUCCESS)
-                throw new RuntimeException("Failed to create image view");
-
-            return pImageView.get(0);
-        }
-    }
-    public static LongList createImageViews(LongList images, int imageFormat) {
-        return createImageViews(Engine.getLogicalDevice(), images, imageFormat);
-    }
-    public static LongList createImageViews(VkDevice device, LongList images, int imageFormat) {
-        try (MemoryStack stack = stackPush()) {
-            VkImageViewCreateInfo createInfo = VkImageViewCreateInfo.calloc(stack);
-            createInfo.sType(VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO);
-            createInfo.viewType(VK_IMAGE_VIEW_TYPE_2D);
-            createInfo.format(imageFormat);
-
-            // createInfo.components().r(VK_COMPONENT_SWIZZLE_IDENTITY);
-            // createInfo.components().g(VK_COMPONENT_SWIZZLE_IDENTITY);
-            // createInfo.components().b(VK_COMPONENT_SWIZZLE_IDENTITY);
-            // createInfo.components().a(VK_COMPONENT_SWIZZLE_IDENTITY);
-
-            createInfo.subresourceRange().aspectMask(VK_IMAGE_ASPECT_COLOR_BIT);
-            createInfo.subresourceRange().baseMipLevel(0);
-            createInfo.subresourceRange().levelCount(1);
-            createInfo.subresourceRange().baseArrayLayer(0);
-            createInfo.subresourceRange().layerCount(1);
-
-            MutableLongList imageViews = LongLists.mutable.empty();
-
-            images.forEach(image -> {
-                createInfo.image(image);
-
-                LongBuffer pImageView = stack.mallocLong(1);
-                if (vkCreateImageView(device, createInfo, null, pImageView) != VK_SUCCESS)
-                    throw new RuntimeException("Failed to create image views");
-
-                imageViews.add(pImageView.get(0));
-            });
-
-            return imageViews;
         }
     }
 

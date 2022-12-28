@@ -3,7 +3,7 @@ package org.totodev.engine.resources.image;
 import org.joml.Vector2i;
 import org.lwjgl.system.MemoryStack;
 import org.totodev.engine.core.Engine;
-import org.totodev.engine.rendering.Image;
+import org.totodev.engine.rendering.*;
 import org.totodev.engine.rendering.vulkan.*;
 import org.totodev.engine.resources.Resource;
 import org.totodev.engine.util.IO;
@@ -75,7 +75,7 @@ public class ImageResource implements Resource, ImageProvider {
         loading = true;
         Engine.executeOnWorkerPool(r -> {
             image = VkImageHelper.createTextureImage(r.commandPool(), temp);
-            imageView = VkImageHelper.createImageView(image.image(), VK_FORMAT_R8G8B8A8_SRGB);
+            imageView = VkBuilder.imageView().image(image.image()).imageFormat(VK_FORMAT_R8G8B8A8_SRGB).buildOne();
             sampler = VkImageHelper.createTextureSampler(VK_FILTER_NEAREST, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT, 0);
             width = temp.getWidth();
             height = temp.getHeight();
@@ -120,7 +120,7 @@ public class ImageResource implements Resource, ImageProvider {
             try (Image temp = new Image(stack.calloc(4), 1, 1, 4)) {
                 long commandPool = VkCommandBufferHelper.createCommandPool(0, Engine.getGraphicsQueueFamily().familyIndex());
                 emptyImage = VkImageHelper.createTextureImage(commandPool, temp);
-                emptyImageView = VkImageHelper.createImageView(emptyImage.image(), VK_FORMAT_R8G8B8A8_SRGB);
+                emptyImageView = VkBuilder.imageView().image(emptyImage.image()).imageFormat(VK_FORMAT_R8G8B8A8_SRGB).buildOne();
                 emptySampler = VkImageHelper.createTextureSampler(VK_FILTER_NEAREST, VK_FILTER_NEAREST, VK_SAMPLER_ADDRESS_MODE_REPEAT, 0);
             }
         }

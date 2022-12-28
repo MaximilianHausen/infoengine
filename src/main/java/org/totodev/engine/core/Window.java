@@ -1,6 +1,7 @@
 package org.totodev.engine.core;
 
 import org.eclipse.collections.api.list.primitive.LongList;
+import org.eclipse.collections.impl.factory.primitive.LongLists;
 import org.jetbrains.annotations.NotNull;
 import org.joml.*;
 import org.lwjgl.system.MemoryStack;
@@ -65,7 +66,7 @@ public class Window implements AutoCloseable {
         vkImageFormat = swapchainCreationResult.imageFormat();
         vkExtent = swapchainCreationResult.extent();
 
-        vkImageViews = VkImageHelper.createImageViews(Engine.getLogicalDevice(), vkImages, vkImageFormat);
+        vkImageViews = LongLists.immutable.of(VkBuilder.imageView().images(vkImages.toArray()).imageFormat(vkImageFormat).buildAll());
 
         if (!startHidden) glfwShowWindow(id);
         Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " created and set as current");

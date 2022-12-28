@@ -34,4 +34,8 @@ public class VkBuilder {
             .surface(window.getVkSurface())
             .size(size.x, size.y);
     }
+
+    public static ImageViewBuilder imageView() {
+        return new ImageViewBuilder().device(Engine.getLogicalDevice());
+    }
 }
