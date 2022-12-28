@@ -38,8 +38,8 @@ public class Window implements AutoCloseable {
     private final int vkImageFormat;
     private final VkExtent2D vkExtent;
 
-    private final LongList vkImages;
-    private final LongList vkImageViews;
+    private final long[] vkImages;
+    private final long[] vkImageViews;
     //endregion
 
     /**
@@ -66,7 +66,7 @@ public class Window implements AutoCloseable {
         vkImageFormat = swapchainCreationResult.imageFormat();
         vkExtent = swapchainCreationResult.extent();
 
-        vkImageViews = LongLists.immutable.of(VkBuilder.imageView().images(vkImages.toArray()).imageFormat(vkImageFormat).buildAll());
+        vkImageViews = VkBuilder.imageView().images(vkImages).imageFormat(vkImageFormat).buildAll();
 
         if (!startHidden) glfwShowWindow(id);
         Logger.log(LogLevel.INFO, "GLFW", "Window " + id + " created and set as current");
@@ -341,10 +341,10 @@ public class Window implements AutoCloseable {
     public long getVkSwapchain() {
         return vkSwapchain;
     }
-    public LongList getVkImages() {
+    public long[] getVkImages() {
         return vkImages;
     }
-    public LongList getVkImageViews() {
+    public long[] getVkImageViews() {
         return vkImageViews;
     }
     public int getVkImageFormat() {
@@ -363,7 +363,7 @@ public class Window implements AutoCloseable {
     @Override
     public void close() {
         if (closed) return;
-        vkImageViews.forEach(imageView -> vkDestroyImageView(Engine.getLogicalDevice(), imageView, null));
+        for (long imageView : vkImageViews) vkDestroyImageView(Engine.getLogicalDevice(), imageView, null);
         vkExtent.free();
         vkDestroySwapchainKHR(Engine.getLogicalDevice(), vkSwapchain, null);
         glfwDestroyWindow(id);

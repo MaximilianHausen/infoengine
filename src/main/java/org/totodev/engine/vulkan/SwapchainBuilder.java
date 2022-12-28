@@ -99,7 +99,7 @@ public class SwapchainBuilder {
         return this;
     }
 
-    public record SwapchainCreationResult(long swapchain, LongList images, int imageFormat, VkExtent2D extent) {
+    public record SwapchainCreationResult(long swapchain, long[] images, int imageFormat, VkExtent2D extent) {
     }
     public SwapchainCreationResult build() {
         try (MemoryStack stack = stackPush()) {
@@ -152,9 +152,9 @@ public class SwapchainBuilder {
             vkGetSwapchainImagesKHR(device, swapchain, pImageCount, null);
             vkGetSwapchainImagesKHR(device, swapchain, pImageCount, pSwapchainImages);
 
-            MutableLongList swapchainImages = LongLists.mutable.empty();
-            for (int i = 0; i < pSwapchainImages.capacity(); i++)
-                swapchainImages.add(pSwapchainImages.get(i));
+            long[] swapchainImages = new long[pSwapchainImages.capacity()];
+            for (int i = 0; i < swapchainImages.length; i++)
+                swapchainImages[i] = pSwapchainImages.get(i);
 
             return new SwapchainCreationResult(swapchain, swapchainImages, format.format(), VkExtent2D.create().set(extent));
         }

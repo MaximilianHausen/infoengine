@@ -17,7 +17,7 @@ public class VulkanObjects implements GlobalComponent {
     }
 
     public VulkanObjects() {
-        frameResources = new FrameResources[Engine.getMainWindow().getVkImages().size()];
+        frameResources = new FrameResources[Engine.getMainWindow().getVkImages().length];
         for (int i = 0; i < frameResources.length; i++)
             frameResources[i] = new FrameResources();
     }

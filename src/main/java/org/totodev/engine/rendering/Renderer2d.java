@@ -3,6 +3,7 @@ package org.totodev.engine.rendering;
 import org.eclipse.collections.api.factory.Lists;
 import org.eclipse.collections.api.list.MutableList;
 import org.eclipse.collections.api.list.primitive.IntList;
+import org.eclipse.collections.impl.factory.primitive.LongLists;
 import org.joml.*;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
@@ -61,12 +62,12 @@ public class Renderer2d extends BaseSystem {
         vulkanObjects.commandPool = VkCommandBufferHelper.createCommandPool(VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT, Engine.getGraphicsQueueFamily().familyIndex());
 
         // Per-Frame resources
-        VkCommandBufferHelper.createCommandBuffers(vulkanObjects.commandPool, window.getVkImages().size())
+        VkCommandBufferHelper.createCommandBuffers(vulkanObjects.commandPool, window.getVkImages().length)
                 .forEachWithIndex((c, j) -> vulkanObjects.frameResources[j].commandBuffer = c);
-        VkFramebufferHelper.createFramebuffers(window.getVkImageViews(), window.getVkExtent().width(), window.getVkExtent().height(), vulkanObjects.renderPass)
+        VkFramebufferHelper.createFramebuffers(LongLists.immutable.of(window.getVkImageViews()), window.getVkExtent().width(), window.getVkExtent().height(), vulkanObjects.renderPass)
                 .forEachWithIndex((f, j) -> vulkanObjects.frameResources[j].framebuffer = f);
 
-        int imageCount = Engine.getMainWindow().getVkImages().size();
+        int imageCount = Engine.getMainWindow().getVkImages().length;
 
         VkSyncObjectHelper.createSemaphores(imageCount).forEachWithIndex((s, j) -> vulkanObjects.frameResources[j].imageAvailableSemaphore = s);
         VkSyncObjectHelper.createSemaphores(imageCount).forEachWithIndex((s, j) -> vulkanObjects.frameResources[j].renderFinishedSemaphore = s);
