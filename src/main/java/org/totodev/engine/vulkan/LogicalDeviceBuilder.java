@@ -5,6 +5,7 @@ import org.eclipse.collections.impl.factory.Lists;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
+import org.totodev.engine.util.logging.*;
 
 import java.util.function.Consumer;
 
@@ -55,6 +56,7 @@ public class LogicalDeviceBuilder {
 
             PointerBuffer pExtensions = stack.mallocPointer(extensions.size());
             extensions.forEach((x) -> pExtensions.put(stack.UTF8(x)));
+            pExtensions.rewind();
 
             VkDeviceCreateInfo createInfo = VkDeviceCreateInfo.calloc(stack)
                     .sType(VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO)
@@ -66,6 +68,8 @@ public class LogicalDeviceBuilder {
             PointerBuffer pDevice = stack.pointers(VK_NULL_HANDLE);
             if (vkCreateDevice(physicalDevice, createInfo, null, pDevice) != VK_SUCCESS)
                 throw new RuntimeException("Failed to create logical device");
+
+            Logger.log(LogLevel.TRACE, "VkBuilder", "Created logical device " + pDevice.get(0));
             return new VkDevice(pDevice.get(0), physicalDevice, createInfo);
         }
     }

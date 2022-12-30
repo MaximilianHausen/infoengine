@@ -5,6 +5,7 @@ import org.eclipse.collections.impl.factory.Sets;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
+import org.totodev.engine.util.logging.*;
 
 import java.nio.*;
 
@@ -86,8 +87,8 @@ public class InstanceBuilder {
                 if (availableExtNames.containsAllIterable(extensions)) {
                     // Enable extensions
                     PointerBuffer extBuf = stack.mallocPointer(extensions.size());
-                    extensions.forEach((x) -> extBuf.put(stack.UTF8(x)));
-                    instanceCreateInfo.ppEnabledExtensionNames(extBuf);
+                    extensions.forEach((extName) -> extBuf.put(stack.UTF8(extName)));
+                    instanceCreateInfo.ppEnabledExtensionNames(extBuf.rewind());
                 } else {
                     throw new NotSupportedException("The following extensions were requested during instance creation but are not supported: "
                             + extensions.difference(availableExtNames).makeString());
@@ -115,6 +116,7 @@ public class InstanceBuilder {
                 appInfo.free();
             }
 
+            Logger.log(LogLevel.TRACE, "VkBuilder", "Created instance " + instancePtr.get(0));
             return new VkInstance(instancePtr.get(0), instanceCreateInfo);
         }
     }

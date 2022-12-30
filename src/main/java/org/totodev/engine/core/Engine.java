@@ -8,7 +8,7 @@ import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
 import org.totodev.engine.rendering.VkBuilder;
 import org.totodev.engine.rendering.vulkan.VkCommandBufferHelper;
-import org.totodev.engine.util.logging.Logger;
+import org.totodev.engine.util.logging.*;
 import org.totodev.engine.vulkan.*;
 
 import java.util.concurrent.*;
@@ -44,7 +44,6 @@ public class Engine {
     //endregion
 
     //region Threading
-    private static final Thread mainThread = Thread.currentThread();
     private static final BlockingDeque<Runnable> mainThreadQueue = new LinkedBlockingDeque<>();
 
     private static final ThreadPoolExecutor workers = (ThreadPoolExecutor) Executors.newFixedThreadPool(4);
@@ -64,6 +63,8 @@ public class Engine {
 
         initGlfw();
         initVulkan();
+
+        Logger.log(LogLevel.DEBUG, "Engine", "Initialized");
     }
 
     private static void initGlfw() {
@@ -93,8 +94,6 @@ public class Engine {
             .build();
 
         vkDebugManager = VkBuilder.debugUtilsMessenger()
-            .severities(VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
-            .types(VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT)
             .callback(Logger::vkLoggingCallback)
             .build();
 
@@ -137,6 +136,8 @@ public class Engine {
         mainWindow = new Window(appName, windowWidth, windowHeight, false);
         glfwSetWindowCloseCallback(mainWindow.getId(), windowId -> terminate());
 
+        Logger.log(LogLevel.INFO, "Engine", "Started");
+
         while (true) {
             try {
                 mainThreadQueue.take().run();
@@ -147,8 +148,11 @@ public class Engine {
     }
 
     public static void terminate() {
-        mainThread.interrupt();
-        cleanup();
+        executeOnMainThread(() -> {
+            cleanup();
+            Thread.currentThread().interrupt();
+            Logger.log(LogLevel.INFO, "Engine", "Terminated");
+        });
     }
 
     /**

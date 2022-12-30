@@ -2,6 +2,7 @@ package org.totodev.engine.vulkan;
 
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
+import org.totodev.engine.util.logging.*;
 
 import java.nio.LongBuffer;
 
@@ -51,9 +52,12 @@ public class DebugUtilsMessengerBuilder {
             debugCreateInfo.pfnUserCallback(callback);
 
             LongBuffer pDebugMessenger = stack.longs(VK_NULL_HANDLE);
-            if (vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT") == NULL || vkCreateDebugUtilsMessengerEXT(instance, debugCreateInfo, null, pDebugMessenger) != VK_SUCCESS)
-                throw new RuntimeException("Failed to create debug messenger");
+            if (vkGetInstanceProcAddr(instance, "vkCreateDebugUtilsMessengerEXT") != NULL)
+                if (vkCreateDebugUtilsMessengerEXT(instance, debugCreateInfo, null, pDebugMessenger) != VK_SUCCESS)
+                    throw new RuntimeException("Failed to create debug messenger");
+            else throw new RuntimeException("vkCreateDebugUtilsMessengerEXT not available");
 
+            Logger.log(LogLevel.TRACE, "VkBuilder", "Created debug messenger " + pDebugMessenger.get(0));
             return pDebugMessenger.get(0);
         }
     }

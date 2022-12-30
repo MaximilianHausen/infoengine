@@ -6,6 +6,7 @@ import org.jetbrains.annotations.Nullable;
 import org.lwjgl.PointerBuffer;
 import org.lwjgl.system.MemoryStack;
 import org.lwjgl.vulkan.*;
+import org.totodev.engine.util.logging.*;
 
 import java.nio.IntBuffer;
 import java.util.function.Predicate;
@@ -65,6 +66,7 @@ public class PhysicalDevicePicker {
                 //VkSwapchainHelper.SwapchainSupportDetails swapChainSupport = VkSwapchainHelper.querySwapChainSupport(device, surface);
                 //if (!swapChainSupport.formats().hasRemaining() || swapChainSupport.presentModes().hasRemaining()) continue;
 
+                Logger.log(LogLevel.TRACE, "VkBuilder", "Picked physical device " + device.address());
                 return device;
             }
 
