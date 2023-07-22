@@ -5,14 +5,14 @@ jobs:
   publish:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
-      - uses: gradle/wrapper-validation-action@v1
-      - uses: actions/setup-java@v3
+      - uses: actions/checkout@v3.5.3
+      - uses: gradle/wrapper-validation-action@v1.1.0
+      - uses: actions/setup-java@v3.11.0
         with:
           java-version: 17
           distribution: zulu
       - run: chmod +x ./gradlew
-      - uses: gradle/gradle-build-action@v2
+      - uses: gradle/gradle-build-action@v2.6.1
         env:
           MAVEN_USERNAME: ${{ secrets.MAVEN_USERNAME }}
           MAVEN_PASSWORD: ${{ secrets.MAVEN_PASSWORD }}
